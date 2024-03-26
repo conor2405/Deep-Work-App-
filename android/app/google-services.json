@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "239704337423",
+    "project_id": "deep-work-9cfdd",
+    "storage_bucket": "deep-work-9cfdd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:239704337423:android:98b2ee5a15c9958d4d077a",
+        "android_client_info": {
+          "package_name": "com.example.deep_work"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQ2GVNR9r8lHJSskDfVZf51JQG9am1yps"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
