@@ -12,7 +12,12 @@
           "package_name": "com.example.deep_work"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "239704337423-qbotpi40bcuccnsuke7vmotdlr6tun9e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBQ2GVNR9r8lHJSskDfVZf51JQG9am1yps"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "239704337423-qbotpi40bcuccnsuke7vmotdlr6tun9e.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "239704337423-6ahkhkpen1bt30migrilqfelhnlemckm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.deepWork.RunnerTests"
+              }
+            }
+          ]
         }
       }
     }

@@ -67,6 +67,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '239704337423',
     projectId: 'deep-work-9cfdd',
     storageBucket: 'deep-work-9cfdd.appspot.com',
+    iosClientId: '239704337423-fqramvi6jf25o1sk70b1ldb9ok116u1b.apps.googleusercontent.com',
     iosBundleId: 'com.example.deepWork',
   );
 
@@ -76,6 +77,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '239704337423',
     projectId: 'deep-work-9cfdd',
     storageBucket: 'deep-work-9cfdd.appspot.com',
+    iosClientId: '239704337423-6ahkhkpen1bt30migrilqfelhnlemckm.apps.googleusercontent.com',
     iosBundleId: 'com.example.deepWork.RunnerTests',
   );
 }
