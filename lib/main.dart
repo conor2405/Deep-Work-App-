@@ -13,11 +13,15 @@ import 'utility/constants/firebase_options.dart';
 
 import 'package:firebase_ui_auth/firebase_ui_auth.dart' as ui;
 
+// firebase analytics
+import 'package:firebase_analytics/firebase_analytics.dart';
+
 void main() async {
   await WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   print(Firebase.app().name);
   // FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
   // FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);

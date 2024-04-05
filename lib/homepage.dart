@@ -1,4 +1,5 @@
 import 'package:deep_work/widgets/central_timer.dart';
+import 'package:deep_work/widgets/todo_list.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -30,7 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: BoxDecoration(
                         border: Border.all(color: Colors.black, width: 2),
                         color: Colors.blueGrey),
-                    child: Center(child: Text('Focus on the Wildly Improtant')),
+                    child: TodoList(),
                   ),
                 ),
                 // center left

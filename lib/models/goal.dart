@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Goal {
-  String id;
+  int id;
   String name;
   DateTime? dueDate;
   String uid;
@@ -41,7 +41,7 @@ class Goal {
 }
 
 class Task {
-  String id;
+  int id;
   String name;
   DateTime? dueDate;
   String uid;

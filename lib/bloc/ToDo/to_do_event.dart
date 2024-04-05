@@ -6,3 +6,7 @@ sealed class ToDoEvent extends Equatable {
   @override
   List<Object> get props => [];
 }
+
+final class ToDoInit extends ToDoEvent {
+  ToDoInit();
+}
