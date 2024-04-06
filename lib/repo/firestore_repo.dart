@@ -6,7 +6,7 @@ class FirestoreRepo {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   FirestoreRepo();
 
-  void postSession(TimerResult timerResult) {
+  void postSession(TimerStats timerResult) {
     _firestore.collection('sessions').add(timerResult.toJson());
   }
   // Add your repository methods here

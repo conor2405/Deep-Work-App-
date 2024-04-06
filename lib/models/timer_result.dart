@@ -1,11 +1,11 @@
-class TimerResult {
+class TimerStats {
   // all times and durations are in seconds
   int duration = 0;
   final int targetTime;
   bool completed = false;
   final DateTime startTime;
 
-  TimerResult({
+  TimerStats({
     required this.targetTime,
     required this.startTime,
     this.completed = false,
@@ -20,8 +20,8 @@ class TimerResult {
 
   int get remainingTime => targetTime - duration;
 
-  factory TimerResult.fromMap(Map<String, dynamic> map) {
-    return TimerResult(
+  factory TimerStats.fromMap(Map<String, dynamic> map) {
+    return TimerStats(
       targetTime: map['targetTime'],
       completed: map['completed'],
       startTime: map['startTime'],

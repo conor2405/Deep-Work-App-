@@ -17,12 +17,15 @@ import 'package:firebase_ui_auth/firebase_ui_auth.dart' as ui;
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 void main() async {
+  /// Ensures that the Flutter widgets are initialized for the current application.
+  /// This method should be called before using any Flutter widgets.
+  /// It initializes the necessary bindings and prepares the application for widget rendering.
   await WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-  print(Firebase.app().name);
+
   // FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
   // FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
 
@@ -90,9 +93,8 @@ class MyApp extends StatelessWidget {
                 },
               },
               initialRoute:
-                  BlocProvider.of<AuthBloc>(context).state is Authenticated
-                      ? '/'
-                      : '/sign-in',
+                  // BlocProvider.of<AuthBloc>(context).state is Authenticated  // uncomment this line to enable sign in
+                  true ? '/' : '/sign-in',
               theme: ThemeData(
                 colorScheme: ColorScheme.fromSeed(
                     seedColor: Color.fromARGB(255, 0, 6, 11)),

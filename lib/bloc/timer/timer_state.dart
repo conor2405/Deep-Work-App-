@@ -8,19 +8,22 @@ sealed class TimerState extends Equatable {
 }
 
 final class TimerInitial extends TimerState {
-  const TimerInitial();
+  TimerInitial(this.time);
+
+  final TimeModel time; // 90 minutes
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [time.seconds, time];
 }
 
 final class TimerRunning extends TimerState {
-  final int duration;
+  final TimeModel timeModel;
 
-  TimerRunning(this.duration);
+  TimerRunning(this.timeModel);
 
   @override
-  List<Object> get props => [duration];
+  List<Object> get props =>
+      [timeModel, timeModel.seconds, identityHashCode(this)];
 }
 
 final class TimerDone extends TimerState {

@@ -7,6 +7,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 part 'to_do_event.dart';
 part 'to_do_state.dart';
 
+/// Manages the state of the ToDo feature.
+///
+/// This BLoC handles events related to initializing the ToDo feature and
+/// States:
+/// [ToDoInitial], -- initial state  used to show a loading spinner
+/// [ToDoLoaded] -- state that holds the list of [Goal] and [Task] objects
+/// Events:
+/// [ToDoInit] -- called on initialization of the ToDo feature
+///
+///
+///
+///
 class ToDoBloc extends Bloc<ToDoEvent, ToDoState> {
   ToDoBloc(FirestoreRepo firestoreRepo) : super(ToDoInitial()) {
     on<ToDoInit>((event, emit) async {
