@@ -17,13 +17,12 @@ final class TimerInitial extends TimerState {
 }
 
 final class TimerRunning extends TimerState {
-  final TimeModel timeModel;
+  final TimerStats timeModel;
 
   TimerRunning(this.timeModel);
 
   @override
-  List<Object> get props =>
-      [timeModel, timeModel.seconds, identityHashCode(this)];
+  List<Object> get props => [timeModel, identityHashCode(this)];
 }
 
 final class TimerDone extends TimerState {

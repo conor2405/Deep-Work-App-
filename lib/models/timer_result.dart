@@ -1,39 +1,39 @@
+import 'package:deep_work/models/time.dart';
+
 class TimerStats {
   // all times and durations are in seconds
-  int duration = 0;
-  final int targetTime;
+  late TimeModel timeLeft;
+  final TimeModel targetTime;
   bool completed = false;
-  final DateTime startTime;
+  final DateTime startTime = DateTime.now();
 
   TimerStats({
     required this.targetTime,
-    required this.startTime,
-    this.completed = false,
-  });
-
-  set setDuration(int duration) {
-    this.duration = duration;
-    if (duration >= targetTime) {
-      completed = true;
-    }
+  }) {
+    timeLeft = targetTime;
   }
 
-  int get remainingTime => targetTime - duration;
+  Duration get timeElapsed => DateTime.now().difference(startTime);
 
-  factory TimerStats.fromMap(Map<String, dynamic> map) {
-    return TimerStats(
-      targetTime: map['targetTime'],
-      completed: map['completed'],
-      startTime: map['startTime'],
-    );
+  int get timeRun => timeElapsed.inSeconds;
+
+  int get timePaused => timeElapsed.inSeconds - timeRun;
+
+  void tick() {
+    timeLeft = TimeModel(timeLeft.seconds - 1);
   }
 
   Map<String, dynamic> toJson() {
+    final DateTime timeFinished = DateTime.now();
     return {
-      'duration': duration,
-      'targetTime': targetTime,
+      'timeLeft': timeLeft.seconds,
+      'targetTime': targetTime.seconds,
       'completed': completed,
+      'timeRun': timeRun,
+      'timePaused': timePaused,
+      'timeElapsed': timeElapsed.inSeconds,
       'startTime': startTime,
+      'timeFinished': timeFinished,
     };
   }
 }

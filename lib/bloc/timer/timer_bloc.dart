@@ -12,21 +12,25 @@ part 'timer_state.dart';
 
 class TimerBloc extends Bloc<TimerEvent, TimerState> {
   late TimerStats timerResult;
-  Timer? timer;
+  Timer? _timer;
 
-  void startTimer(int duration) async {
-    int counter = duration;
-    timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      time.seconds = counter;
-      TimerRunning(time);
-      counter--;
-      this.add(Tick(counter));
-      print(counter);
-      if (counter < 0) {
+  void _startTimer() async {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      timerResult.tick();
+
+      // ignore: invalid_use_of_visible_for_testing_member
+      emit(TimerRunning(timerResult));
+
+      if (timerResult.timeLeft.seconds < 0) {
         timer.cancel();
-        this.add(TimerEnd());
+        add(TimerEnd());
       }
     });
+  }
+
+  void _stopTimer() {
+    _timer?.cancel();
+    _timer = null;
   }
 
   TimeModel time = TimeModel(90 * 60); // 90 minutes
@@ -34,40 +38,52 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
   TimerBloc(FirestoreRepo firestoreRepo)
       : super(TimerInitial(TimeModel(90 * 60))) {
     on<TimerStart>((event, emit) async {
-      TimerRunning(time);
-      timerResult =
-          TimerStats(targetTime: time.minutes, startTime: DateTime.now());
-      timerResult.duration = time.minutes;
+      timerResult = TimerStats(targetTime: time);
+      emit(TimerRunning(timerResult));
 
-      startTimer(time.minutes * 60);
+      _startTimer();
     });
 
     on<TimerEnd>((event, emit) async {
+      _stopTimer();
       firestoreRepo.postSession(timerResult);
       emit(TimerDone(true));
     });
 
+    // on<TimerStop>((event, emit) async {
+    //   _stopTimer();
+    //   firestoreRepo.postSession(timerResult);
+    //   emit(TimerDone(false));
+    // });
+
     on<TimerReset>((event, emit) async {
+      _stopTimer();
       time.setMinutes = 90;
       print(time.seconds); // increment index to trigger a rebuild
       emit(TimerInitial(TimeModel(90 * 60)));
     });
     // keeps track of time on widget, is called by the onend callback in the [SleekCircularSlider]
     on<TimeUpdate>((event, emit) async {
-      print(event.time.seconds);
       time.seconds = event.time.seconds;
       emit(TimerInitial(time));
     });
-    on<Tick>((event, emit) async {
-      emit(TimerRunning(TimeModel(event.counter)));
+
+    on<TimerPause>((event, emit) async {
+      _stopTimer();
+      emit(TimerRunning(timerResult));
+    });
+    on<TimerResume>((event, emit) async {
+      if (_timer == null) {
+        _startTimer();
+      }
     });
 
     @override
-    Future<void> close() {
-      if (timer != null) {
-        timer?.cancel();
+    close() {
+      if (_timer != null) {
+        _timer?.cancel();
       }
-      return super.close();
+      super.close();
     }
   }
 }

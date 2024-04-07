@@ -65,8 +65,6 @@ class _CentralTimerState extends State<CentralTimer> {
                           max: 180,
                           initialValue:
                               state.time.getTrimmedTimeMinutes.toDouble(),
-
-                          //value: state.time.getTrimmedTimeMinutes,
                           onChange: (double value) {
                             // callback providing a value while its being changed (with a pan gesture)
                             final TimeModel time =
@@ -96,58 +94,25 @@ class _CentralTimerState extends State<CentralTimer> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Center(
-                                  child: EditableText(
-                                    cursorColor: Colors.black,
-                                    controller: TextEditingController(
-                                        text: state.time.minutes.toString()),
-                                    focusNode: FocusNode(),
-                                    backgroundCursorColor: Colors.black,
+                                  child: Text(
+                                    state.time.timeString,
                                     style: TextStyle(
-                                        fontSize: 30, color: Colors.black),
-                                    textAlign: TextAlign.center,
-                                    onChanged: (value) {
-                                      if (value.isEmpty) {
-                                        value = '0';
-                                      }
-                                      TimeModel time =
-                                          TimeModel(int.parse(value) * 60);
-                                      BlocProvider.of<TimerBloc>(context)
-                                          .add(TimeUpdate(time));
-                                    },
-                                    onSubmitted: (value) {
-                                      if (value.isEmpty) {
-                                        value = '0';
-                                      }
-                                      print('submitted');
-                                      TimeModel time =
-                                          TimeModel(int.parse(value) * 60);
-                                      BlocProvider.of<TimerBloc>(context)
-                                          .add(TimeUpdate(time));
-                                    },
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly,
-                                      LengthLimitingTextInputFormatter(3)
-                                    ],
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w700),
                                   ),
                                 ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     IconButton(
-                                        onPressed: () {
-                                          BlocProvider.of<TimerBloc>(context)
-                                              .add(TimerReset());
-                                        },
-                                        icon: Icon(Icons.replay)),
-                                    IconButton(
-                                        onPressed: () {},
-                                        icon: Icon(Icons.pause)),
-                                    IconButton(
                                       onPressed: () {
                                         BlocProvider.of<TimerBloc>(context)
                                             .add(TimerStart());
                                       },
-                                      icon: Icon(Icons.play_arrow),
+                                      icon: Icon(
+                                        Icons.play_arrow,
+                                        size: 50,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -189,11 +154,46 @@ class _CentralTimerState extends State<CentralTimer> {
                   animDurationMultiplier: 0.5,
                 ),
                 min: 0,
-                max: state.timeModel.seconds.toDouble(),
-                initialValue: state.timeModel.seconds.toDouble(),
+                max: state.timeModel.targetTime.seconds.toDouble(),
+                initialValue: state.timeModel.timeLeft.seconds.toDouble(),
+                innerWidget: (double percentage) {
+                  int _percentage_int = percentage.toInt();
+                  int hours = (_percentage_int / 60).floor();
+                  int minutes = (_percentage_int % 60);
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(state.timeModel.timeLeft.timeString),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  BlocProvider.of<TimerBloc>(context)
+                                      .add(TimerStop());
+                                },
+                                icon: Icon(Icons.stop)),
+                            IconButton(
+                                onPressed: () {
+                                  BlocProvider.of<TimerBloc>(context)
+                                      .add(TimerPause());
+                                },
+                                icon: Icon(Icons.pause)),
+                            IconButton(
+                              onPressed: () {
+                                BlocProvider.of<TimerBloc>(context)
+                                    .add(TimerResume());
+                              },
+                              icon: Icon(Icons.play_arrow),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
               );
-
-              Text(state.timeModel.timeString);
             } else {
               return Center(child: Text('error loading timer'));
             }
