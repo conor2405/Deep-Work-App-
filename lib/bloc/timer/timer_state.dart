@@ -26,6 +26,9 @@ final class TimerRunning extends TimerState {
 }
 
 final class TimerDone extends TimerState {
+  // leaving this here for future use to
+  // show a completion screen
+
   TimerDone(this.completed);
   bool completed;
 

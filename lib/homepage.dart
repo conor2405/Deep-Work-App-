@@ -1,5 +1,7 @@
 import 'package:deep_work/widgets/central_timer.dart';
+import 'package:deep_work/widgets/monthly_scoreboard.dart';
 import 'package:deep_work/widgets/todo_list.dart';
+import 'package:deep_work/widgets/weekly_scoreboard.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -82,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: BoxDecoration(
                         border: Border.all(color: Colors.black, width: 2),
                         color: Colors.blueGrey),
-                    child: Center(child: Text('Bottom Center')),
+                    child: WeeklyScoreboard(),
                   ),
                 ),
               ],
@@ -107,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: BoxDecoration(
                         border: Border.all(color: Colors.black, width: 2),
                         color: Colors.blueGrey),
-                    child: Center(child: Text('Center Right')),
+                    child: Center(child: Text('centre Right')),
                   ),
                 ),
                 // bottom right
@@ -116,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: BoxDecoration(
                         border: Border.all(color: Colors.black, width: 2),
                         color: Colors.blueGrey),
-                    child: Center(child: Text('Bottom Right')),
+                    child: MonthlyScoreboardWidget(),
                   ),
                 ),
               ],

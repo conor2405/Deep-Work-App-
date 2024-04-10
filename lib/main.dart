@@ -4,6 +4,7 @@ import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:deep_work/homepage.dart';
 import 'package:deep_work/repo/firebase_auth_repo.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
+import 'package:deep_work/reponsive_layout.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -58,8 +59,9 @@ class MyApp extends StatelessWidget {
                   ..add(AuthInit()),
           ),
           BlocProvider(
-            create: (context) =>
-                LeaderboardBloc(), // placeholder for now does nothing;
+            create: (context) => LeaderboardBloc(
+                firestoreRepo: RepositoryProvider.of<FirestoreRepo>(context))
+              ..add(LeaderboardInit()), // placeholder for now does nothing;
           ),
         ],
         child: BlocBuilder<AuthBloc, AuthState>(
@@ -67,7 +69,9 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
               title: 'Deep Work',
               routes: {
-                '/': (context) => const MyHomePage(title: 'Deep Work'),
+                '/': (context) => ResponsiveLayout(
+                    mobileLayout: Text('This is the mobile Layout'),
+                    desktopLayout: MyHomePage(title: 'Deep Work')),
                 '/sign-in': (context) {
                   return ui.SignInScreen(
                     providers: [ui.EmailAuthProvider()],

@@ -9,5 +9,14 @@ class FirestoreRepo {
   void postSession(TimerStats timerResult) {
     _firestore.collection('sessions').add(timerResult.toJson());
   }
-  // Add your repository methods here
+
+// gets session details
+  Future<List<TimerResult>> getSessions() async {
+    final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await _firestore.collection('sessions').get();
+    return querySnapshot.docs
+        .map((QueryDocumentSnapshot<Map<String, dynamic>> doc) =>
+            TimerResult.fromJson(doc.data()))
+        .toList();
+  }
 }

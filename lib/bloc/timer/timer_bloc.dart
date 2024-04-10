@@ -22,6 +22,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       emit(TimerRunning(timerResult));
 
       if (timerResult.timeLeft.seconds < 0) {
+        timerResult.completed = true;
         timer.cancel();
         add(TimerEnd());
       }
@@ -47,14 +48,9 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
     on<TimerEnd>((event, emit) async {
       _stopTimer();
       firestoreRepo.postSession(timerResult);
-      emit(TimerDone(true));
+      time = TimeModel(90 * 60);
+      emit(TimerInitial(time));
     });
-
-    // on<TimerStop>((event, emit) async {
-    //   _stopTimer();
-    //   firestoreRepo.postSession(timerResult);
-    //   emit(TimerDone(false));
-    // });
 
     on<TimerReset>((event, emit) async {
       _stopTimer();
@@ -69,7 +65,13 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
     });
 
     on<TimerPause>((event, emit) async {
+      // check its not already paused
+      if (_timer != null) {
+        timerResult.pause();
+      }
+
       _stopTimer();
+
       emit(TimerRunning(timerResult));
     });
     on<TimerResume>((event, emit) async {
