@@ -1,7 +1,7 @@
 import 'package:deep_work/bloc/ToDo/to_do_bloc.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
 import 'package:flutter/material.dart';
-import 'package:deep_work/models/goal.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TodoList extends StatelessWidget {
@@ -23,7 +23,9 @@ class TodoList extends StatelessWidget {
               itemBuilder: (context, index) {
                 return ExpansionTile(
                   initiallyExpanded: false,
-                  title: Text(state.goals[index].name),
+                  title: Text(
+                    state.goals[index].name,
+                  ),
                   children: [
                     SizedBox(
                       height: 150,
@@ -39,7 +41,8 @@ class TodoList extends StatelessWidget {
                           itemBuilder: (context, taskIndex) {
                             return ListTile(
                               title: Text(
-                                  state.goals[index].tasks[taskIndex].name),
+                                state.goals[index].tasks[taskIndex].name,
+                              ),
                             );
                           },
                         ),

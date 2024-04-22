@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:deep_work/bloc/timer/timer_bloc.dart';
 import 'package:deep_work/models/monthly_leaderboard.dart';
 import 'package:deep_work/models/time.dart';
 import 'package:deep_work/models/timer_result.dart';
@@ -38,16 +39,20 @@ void main() {
     MockFirestoreRepo firestoreRepo = MockFirestoreRepo();
     setUp(() {
       firestoreRepo = MockFirestoreRepo();
+      TimerBloc timerBloc = TimerBloc(firestoreRepo);
     });
     blocTest('Emits [LeaderboardLoading] when built the loaded ',
-        build: () => LeaderboardBloc(firestoreRepo: firestoreRepo),
+        build: () => LeaderboardBloc(
+            firestoreRepo: firestoreRepo, timerBloc: TimerBloc(firestoreRepo)),
         act: (bloc) => bloc.add(LeaderboardInit()),
         //wait: const Duration(seconds: 4),
         expect: () => [isA<LeaderboardLoading>(), isA<LeaderboardLoaded>()]);
   });
 
   blocTest('emits correct weekly and monthly values',
-      build: () => LeaderboardBloc(firestoreRepo: MockFirestoreRepo()),
+      build: () => LeaderboardBloc(
+          firestoreRepo: MockFirestoreRepo(),
+          timerBloc: TimerBloc(MockFirestoreRepo())),
       act: (bloc) {
         bloc.add(LeaderboardInit());
       },

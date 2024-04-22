@@ -77,6 +77,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
     on<TimerResume>((event, emit) async {
       if (_timer == null) {
         _startTimer();
+        timerResult.resume();
       }
     });
 

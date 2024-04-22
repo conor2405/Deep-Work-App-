@@ -1,6 +1,6 @@
 import 'package:deep_work/models/time.dart';
 
-/// TimerStats is a class that holds the state of the timer.
+/// TimerStats is a class that holds the state of the timer. when the timer is running.
 class TimerStats {
   // all times and durations are in seconds
   late TimeModel timeLeft;
@@ -8,6 +8,8 @@ class TimerStats {
   bool completed = false;
   final DateTime startTime = DateTime.now();
   int pauses = 0;
+  List<Pause> pauseEvents = [];
+  String? uid;
 
   TimerStats({
     required this.targetTime,
@@ -17,6 +19,11 @@ class TimerStats {
 
   void pause() {
     pauses++;
+    pauseEvents.add(Pause(startTime: DateTime.now()));
+  }
+
+  void resume() {
+    pauseEvents.last.endTime = DateTime.now();
   }
 
   Duration get timeElapsed => DateTime.now().difference(startTime);
@@ -25,6 +32,8 @@ class TimerStats {
 
   int get timePaused => timeElapsed.inSeconds - timeRun;
 
+  set setUID(String uid) => this.uid = uid;
+
   void tick() {
     timeLeft = TimeModel(timeLeft.seconds - 1);
   }
@@ -32,6 +41,7 @@ class TimerStats {
   Map<String, dynamic> toJson() {
     final DateTime timeFinished = DateTime.now();
     return {
+      'uid': uid,
       'timeLeft': timeLeft.seconds,
       'targetTime': targetTime.seconds,
       'completed': completed,
@@ -41,6 +51,7 @@ class TimerStats {
       'startTime': startTime,
       'timeFinished': timeFinished,
       'pauses': pauses,
+      'pauseEvents': pauseEvents.map((Pause pause) => pause.toJson()),
     };
   }
 
@@ -54,7 +65,7 @@ class TimerStats {
   }
 }
 
-/// TimerResult is a class that holds the result of the timer when retrieved from the database.
+///  holds the result of the timer when retrieved from the database.
 class TimerResult {
   final TimeModel timeLeft;
   final TimeModel targetTime;
@@ -64,6 +75,7 @@ class TimerResult {
   final int timeElapsed;
   final DateTime startTime;
   final DateTime timeFinished;
+  final List<Pause> pauseEvents = [];
 
   TimerResult({
     required this.timeLeft,
@@ -86,6 +98,34 @@ class TimerResult {
       timeElapsed: json['timeElapsed'],
       startTime: DateTime.parse(json['startTime'].toDate().toString()),
       timeFinished: DateTime.parse(json['timeFinished'].toDate().toString()),
+    );
+  }
+}
+
+/// holds the start and end time of a pause event.
+/// strored in timerstats and timerresult as a list of [Pause] events.
+class Pause {
+  final DateTime startTime;
+  DateTime? endTime;
+
+  Pause({
+    required this.startTime,
+    this.endTime,
+  });
+
+  get timePaused => endTime!.difference(startTime).inSeconds;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'startTime': startTime,
+      'endTime': endTime,
+    };
+  }
+
+  factory Pause.fromJson(Map<String, dynamic> json) {
+    return Pause(
+      startTime: DateTime.parse(json['startTime'].toDate().toString()),
+      endTime: DateTime.parse(json['endTime'].toDate().toString()),
     );
   }
 }

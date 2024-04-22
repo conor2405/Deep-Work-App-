@@ -1,15 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:deep_work/bloc/auth/auth_bloc.dart';
+import 'package:deep_work/bloc/goal/goal_bloc.dart';
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
+import 'package:deep_work/bloc/timer/timer_bloc.dart';
 import 'package:deep_work/homepage.dart';
 import 'package:deep_work/repo/firebase_auth_repo.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
 import 'package:deep_work/reponsive_layout.dart';
+import 'package:deep_work/widgets/charts_page.dart';
+import 'package:deep_work/widgets/profile.dart';
+import 'package:deep_work/widgets/settings_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'utility/constants/firebase_options.dart';
 
 import 'package:firebase_ui_auth/firebase_ui_auth.dart' as ui;
@@ -29,6 +38,14 @@ void main() async {
 
   // FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
   // FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+
+  // HydratedBloc storage instance
+
+  HydratedBloc.storage = await HydratedStorage.build(
+    storageDirectory: kIsWeb
+        ? HydratedStorage.webStorageDirectory
+        : await getTemporaryDirectory(),
+  );
 
   print(FirebaseAuth.instance);
   FirebaseFirestore.setLoggingEnabled(true);
@@ -59,19 +76,41 @@ class MyApp extends StatelessWidget {
                   ..add(AuthInit()),
           ),
           BlocProvider(
+              lazy: false,
+              create: (context) =>
+                  TimerBloc(RepositoryProvider.of<FirestoreRepo>(context))),
+          BlocProvider(
+            lazy: false,
             create: (context) => LeaderboardBloc(
+                timerBloc: BlocProvider.of<TimerBloc>(context),
                 firestoreRepo: RepositoryProvider.of<FirestoreRepo>(context))
               ..add(LeaderboardInit()), // placeholder for now does nothing;
           ),
+          BlocProvider(
+              lazy: false,
+              create: (context) =>
+                  GoalBloc(RepositoryProvider.of<FirestoreRepo>(context))
+                    ..add(GoalInit())),
         ],
         child: BlocBuilder<AuthBloc, AuthState>(
           builder: (context, state) {
             return MaterialApp(
               title: 'Deep Work',
+              theme: ThemeData(
+                useMaterial3: true,
+                colorScheme: ColorScheme.fromSeed(
+                    seedColor: Color.fromARGB(255, 0, 21, 255),
+                    brightness: Brightness.dark),
+                pageTransitionsTheme: const PageTransitionsTheme(builders: {
+                  TargetPlatform.android: ZoomPageTransitionsBuilder(),
+                  TargetPlatform.iOS: ZoomPageTransitionsBuilder(),
+                  TargetPlatform.macOS: FadeUpwardsPageTransitionsBuilder(),
+                  TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
+                }),
+              ),
               routes: {
                 '/': (context) => ResponsiveLayout(
-                    mobileLayout: Text('This is the mobile Layout'),
-                    desktopLayout: MyHomePage(title: 'Deep Work')),
+                    mobileLayout: MyHomePage(), desktopLayout: MyHomePage()),
                 '/sign-in': (context) {
                   return ui.SignInScreen(
                     providers: [ui.EmailAuthProvider()],
@@ -84,26 +123,14 @@ class MyApp extends StatelessWidget {
                     ],
                   );
                 },
-                '/profile': (context) {
-                  return ui.ProfileScreen(
-                    providers: [ui.EmailAuthProvider()],
-                    actions: [
-                      ui.SignedOutAction((context) {
-                        Navigator.pushReplacementNamed(context, '/sign-in');
-                        BlocProvider.of<AuthBloc>(context).add(SignedOut());
-                      }),
-                    ],
-                  );
-                },
+                '/profile': (context) => ProfileWidget(),
+                '/charts': (context) => ChartsPage(),
+                '/settings': (context) => SettingsPage(),
               },
-              initialRoute:
-                  // BlocProvider.of<AuthBloc>(context).state is Authenticated  // uncomment this line to enable sign in
-                  true ? '/' : '/sign-in',
-              theme: ThemeData(
-                colorScheme: ColorScheme.fromSeed(
-                    seedColor: Color.fromARGB(255, 0, 6, 11)),
-                useMaterial3: true,
-              ),
+              initialRoute: BlocProvider.of<AuthBloc>(context).state
+                      is Authenticated // uncomment this line to enable sign in
+                  ? '/'
+                  : '/sign-in',
             );
           },
         ),

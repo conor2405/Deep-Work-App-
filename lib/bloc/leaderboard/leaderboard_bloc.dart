@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
+import 'package:deep_work/bloc/timer/timer_bloc.dart';
+import 'package:deep_work/models/goal.dart';
 import 'package:deep_work/models/monthly_leaderboard.dart';
 import 'package:deep_work/models/timer_result.dart';
+import 'package:deep_work/models/todays_sessions.dart';
 import 'package:deep_work/models/weekly_leaderboard.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
 import 'package:equatable/equatable.dart';
@@ -13,21 +18,56 @@ part 'leaderboard_state.dart';
 
 /// Intermediates between the FirestoreRepo and the state.
 /// most the logic is in the FirestoreRepo and the data models.
+/// handles all results from the FirestoreRepo and converts them to the
+/// appropriate data models.
 class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   FirestoreRepo firestoreRepo;
 
-  LeaderboardBloc({required this.firestoreRepo}) : super(LeaderboardLoading()) {
+  // Stream listener to the state of the timer bloc
+  late StreamSubscription<TimerState> _timerBlocSubscription;
+  TimerBloc timerBloc;
+  int timerValue = 90 * 60; // default value
+
+  late WeeklyScoreboard weeklyScoreboard;
+  late WeeklyScoreboard LastWeekScoreboard;
+  late MonthlyScoreboard monthlyScoreboard;
+  late TodaysSessions todaysSessions;
+  List<Goal> goals = [];
+  List<TimeGoal> timeGoals = [];
+
+  void _listenToTimerBloc() {
+    _timerBlocSubscription = timerBloc.stream.listen((state) {
+      if (state is TimerInitial) {
+        timerValue = state.time.seconds;
+        emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
+            todaysSessions, timerValue, LastWeekScoreboard, goals));
+      }
+    });
+  }
+
+  LeaderboardBloc({required this.firestoreRepo, required this.timerBloc})
+      : super(LeaderboardLoading()) {
+    _listenToTimerBloc();
+
     on<LeaderboardInit>((event, emit) async {
       emit(LeaderboardLoading());
+
       List<TimerResult> sessions = await firestoreRepo.getSessions();
 
-      WeeklyScoreboard weeklyScoreboard =
-          WeeklyScoreboard.fromTimerResult(sessions);
+      weeklyScoreboard = WeeklyScoreboard.thisWeekFromTimerResult(sessions);
 
-      MonthlyScoreboard monthlyScoreboard =
-          MonthlyScoreboard.fromTimerResult(sessions);
+      monthlyScoreboard = MonthlyScoreboard.fromTimerResult(sessions);
 
-      emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard));
+      todaysSessions = TodaysSessions.fromTimerResult(sessions);
+
+      LastWeekScoreboard = WeeklyScoreboard.lastWeekFromTimerResult(sessions);
+
+      //goals = await firestoreRepo.getGoals();
+
+      // timeGoals = await firestoreRepo.getTimeGoals();
+
+      emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
+          todaysSessions, timerValue, LastWeekScoreboard, goals));
     });
   }
 }

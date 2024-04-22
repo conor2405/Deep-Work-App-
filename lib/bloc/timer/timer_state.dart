@@ -13,7 +13,7 @@ final class TimerInitial extends TimerState {
   final TimeModel time; // 90 minutes
 
   @override
-  List<Object> get props => [time.seconds, time];
+  List<Object> get props => [time.seconds, time, identityHashCode(this)];
 }
 
 final class TimerRunning extends TimerState {
