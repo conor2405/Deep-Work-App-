@@ -13,6 +13,12 @@ class FirestoreRepo {
 
   void postSession(TimerStats timerResult) {
     timerResult.setUID = uid!;
+    for (Pause pause in timerResult.pauseEvents) {
+      if (pause.endTime == null) {
+        pause.endTime = DateTime.now();
+      }
+    }
+
     _firestore.collection('sessions').add(timerResult.toJson());
   }
 

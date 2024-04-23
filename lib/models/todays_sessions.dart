@@ -3,6 +3,11 @@ import 'package:deep_work/models/timer_result.dart';
 class TodaysSessions {
   final List<TimerResult> sessions;
 
+  int get total => sessions.fold(
+      0,
+      (int previousValue, TimerResult element) =>
+          previousValue + element.timeRun);
+
   TodaysSessions({required this.sessions});
 
   factory TodaysSessions.fromTimerResult(List<TimerResult> timerResults) {

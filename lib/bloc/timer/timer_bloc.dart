@@ -47,6 +47,10 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
 
     on<TimerEnd>((event, emit) async {
       _stopTimer();
+      emit(TimerDone(timerResult));
+    });
+
+    on<TimerConfirm>((event, emit) async {
       firestoreRepo.postSession(timerResult);
       time = TimeModel(90 * 60);
       emit(TimerInitial(time));

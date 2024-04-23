@@ -28,6 +28,7 @@ class LeaderboardLoaded extends LeaderboardState {
   TodaysSessions todaysSessions;
   int timerValue;
   List<Goal> goals;
+  TimeGoalsAll timeGoals;
 
   LeaderboardLoaded(
       this.weeklyScoreboard,
@@ -35,7 +36,8 @@ class LeaderboardLoaded extends LeaderboardState {
       this.todaysSessions,
       this.timerValue,
       this.LastWeekScoreboard,
-      this.goals);
+      this.goals,
+      this.timeGoals);
 
   @override
   List<Object> get props => [

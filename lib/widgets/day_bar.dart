@@ -18,7 +18,7 @@ class _DayBarState extends State<DayBar> {
             padding: const EdgeInsets.all(8.0),
             child: LayoutBuilder(builder: (context, constraints) {
               return Container(
-                  height: 8,
+                  height: 12,
                   decoration: BoxDecoration(
                     color: Colors.grey,
                     borderRadius: BorderRadius.circular(10),
@@ -35,7 +35,7 @@ class _DayBarState extends State<DayBar> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: SizedBox(
-                height: 8,
+                height: 12,
               ),
             ),
           );
@@ -63,7 +63,7 @@ List<Widget> generateDaysBars(
       child: Container(
         width: widthofBar(
             timerResult.startTime, timerResult.timeFinished, constraints),
-        height: 8,
+        height: 12,
         decoration: BoxDecoration(
           color: Colors.green,
         ),
@@ -77,7 +77,7 @@ List<Widget> generateDaysBars(
     left: centerOfCurrentTimeBar(constraints),
     child: Container(
       width: widthOfCurrentTimeBar(state.timerValue, constraints),
-      height: 8,
+      height: 12,
       decoration: BoxDecoration(
         color: Colors.red,
       ),
@@ -123,7 +123,7 @@ Widget buildPauses(TimerResult timerResult, BoxConstraints constraints) {
       left: alignmentPosition(pause.startTime, constraints),
       child: Container(
         width: widthofBar(pause.startTime, pause.endTime!, constraints),
-        height: 8,
+        height: 12,
         decoration: BoxDecoration(
           color: Colors.orange,
           borderRadius: BorderRadius.circular(10),

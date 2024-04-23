@@ -39,3 +39,7 @@ final class TimerResume extends TimerEvent {
 final class TimerStop extends TimerEnd {
   TimerStop() : super();
 }
+
+final class TimerConfirm extends TimerEvent {
+  TimerConfirm();
+}

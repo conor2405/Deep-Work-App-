@@ -75,7 +75,8 @@ class TimerResult {
   final int timeElapsed;
   final DateTime startTime;
   final DateTime timeFinished;
-  final List<Pause> pauseEvents = [];
+  final List<Pause> pauseEvents;
+  final int pauses;
 
   TimerResult({
     required this.timeLeft,
@@ -86,9 +87,15 @@ class TimerResult {
     required this.timeElapsed,
     required this.startTime,
     required this.timeFinished,
+    required this.pauses,
+    required this.pauseEvents,
   });
 
   factory TimerResult.fromJson(Map<String, dynamic> json) {
+    List<Pause> pauseEvents = [];
+    for (Map<String, dynamic> pause in json['pauseEvents']) {
+      pauseEvents.add(Pause.fromJson(pause));
+    }
     return TimerResult(
       timeLeft: TimeModel(json['timeLeft']),
       targetTime: TimeModel(json['targetTime']),
@@ -98,6 +105,8 @@ class TimerResult {
       timeElapsed: json['timeElapsed'],
       startTime: DateTime.parse(json['startTime'].toDate().toString()),
       timeFinished: DateTime.parse(json['timeFinished'].toDate().toString()),
+      pauses: json['pauses'],
+      pauseEvents: pauseEvents,
     );
   }
 }
@@ -123,6 +132,11 @@ class Pause {
   }
 
   factory Pause.fromJson(Map<String, dynamic> json) {
+    if (json['endTime'] == null) {
+      return Pause(
+        startTime: DateTime.parse(json['startTime'].toDate().toString()),
+      );
+    }
     return Pause(
       startTime: DateTime.parse(json['startTime'].toDate().toString()),
       endTime: DateTime.parse(json['endTime'].toDate().toString()),

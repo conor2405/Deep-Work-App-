@@ -7,6 +7,8 @@ import 'package:deep_work/homepage.dart';
 import 'package:deep_work/repo/firebase_auth_repo.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
 import 'package:deep_work/reponsive_layout.dart';
+import 'package:deep_work/timer_done_page.dart';
+import 'package:deep_work/timer_page.dart';
 import 'package:deep_work/widgets/charts_page.dart';
 import 'package:deep_work/widgets/profile.dart';
 import 'package:deep_work/widgets/settings_page.dart';
@@ -126,6 +128,8 @@ class MyApp extends StatelessWidget {
                 '/profile': (context) => ProfileWidget(),
                 '/charts': (context) => ChartsPage(),
                 '/settings': (context) => SettingsPage(),
+                '/timer': (context) => TimerPage(),
+                '/timer/confirm': (context) => TimerDonePage(),
               },
               initialRoute: BlocProvider.of<AuthBloc>(context).state
                       is Authenticated // uncomment this line to enable sign in

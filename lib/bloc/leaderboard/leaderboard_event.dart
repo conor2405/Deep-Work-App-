@@ -4,3 +4,5 @@ part of 'leaderboard_bloc.dart';
 sealed class LeaderboardEvent {}
 
 class LeaderboardInit extends LeaderboardEvent {}
+
+class LeaderboardRefresh extends LeaderboardEvent {}

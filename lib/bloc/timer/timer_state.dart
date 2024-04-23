@@ -25,13 +25,8 @@ final class TimerRunning extends TimerState {
   List<Object> get props => [timeModel, identityHashCode(this)];
 }
 
-final class TimerDone extends TimerState {
+final class TimerDone extends TimerRunning {
   // leaving this here for future use to
   // show a completion screen
-
-  TimerDone(this.completed);
-  bool completed;
-
-  @override
-  List<Object> get props => [completed];
+  TimerDone(TimerStats timeModel) : super(timeModel);
 }

@@ -33,14 +33,14 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   late MonthlyScoreboard monthlyScoreboard;
   late TodaysSessions todaysSessions;
   List<Goal> goals = [];
-  List<TimeGoal> timeGoals = [];
+  late TimeGoalsAll timeGoals;
 
   void _listenToTimerBloc() {
     _timerBlocSubscription = timerBloc.stream.listen((state) {
       if (state is TimerInitial) {
         timerValue = state.time.seconds;
         emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
-            todaysSessions, timerValue, LastWeekScoreboard, goals));
+            todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
       }
     });
   }
@@ -53,6 +53,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       emit(LeaderboardLoading());
 
       List<TimerResult> sessions = await firestoreRepo.getSessions();
+      timeGoals = await firestoreRepo.getTimeGoals();
 
       weeklyScoreboard = WeeklyScoreboard.thisWeekFromTimerResult(sessions);
 
@@ -64,10 +65,26 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
 
       //goals = await firestoreRepo.getGoals();
 
-      // timeGoals = await firestoreRepo.getTimeGoals();
+      emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
+          todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
+    });
+
+    on<LeaderboardRefresh>((event, emit) async {
+      List<TimerResult> sessions = await firestoreRepo.getSessions();
+      timeGoals = await firestoreRepo.getTimeGoals();
+
+      weeklyScoreboard = WeeklyScoreboard.thisWeekFromTimerResult(sessions);
+
+      monthlyScoreboard = MonthlyScoreboard.fromTimerResult(sessions);
+
+      todaysSessions = TodaysSessions.fromTimerResult(sessions);
+
+      LastWeekScoreboard = WeeklyScoreboard.lastWeekFromTimerResult(sessions);
+
+      //goals = await firestoreRepo.getGoals();
 
       emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
-          todaysSessions, timerValue, LastWeekScoreboard, goals));
+          todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
     });
   }
 }
