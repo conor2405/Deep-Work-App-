@@ -22,6 +22,10 @@ class Sidebar extends StatelessWidget {
 
           SizedBox(height: 35),
           IconButton(
+              icon: Icon(Icons.public),
+              onPressed: () => Navigator.pushNamed(context, '/worldMapPage')),
+          SizedBox(height: 35),
+          IconButton(
               icon: Icon(Icons.person),
               onPressed: () => Navigator.pushNamed(context, '/profile')),
           SizedBox(height: 35),

@@ -13,6 +13,7 @@ import 'package:deep_work/widgets/charts_page.dart';
 import 'package:deep_work/widgets/profile.dart';
 import 'package:deep_work/widgets/settings_page.dart';
 import 'package:deep_work/widgets/timeGoalsPage.dart';
+import 'package:deep_work/widgets/world_map_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -133,6 +134,7 @@ class MyApp extends StatelessWidget {
                 '/timer/confirm': (context) => TimerDonePage(),
                 '/timeGoalsPageDaily': (context) =>
                     TimeGoalsPage(goalType: 'daily'),
+                '/worldMapPage': (context) => WorldMapPage(),
               },
               initialRoute: BlocProvider.of<AuthBloc>(context).state
                       is Authenticated // uncomment this line to enable sign in

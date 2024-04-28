@@ -53,6 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           height: 500,
                         ),
                       ),
+
                       DayBar(),
                       Container(
                         child: GraphicWeeklyChart(),

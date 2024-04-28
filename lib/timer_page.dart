@@ -1,5 +1,6 @@
 import 'package:deep_work/bloc/timer/timer_bloc.dart';
 import 'package:deep_work/widgets/central_timer.dart';
+import 'package:deep_work/widgets/world_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,7 +22,13 @@ class _TimerPageState extends State<TimerPage> {
         child: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          child: CentralTimer(),
+          child: Stack(alignment: Alignment.center, children: [
+            Opacity(opacity: 0.5, child: WorldMap()),
+            Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: CentralTimer())
+          ]),
         ),
       ),
     );
