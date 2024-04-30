@@ -42,6 +42,9 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       timerResult = TimerStats(targetTime: time);
       emit(TimerRunning(timerResult));
 
+      firestoreRepo.setLiveUser(
+          timerResult, 53.280687520332016, 6.326202939104593);
+
       _startTimer();
     });
 
@@ -72,6 +75,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       // check its not already paused
       if (_timer != null) {
         timerResult.pause();
+        firestoreRepo.unsetLiveUser();
       }
 
       _stopTimer();
@@ -82,6 +86,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       if (_timer == null) {
         _startTimer();
         timerResult.resume();
+        firestoreRepo.setLiveUserActive();
       }
     });
 
