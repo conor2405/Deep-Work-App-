@@ -50,6 +50,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
 
     on<TimerEnd>((event, emit) async {
       _stopTimer();
+      firestoreRepo.unsetLiveUser();
       emit(TimerDone(timerResult));
     });
 

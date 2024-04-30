@@ -10,6 +10,14 @@ class TimerPage extends StatefulWidget {
 }
 
 class _TimerPageState extends State<TimerPage> {
+  bool showMap = true;
+
+  void toggleMap() {
+    setState(() {
+      showMap = !showMap;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,11 +31,19 @@ class _TimerPageState extends State<TimerPage> {
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
           child: Stack(alignment: Alignment.center, children: [
-            Opacity(opacity: 0.5, child: WorldMap()),
+            Opacity(opacity: 0.5, child: showMap ? WorldMap() : null),
             Container(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
-                child: CentralTimer())
+                child: CentralTimer()),
+            Container(
+                padding: EdgeInsets.all(30),
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon:
+                      showMap ? Icon(Icons.remove_red_eye) : Icon(Icons.close),
+                  onPressed: () => toggleMap(),
+                )),
           ]),
         ),
       ),
