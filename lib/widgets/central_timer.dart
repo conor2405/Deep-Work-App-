@@ -191,6 +191,27 @@ class _CentralTimerState extends State<CentralTimer> {
                         ),
                       ],
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(50.0),
+                          child: IconButton(
+                            icon: Icon(Icons.remove),
+                            onPressed: () => BlocProvider.of<TimerBloc>(context)
+                                .add(TimerTakeFive()),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(50),
+                          child: IconButton(
+                            icon: Icon(Icons.add),
+                            onPressed: () => BlocProvider.of<TimerBloc>(context)
+                                .add(TimerAddFive()),
+                          ),
+                        ),
+                      ],
+                    )
                   ],
                 ),
               );

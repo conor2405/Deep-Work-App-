@@ -295,10 +295,7 @@ LineChartBarData thisWeekLineData(
     FlSpot(7, weeklyScoreboard.sundayCumulative),
   ];
 
-  return LineChartBarData(
-      isCurved: true,
-      color: Theme.of(context).colorScheme.primary,
-      spots: [
-        ...spots.sublist(0, weekDay),
-      ]);
+  return LineChartBarData(color: Theme.of(context).colorScheme.primary, spots: [
+    ...spots.sublist(0, weekDay),
+  ]);
 }

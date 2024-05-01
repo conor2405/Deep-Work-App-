@@ -5,8 +5,8 @@ sealed class GoalEvent {}
 
 class GoalInit extends GoalEvent {}
 
-class NewTimeGoal extends GoalEvent {
+class SetTimeGoal extends GoalEvent {
   final TimeGoal goal;
 
-  NewTimeGoal(this.goal);
+  SetTimeGoal(this.goal);
 }

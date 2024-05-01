@@ -18,8 +18,17 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       emit(GoalsLoaded(timeGoals));
     });
 
-    on<NewTimeGoal>((event, emit) async {
-      TimeGoalsAll timeGoals = await firestoreRepo.getTimeGoals();
+    on<SetTimeGoal>((event, emit) async {
+      if (event.goal.type == 'daily') {
+        timeGoals.daily = event.goal;
+      } else if (event.goal.type == 'weekly') {
+        timeGoals.weekly = event.goal;
+      } else if (event.goal.type == 'monthly') {
+        timeGoals.monthly = event.goal;
+      } else if (event.goal.type == 'yearly') {
+        timeGoals.yearly = event.goal;
+      }
+      firestoreRepo.setTimeGoal(timeGoals);
 
       emit(GoalsLoaded(timeGoals));
     });

@@ -1,3 +1,4 @@
+import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:deep_work/bloc/timer/timer_bloc.dart';
 import 'package:deep_work/widgets/central_timer.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +30,11 @@ class _TimerDonePageState extends State<TimerDonePage> {
                   child: Container(
                       height: 400, width: 400, child: CentralTimer())),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   BlocProvider.of<TimerBloc>(context).add(TimerConfirm());
+                  await Future.delayed(Duration(milliseconds: 300));
+                  BlocProvider.of<LeaderboardBloc>(context)
+                      .add(LeaderboardRefresh());
                 },
                 child: Text('Go back to Timer Page'),
               ),

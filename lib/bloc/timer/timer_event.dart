@@ -40,6 +40,14 @@ final class TimerStop extends TimerEnd {
   TimerStop() : super();
 }
 
+final class TimerAddFive extends TimerEvent {
+  TimerAddFive();
+}
+
+final class TimerTakeFive extends TimerEvent {
+  TimerTakeFive();
+}
+
 final class TimerConfirm extends TimerEvent {
   TimerConfirm();
 }

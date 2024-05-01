@@ -1,4 +1,6 @@
+import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:deep_work/bloc/timer/timer_bloc.dart';
+import 'package:deep_work/routes/timer_transition.dart';
 import 'package:deep_work/timer_page.dart';
 import 'package:deep_work/widgets/central_timer.dart';
 import 'package:deep_work/widgets/day_bar.dart';
@@ -26,7 +28,9 @@ class _MyHomePageState extends State<MyHomePage> {
       body: BlocListener<TimerBloc, TimerState>(
         listener: (context, state) {
           if (state is TimerRunning) {
-            Navigator.pushNamed(context, '/timer');
+            final page = TimerPage();
+            Navigator.of(context).push(CustomPageRoute(page));
+            // Navigator.pushNamed(context, '/timer');
           }
         },
         listenWhen: (previous, current) =>

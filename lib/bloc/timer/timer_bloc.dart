@@ -91,6 +91,18 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       }
     });
 
+    on<TimerAddFive>((event, emit) async {
+      timerResult.timeLeft.seconds = timerResult.timeLeft.seconds + 300;
+      timerResult.targetTime.seconds = timerResult.targetTime.seconds + 300;
+      emit(TimerRunning(timerResult));
+    });
+
+    on<TimerTakeFive>((event, emit) async {
+      timerResult.timeLeft.seconds = timerResult.timeLeft.seconds - 300;
+      timerResult.targetTime.seconds = timerResult.targetTime.seconds - 300;
+      emit(TimerRunning(timerResult));
+    });
+
     @override
     close() {
       if (_timer != null) {
