@@ -86,5 +86,12 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
           todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
     });
+
+    on<RefreshTimeGoals>((event, emit) async {
+      timeGoals = await firestoreRepo.getTimeGoals();
+
+      emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
+          todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
+    });
   }
 }

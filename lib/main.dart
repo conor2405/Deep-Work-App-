@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:deep_work/bloc/auth/auth_bloc.dart';
 import 'package:deep_work/bloc/goal/goal_bloc.dart';
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
+import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/bloc/timer/timer_bloc.dart';
 import 'package:deep_work/homepage.dart';
 import 'package:deep_work/repo/firebase_auth_repo.dart';
@@ -95,51 +96,62 @@ class MyApp extends StatelessWidget {
               create: (context) =>
                   GoalBloc(RepositoryProvider.of<FirestoreRepo>(context))
                     ..add(GoalInit())),
+          BlocProvider(lazy: false, create: (context) => SettingsBloc())
         ],
-        child: BlocBuilder<AuthBloc, AuthState>(
+        child: BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {
-            return MaterialApp(
-              title: 'Deep Work',
-              theme: ThemeData(
-                useMaterial3: true,
-                colorScheme: ColorScheme.fromSeed(
-                    seedColor: Color.fromARGB(255, 0, 21, 255),
-                    brightness: Brightness.dark),
-                pageTransitionsTheme: const PageTransitionsTheme(builders: {
-                  TargetPlatform.android: ZoomPageTransitionsBuilder(),
-                  TargetPlatform.iOS: ZoomPageTransitionsBuilder(),
-                  TargetPlatform.macOS: FadeUpwardsPageTransitionsBuilder(),
-                  TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
-                }),
-              ),
-              routes: {
-                '/': (context) => ResponsiveLayout(
-                    mobileLayout: MyHomePage(), desktopLayout: MyHomePage()),
-                '/sign-in': (context) {
-                  return ui.SignInScreen(
-                    providers: [ui.EmailAuthProvider()],
-                    actions: [
-                      ui.AuthStateChangeAction<ui.SignedIn>((context, state) {
-                        BlocProvider.of<AuthBloc>(context)
-                            .add(AuthInit()); // reload the app
-                        Navigator.pushReplacementNamed(context, '/');
-                      }),
-                    ],
-                  );
-                },
-                '/profile': (context) => ProfileWidget(),
-                '/charts': (context) => ChartsPage(),
-                '/settings': (context) => SettingsPage(),
-                '/timer': (context) => TimerPage(),
-                '/timer/confirm': (context) => TimerDonePage(),
-                '/timeGoalsPageDaily': (context) =>
-                    TimeGoalsPage(goalType: 'daily'),
-                '/worldMapPage': (context) => WorldMapPage(),
+            return BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                return MaterialApp(
+                  title: 'Deep Work',
+                  theme: ThemeData(
+                    useMaterial3: true,
+                    colorScheme: ColorScheme.fromSeed(
+                        seedColor: Color.fromARGB(255, 23, 156, 239),
+                        brightness:
+                            BlocProvider.of<SettingsBloc>(context).isDarkMode
+                                ? Brightness.dark
+                                : Brightness.light),
+                    pageTransitionsTheme: const PageTransitionsTheme(builders: {
+                      TargetPlatform.android: ZoomPageTransitionsBuilder(),
+                      TargetPlatform.iOS: ZoomPageTransitionsBuilder(),
+                      TargetPlatform.macOS: FadeUpwardsPageTransitionsBuilder(),
+                      TargetPlatform.windows:
+                          FadeUpwardsPageTransitionsBuilder(),
+                    }),
+                  ),
+                  routes: {
+                    '/': (context) => ResponsiveLayout(
+                        mobileLayout: MyHomePage(),
+                        desktopLayout: MyHomePage()),
+                    '/sign-in': (context) {
+                      return ui.SignInScreen(
+                        providers: [ui.EmailAuthProvider()],
+                        actions: [
+                          ui.AuthStateChangeAction<ui.SignedIn>(
+                              (context, state) {
+                            BlocProvider.of<AuthBloc>(context)
+                                .add(AuthInit()); // reload the app
+                            Navigator.pushReplacementNamed(context, '/');
+                          }),
+                        ],
+                      );
+                    },
+                    '/profile': (context) => ProfileWidget(),
+                    '/charts': (context) => ChartsPage(),
+                    '/settings': (context) => SettingsPage(),
+                    '/timer': (context) => TimerPage(),
+                    '/timer/confirm': (context) => TimerDonePage(),
+                    '/timeGoalsPageDaily': (context) =>
+                        TimeGoalsPage(goalType: 'daily'),
+                    '/worldMapPage': (context) => WorldMapPage(),
+                  },
+                  initialRoute: BlocProvider.of<AuthBloc>(context).state
+                          is Authenticated // uncomment this line to enable sign in
+                      ? '/'
+                      : '/sign-in',
+                );
               },
-              initialRoute: BlocProvider.of<AuthBloc>(context).state
-                      is Authenticated // uncomment this line to enable sign in
-                  ? '/'
-                  : '/sign-in',
             );
           },
         ),

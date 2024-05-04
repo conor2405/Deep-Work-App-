@@ -1,4 +1,6 @@
+import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Sidebar extends StatelessWidget {
   @override
@@ -6,7 +8,9 @@ class Sidebar extends StatelessWidget {
     return Container(
       width:
           61, // just the right width to fit the close, minimize and maximize buttons.
-      color: Colors.grey.shade800,
+      color: BlocProvider.of<SettingsBloc>(context).isDarkMode
+          ? Colors.grey.shade800
+          : Colors.grey.shade200,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

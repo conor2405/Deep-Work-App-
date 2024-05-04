@@ -25,6 +25,7 @@ class _TimeGoalsPageState extends State<TimeGoalsPage> {
       body: BlocBuilder<LeaderboardBloc, LeaderboardState>(
         builder: (context, state) {
           return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -63,20 +64,24 @@ class _TimeGoalsPageState extends State<TimeGoalsPage> {
               SizedBox(
                 height: 50,
               ),
-              ElevatedButton(
-                  onPressed: () {
-                    BlocProvider.of<GoalBloc>(context).add(SetTimeGoal(TimeGoal(
-                      goal: int.parse(selectedHour) * 60 +
-                          int.parse(selectedMinute),
-                      type: widget.goalType,
-                    )));
-                  },
-                  child: Text('Set Goal')),
               Container(
                   alignment: Alignment.center,
                   child: TimeGoalsWidget(
                     buttonEnabled: false,
                   )),
+              SizedBox(height: 75),
+              ElevatedButton(
+                  onPressed: () async {
+                    BlocProvider.of<GoalBloc>(context).add(SetTimeGoal(TimeGoal(
+                      goal: int.parse(selectedHour) * 60 +
+                          int.parse(selectedMinute),
+                      type: widget.goalType,
+                    )));
+                    await Future.delayed(Duration(milliseconds: 10));
+                    BlocProvider.of<LeaderboardBloc>(context)
+                        .add(RefreshTimeGoals());
+                  },
+                  child: Text('Set Goal')),
             ],
           );
         },

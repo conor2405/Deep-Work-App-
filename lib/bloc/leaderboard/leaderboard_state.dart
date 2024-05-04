@@ -47,5 +47,6 @@ class LeaderboardLoaded extends LeaderboardState {
         timerValue,
         LastWeekScoreboard,
         goals,
+        timeGoals,
       ];
 }

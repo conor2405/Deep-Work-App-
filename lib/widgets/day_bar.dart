@@ -1,4 +1,5 @@
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
+import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/models/timer_result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,11 +21,13 @@ class _DayBarState extends State<DayBar> {
               return Container(
                   height: 12,
                   decoration: BoxDecoration(
-                    color: Colors.grey,
+                    color: BlocProvider.of<SettingsBloc>(context).isDarkMode
+                        ? Colors.grey
+                        : Colors.grey[200],
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Stack(
-                    children: generateDaysBars(state, constraints),
+                    children: generateDaysBars(state, constraints, context),
                   )
                   // Widget content goes here
                   );
@@ -48,7 +51,7 @@ class _DayBarState extends State<DayBar> {
 }
 
 List<Widget> generateDaysBars(
-    LeaderboardLoaded state, BoxConstraints constraints) {
+    LeaderboardLoaded state, BoxConstraints constraints, BuildContext context) {
   // get the parent data widget width and divide by 86400
 
   List<Widget> daysBars = [];
@@ -65,7 +68,9 @@ List<Widget> generateDaysBars(
             timerResult.startTime, timerResult.timeFinished, constraints),
         height: 12,
         decoration: BoxDecoration(
-          color: Colors.green,
+          color: BlocProvider.of<SettingsBloc>(context).isDarkMode
+              ? Colors.green[800]
+              : Colors.green,
         ),
       ),
     ));
@@ -79,7 +84,9 @@ List<Widget> generateDaysBars(
       width: widthOfCurrentTimeBar(state.timerValue, constraints),
       height: 12,
       decoration: BoxDecoration(
-        color: Colors.red,
+        color: BlocProvider.of<SettingsBloc>(context).isDarkMode
+            ? Colors.red[800]
+            : Colors.red[400],
       ),
     ),
   ));

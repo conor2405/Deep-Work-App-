@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
+import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/models/weekly_leaderboard.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,12 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
     return Container(child: BlocBuilder<LeaderboardBloc, LeaderboardState>(
       builder: (context, state) {
         if (state is LeaderboardLoaded) {
+          TextStyle style = TextStyle(
+              color: BlocProvider.of<SettingsBloc>(context).isDarkMode
+                  ? Colors.white
+                  : Colors.black,
+              fontSize: 10);
+
           return Stack(children: [
             BarChart(BarChartData(
                 minY: 0,
@@ -31,8 +38,6 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                       sideTitles: SideTitles(
                           showTitles: true,
                           getTitlesWidget: (double value, TitleMeta meta) {
-                            const style =
-                                TextStyle(color: Colors.white, fontSize: 10);
                             String text;
                             switch (value.toInt()) {
                               case 0:
@@ -70,14 +75,10 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                   topTitles:
                       AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   leftTitles: AxisTitles(
-                      axisNameWidget: Text('Minutes',
-                          style: TextStyle(color: Colors.white, fontSize: 10)),
+                      axisNameWidget: Text('Minutes', style: style),
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: (double value, TitleMeta meta) {
-                          const style =
-                              TextStyle(color: Colors.white, fontSize: 10);
-
                           return Text((value.toInt()).toString());
                         },
                         interval: (max<double>(state.weeklyScoreboard.total,
@@ -226,6 +227,22 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
             Padding(
               padding: const EdgeInsets.fromLTRB(35, 0, 0, 30),
               child: LineChart(LineChartData(
+                lineTouchData: LineTouchData(
+                    enabled: true,
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipItems: (touchedSpots) {
+                        List<LineTooltipItem> items = [];
+                        items.add(LineTooltipItem(
+                            touchedSpots.first.y.toString(),
+                            TextStyle(color: Colors.white)));
+
+                        items.add(LineTooltipItem(
+                            touchedSpots.first.y.toString(),
+                            TextStyle(color: Colors.white.withOpacity(0))));
+
+                        return items;
+                      },
+                    )),
                 minY: 0,
                 maxY: (max<double>(state.weeklyScoreboard.total,
                             state.LastWeekScoreboard.total)
@@ -251,10 +268,8 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                           .colorScheme
                           .tertiary
                           .withOpacity(0.5),
-                      dashArray: [
-                        10,
-                        5
-                      ],
+                      dashArray: [10, 5],
+                      dotData: FlDotData(show: false),
                       spots: [
                         FlSpot(1, state.LastWeekScoreboard.mondayCumulative),
                         FlSpot(2, state.LastWeekScoreboard.tuesdayCumulative),
@@ -295,7 +310,10 @@ LineChartBarData thisWeekLineData(
     FlSpot(7, weeklyScoreboard.sundayCumulative),
   ];
 
-  return LineChartBarData(color: Theme.of(context).colorScheme.primary, spots: [
-    ...spots.sublist(0, weekDay),
-  ]);
+  return LineChartBarData(
+      color: Theme.of(context).colorScheme.primary,
+      dotData: FlDotData(show: false),
+      spots: [
+        ...spots.sublist(0, weekDay),
+      ]);
 }

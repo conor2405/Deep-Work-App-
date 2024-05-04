@@ -8,6 +8,8 @@ class TodaysSessions {
       (int previousValue, TimerResult element) =>
           previousValue + element.timeRun);
 
+  int get totalMinutes => total ~/ 60;
+
   TodaysSessions({required this.sessions});
 
   factory TodaysSessions.fromTimerResult(List<TimerResult> timerResults) {
