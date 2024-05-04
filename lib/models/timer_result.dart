@@ -10,6 +10,7 @@ class TimerStats {
   int pauses = 0;
   List<Pause> pauseEvents = [];
   String? uid;
+  int timeRun = 0;
 
   TimerStats({
     required this.targetTime,
@@ -28,14 +29,13 @@ class TimerStats {
 
   Duration get timeElapsed => DateTime.now().difference(startTime);
 
-  int get timeRun => targetTime.seconds - timeLeft.seconds;
-
   int get timePaused => timeElapsed.inSeconds - timeRun;
 
   set setUID(String uid) => this.uid = uid;
 
   void tick() {
     timeLeft = TimeModel(timeLeft.seconds - 1);
+    timeRun++;
   }
 
   Map<String, dynamic> toJson() {

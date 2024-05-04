@@ -21,7 +21,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       // ignore: invalid_use_of_visible_for_testing_member
       emit(TimerRunning(timerResult));
 
-      if (timerResult.timeLeft.seconds < 0) {
+      if (timerResult.timeLeft.seconds <= 0) {
         timerResult.completed = true;
         timer.cancel();
         add(TimerEnd());
@@ -100,6 +100,11 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
     on<TimerTakeFive>((event, emit) async {
       timerResult.timeLeft.seconds = timerResult.timeLeft.seconds - 300;
       timerResult.targetTime.seconds = timerResult.targetTime.seconds - 300;
+      if (timerResult.targetTime.seconds < 0 ||
+          timerResult.timeLeft.seconds < 0) {
+        timerResult.targetTime.seconds = 5;
+        timerResult.timeLeft.seconds = 3;
+      }
       emit(TimerRunning(timerResult));
     });
 
