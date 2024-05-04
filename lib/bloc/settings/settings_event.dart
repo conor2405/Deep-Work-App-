@@ -4,3 +4,5 @@ part of 'settings_bloc.dart';
 sealed class SettingsEvent {}
 
 class ToggleDarkMode extends SettingsEvent {}
+
+class ToggleShowMap extends SettingsEvent {}

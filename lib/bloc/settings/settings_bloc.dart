@@ -9,36 +9,48 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
   FirestoreRepo firestoreRepo = FirestoreRepo();
 
   bool isDarkMode = true;
+  bool showMap = true;
 
-  SettingsBloc() : super(SettingsInitial(true)) {
+  SettingsBloc() : super(SettingsInitial()) {
     on<SettingsEvent>((event, emit) {
       // TODO: implement event handler
     });
 
     on<ToggleDarkMode>((event, emit) {
       isDarkMode = !isDarkMode;
-      emit(SettingsInitial(isDarkMode));
+      emit(SettingsInitial(isDarkMode: isDarkMode));
+    });
+
+    on<ToggleShowMap>((event, emit) {
+      showMap = !showMap;
+      emit(SettingsInitial(isDarkMode: isDarkMode, showMap: showMap));
     });
   }
 
   @override
   SettingsState? fromJson(Map<String, dynamic> json) {
     if (json.isEmpty) {
-      return SettingsInitial(true);
+      return SettingsInitial();
     }
     if (json['isDarkMode'] != null) {
       isDarkMode = json['isDarkMode'];
     } else {
       isDarkMode = true;
     }
+    if (json['showMap'] != null) {
+      showMap = json['showMap'];
+    } else {
+      showMap = true;
+    }
 
-    return SettingsInitial(isDarkMode);
+    return SettingsInitial(isDarkMode: isDarkMode, showMap: showMap);
   }
 
   @override
   Map<String, dynamic>? toJson(SettingsState state) {
     return {
       'isDarkMode': isDarkMode,
+      'showMap': showMap,
     };
   }
 }

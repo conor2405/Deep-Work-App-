@@ -5,9 +5,10 @@ sealed class SettingsState {}
 
 final class SettingsInitial extends SettingsState {
   bool isDarkMode;
+  bool showMap;
 
-  SettingsInitial(this.isDarkMode);
+  SettingsInitial({this.isDarkMode = true, this.showMap = true});
 
   @override
-  List get props => [isDarkMode];
+  List get props => [isDarkMode, showMap];
 }
