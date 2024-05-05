@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TimeGoalsWidget extends StatefulWidget {
+  String goalType;
   bool buttonEnabled;
-  TimeGoalsWidget({super.key, this.buttonEnabled = true});
+  TimeGoalsWidget(
+      {super.key, this.buttonEnabled = true, this.goalType = 'daily'});
   @override
   _TimeGoalsWidgetState createState() => _TimeGoalsWidgetState();
 }
@@ -27,7 +29,7 @@ class _TimeGoalsWidgetState extends State<TimeGoalsWidget> {
                 },
                 child: state.todaysSessions.totalMinutes <
                         state.timeGoals.daily.goal
-                    ? TimeGoalCircle(goalType: 'daily')
+                    ? TimeGoalCircle(goalType: widget.goalType)
                     : TimeGoalDone());
           } else if (state is LeaderboardLoading) {
             return Container(
@@ -59,19 +61,23 @@ class TimeGoalCircle extends StatelessWidget {
       builder: (context, state) {
         if (state is LeaderboardLoaded) {
           TimeGoal goal;
-
+          int totalMinutes;
           switch (goalType) {
             case 'daily':
               goal = state.timeGoals.daily;
+              totalMinutes = state.todaysSessions.totalMinutes;
               break;
             case 'weekly':
               goal = state.timeGoals.weekly;
+              totalMinutes = 50;
               break;
             case 'monthly':
               goal = state.timeGoals.monthly;
+              totalMinutes = 50;
               break;
             default:
               goal = state.timeGoals.daily;
+              totalMinutes = state.todaysSessions.totalMinutes;
           }
 
           return Container(
@@ -86,13 +92,10 @@ class TimeGoalCircle extends StatelessWidget {
                       showTitle: false,
                       radius: 10,
                       color: Theme.of(context).colorScheme.primary,
-                      value: state.todaysSessions.totalMinutes /
-                                  goal.goal.toDouble() >
-                              1
+                      value: totalMinutes / goal.goal.toDouble() > 1
                           ? 1
-                          : state.todaysSessions.totalMinutes /
-                              goal.goal.toDouble(),
-                      title: state.todaysSessions.totalMinutes.toString(),
+                          : totalMinutes / goal.goal.toDouble(),
+                      title: totalMinutes.toString(),
                       //title: null,
                     ),
                     PieChartSectionData(
@@ -102,13 +105,8 @@ class TimeGoalCircle extends StatelessWidget {
                           .colorScheme
                           .primary
                           .withOpacity(0.2),
-                      value: 1 -
-                                  state.todaysSessions.totalMinutes /
-                                      goal.goal.toDouble() >
-                              0
-                          ? 1 -
-                              state.todaysSessions.totalMinutes /
-                                  goal.goal.toDouble()
+                      value: 1 - totalMinutes / goal.goal.toDouble() > 0
+                          ? 1 - totalMinutes / goal.goal.toDouble()
                           : 0,
                       // title: goalType
                     ),
@@ -116,7 +114,7 @@ class TimeGoalCircle extends StatelessWidget {
                 )),
                 Center(
                   child: Text(
-                    '${state.todaysSessions.totalMinutes ~/ 60}:${state.todaysSessions.totalMinutes % 60}/${goal.goal ~/ 60}:${goal.goal % 60 == 0 ? '00' : goal.goal % 60}',
+                    '${totalMinutes ~/ 60}:${totalMinutes % 60 == 0 ? '00' : totalMinutes % 60}/${goal.goal ~/ 60}:${goal.goal % 60 == 0 ? '00' : goal.goal % 60}',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w200),
                   ),
                 ),

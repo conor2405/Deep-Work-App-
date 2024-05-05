@@ -35,6 +35,10 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   List<Goal> goals = [];
   late TimeGoalsAll timeGoals;
 
+  late TodaysSessions dailySessions;
+  late WeeklyScoreboard weeklySessions;
+  late MonthlyScoreboard monthlySessions;
+
   void _listenToTimerBloc() {
     _timerBlocSubscription = timerBloc.stream.listen((state) {
       if (state is TimerInitial) {
@@ -59,7 +63,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
 
       monthlyScoreboard = MonthlyScoreboard.fromTimerResult(sessions);
 
-      todaysSessions = TodaysSessions.fromTimerResult(sessions);
+      todaysSessions = TodaysSessions.fromTimerResultToday(sessions);
 
       LastWeekScoreboard = WeeklyScoreboard.lastWeekFromTimerResult(sessions);
 
@@ -77,7 +81,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
 
       monthlyScoreboard = MonthlyScoreboard.fromTimerResult(sessions);
 
-      todaysSessions = TodaysSessions.fromTimerResult(sessions);
+      todaysSessions = TodaysSessions.fromTimerResultToday(sessions);
 
       LastWeekScoreboard = WeeklyScoreboard.lastWeekFromTimerResult(sessions);
 

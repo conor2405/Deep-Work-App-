@@ -36,6 +36,20 @@ class _SettingsPageState extends State<SettingsPage> {
                             onChanged: (value) {
                               BlocProvider.of<SettingsBloc>(context)
                                   .add(ToggleDarkMode());
+                            }),
+                        Text('Show Map'),
+                        Switch(
+                            value: state.showMap,
+                            onChanged: (value) {
+                              BlocProvider.of<SettingsBloc>(context)
+                                  .add(ToggleShowMap());
+                            }),
+                        Text('enable notes'),
+                        Switch(
+                            value: state.showNotes,
+                            onChanged: (value) {
+                              BlocProvider.of<SettingsBloc>(context)
+                                  .add(ToggleNotes());
                             })
                       ],
                     ),

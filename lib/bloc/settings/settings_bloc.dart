@@ -10,6 +10,7 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
 
   bool isDarkMode = true;
   bool showMap = true;
+  bool notes = true;
 
   SettingsBloc() : super(SettingsInitial()) {
     on<SettingsEvent>((event, emit) {
@@ -18,12 +19,20 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
 
     on<ToggleDarkMode>((event, emit) {
       isDarkMode = !isDarkMode;
-      emit(SettingsInitial(isDarkMode: isDarkMode));
+      emit(SettingsInitial(
+          isDarkMode: isDarkMode, showMap: showMap, showNotes: notes));
     });
 
     on<ToggleShowMap>((event, emit) {
       showMap = !showMap;
-      emit(SettingsInitial(isDarkMode: isDarkMode, showMap: showMap));
+      emit(SettingsInitial(
+          isDarkMode: isDarkMode, showMap: showMap, showNotes: notes));
+    });
+
+    on<ToggleNotes>((event, emit) {
+      notes = !notes;
+      emit(SettingsInitial(
+          isDarkMode: isDarkMode, showMap: showMap, showNotes: notes));
     });
   }
 

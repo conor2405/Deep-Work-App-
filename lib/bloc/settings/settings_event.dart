@@ -6,3 +6,5 @@ sealed class SettingsEvent {}
 class ToggleDarkMode extends SettingsEvent {}
 
 class ToggleShowMap extends SettingsEvent {}
+
+class ToggleNotes extends SettingsEvent {}

@@ -12,7 +12,7 @@ class TodaysSessions {
 
   TodaysSessions({required this.sessions});
 
-  factory TodaysSessions.fromTimerResult(List<TimerResult> timerResults) {
+  factory TodaysSessions.fromTimerResultToday(List<TimerResult> timerResults) {
     List<TimerResult> today = [];
 
     today.addAll(timerResults
@@ -31,6 +31,34 @@ class TodaysSessions {
               millisecond: 0,
               microsecond: 0,
             ))
+        .toList());
+    return TodaysSessions(sessions: today);
+  }
+
+  factory TodaysSessions.fromTimerResult(
+      List<TimerResult> timerResults, DateTime startDate, DateTime endDate) {
+    List<TimerResult> today = [];
+
+    today.addAll(timerResults
+        .where((TimerResult timerResult) =>
+            timerResult.timeFinished
+                .copyWith(
+                  hour: 0,
+                  minute: 0,
+                  second: 0,
+                  millisecond: 0,
+                  microsecond: 0,
+                )
+                .isAfter(startDate) &&
+            timerResult.timeFinished
+                .copyWith(
+                  hour: 0,
+                  minute: 0,
+                  second: 0,
+                  millisecond: 0,
+                  microsecond: 0,
+                )
+                .isBefore(endDate))
         .toList());
     return TodaysSessions(sessions: today);
   }

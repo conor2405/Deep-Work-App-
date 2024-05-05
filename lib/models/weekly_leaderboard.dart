@@ -171,4 +171,35 @@ class WeeklyScoreboard {
       total: total,
     );
   }
+
+  factory WeeklyScoreboard.fromTimerResult(
+      List<TimerResult> timerResults, DateTime startDate, DateTime endDate) {
+    List<double> tempDays = List<double>.filled(7, 0);
+
+    for (int i = 1; i <= 7; i++) {
+      tempDays[i - 1] = TimeModel(timerResults
+              .where((TimerResult timerResult) =>
+                  timerResult.startTime.isAfter(startDate) &&
+                  timerResult.startTime.isBefore(endDate) &&
+                  timerResult.startTime.weekday == i)
+              .map((TimerResult timerResult) => timerResult.timeRun)
+              .fold(0,
+                  (int previousValue, int element) => previousValue + element))
+          .minutes
+          .toDouble();
+    }
+    double total = tempDays.fold(
+        0, (double previousValue, double element) => previousValue + element);
+
+    return WeeklyScoreboard(
+      monday: tempDays[0],
+      tuesday: tempDays[1],
+      wednesday: tempDays[2],
+      thursday: tempDays[3],
+      friday: tempDays[4],
+      saturday: tempDays[5],
+      sunday: tempDays[6],
+      total: total,
+    );
+  }
 }
