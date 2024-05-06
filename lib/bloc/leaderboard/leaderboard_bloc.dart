@@ -41,14 +41,26 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   // todays date at 00:00:00
   DateTime today =
       DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+  // the dates from mon - sun of the selected week
+  List<DateTime> dates = [];
+
+  DateTime selectedDate = DateTime.now();
 
   // listens to the timer bloc in order to get selected time for red section of the day bar.
   void _listenToTimerBloc() {
     _timerBlocSubscription = timerBloc.stream.listen((state) {
       if (state is TimerInitial) {
         timerValue = state.time.seconds;
-        emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
-            todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
+        emit(LeaderboardLoaded(
+            weeklyScoreboard,
+            monthlyScoreboard,
+            todaysSessions,
+            timerValue,
+            LastWeekScoreboard,
+            goals,
+            timeGoals,
+            dates,
+            selectedDate));
       }
     });
   }
@@ -76,25 +88,59 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
 
       LastWeekScoreboard = WeeklyScoreboard.lastWeekFromTimerResult(sessions);
 
+      dates = datesForWeek(today);
+
       //goals = await firestoreRepo.getGoals();
 
-      emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
-          todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
+      emit(LeaderboardLoaded(
+          weeklyScoreboard,
+          monthlyScoreboard,
+          todaysSessions,
+          timerValue,
+          LastWeekScoreboard,
+          goals,
+          timeGoals,
+          dates,
+          selectedDate));
     });
 
     on<RefreshTimeGoals>((event, emit) async {
       timeGoals = await firestoreRepo.getTimeGoals();
 
-      emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
-          todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
+      emit(LeaderboardLoaded(
+          weeklyScoreboard,
+          monthlyScoreboard,
+          todaysSessions,
+          timerValue,
+          LastWeekScoreboard,
+          goals,
+          timeGoals,
+          dates,
+          selectedDate));
     });
+    on<SelectDate>((event, emit) {
+      selectedDate = event.date;
 
-    on<initSessionsWithToday>((event, emit) async {
-      List<TimerResult> sessions = await firestoreRepo.getSessions();
-
-      emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
-          todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
+      emit(LeaderboardLoaded(
+          weeklyScoreboard,
+          monthlyScoreboard,
+          todaysSessions,
+          timerValue,
+          LastWeekScoreboard,
+          goals,
+          timeGoals,
+          dates,
+          selectedDate));
     });
+  }
+
+  List<DateTime> datesForWeek(DateTime dateTime) {
+    List<DateTime> dates = [];
+    int dayOfWeek = dateTime.weekday;
+    for (int i = 0; i < 7; i++) {
+      dates.add(dateTime.subtract(Duration(days: dateTime.weekday - 1 - i)));
+    }
+    return dates;
   }
 }
 
@@ -141,7 +187,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
 //   /// if date < today add true to past, else add false
 //   for (int i = 0; i < 7; i++) {
 //     DateTime date = today
-//         .subtract(Duration(days: dayOfWeek - 1 + i))
+//         .subtract(Duration(days: dayOfWeek - 1 - i))
 //         .copyWith(
 //             hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
 //     dates.add({

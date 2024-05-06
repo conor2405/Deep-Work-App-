@@ -9,4 +9,8 @@ class LeaderboardRefresh extends LeaderboardInit {}
 
 class RefreshTimeGoals extends LeaderboardEvent {}
 
-class initSessionsWithToday extends LeaderboardEvent {}
+class SelectDate extends LeaderboardEvent {
+  final DateTime date;
+
+  SelectDate(this.date);
+}
