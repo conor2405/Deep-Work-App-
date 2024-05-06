@@ -27,6 +27,9 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   late StreamSubscription<TimerState> _timerBlocSubscription;
   TimerBloc timerBloc;
   int timerValue = 90 * 60; // default value
+
+  // sessions from firestore, first populated on init
+  List<TimerResult> sessions = [];
   // will be populated with the current week based on todays date.
   late WeeklyScoreboard weeklyScoreboard;
   late WeeklyScoreboard LastWeekScoreboard;
@@ -60,7 +63,8 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
             goals,
             timeGoals,
             dates,
-            selectedDate));
+            selectedDate,
+            dailySessions));
       }
     });
   }
@@ -77,7 +81,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
         emit(LeaderboardLoading());
       }
 
-      List<TimerResult> sessions = await firestoreRepo.getSessions();
+      sessions = await firestoreRepo.getSessions();
       timeGoals = await firestoreRepo.getTimeGoals();
 
       weeklyScoreboard = WeeklyScoreboard.thisWeekFromTimerResult(sessions);
@@ -90,6 +94,11 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
 
       dates = datesForWeek(today);
 
+      dailySessions = TodaysSessions.fromTimerResult(
+        sessions,
+        date: selectedDate,
+      );
+
       //goals = await firestoreRepo.getGoals();
 
       emit(LeaderboardLoaded(
@@ -101,7 +110,8 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
           goals,
           timeGoals,
           dates,
-          selectedDate));
+          selectedDate,
+          dailySessions));
     });
 
     on<RefreshTimeGoals>((event, emit) async {
@@ -116,10 +126,17 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
           goals,
           timeGoals,
           dates,
-          selectedDate));
+          selectedDate,
+          dailySessions));
     });
     on<SelectDate>((event, emit) {
       selectedDate = event.date;
+
+      dailySessions = TodaysSessions.fromTimerResult(
+        sessions,
+        date: selectedDate,
+      );
+      dates = datesForWeek(selectedDate);
 
       emit(LeaderboardLoaded(
           weeklyScoreboard,
@@ -130,7 +147,52 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
           goals,
           timeGoals,
           dates,
-          selectedDate));
+          selectedDate,
+          dailySessions));
+    });
+
+    on<BackArrowPressed>((event, emit) {
+      selectedDate = selectedDate.subtract(Duration(days: 1));
+
+      dailySessions = TodaysSessions.fromTimerResult(
+        sessions,
+        date: selectedDate,
+      );
+      dates = datesForWeek(selectedDate);
+
+      emit(LeaderboardLoaded(
+          weeklyScoreboard,
+          monthlyScoreboard,
+          todaysSessions,
+          timerValue,
+          LastWeekScoreboard,
+          goals,
+          timeGoals,
+          dates,
+          selectedDate,
+          dailySessions));
+    });
+
+    on<ForwardArrowPressed>((event, emit) {
+      selectedDate = selectedDate.add(Duration(days: 1));
+
+      dailySessions = TodaysSessions.fromTimerResult(
+        sessions,
+        date: selectedDate,
+      );
+
+      dates = datesForWeek(selectedDate);
+      emit(LeaderboardLoaded(
+          weeklyScoreboard,
+          monthlyScoreboard,
+          todaysSessions,
+          timerValue,
+          LastWeekScoreboard,
+          goals,
+          timeGoals,
+          dates,
+          selectedDate,
+          dailySessions));
     });
   }
 

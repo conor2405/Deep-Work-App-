@@ -7,9 +7,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TimeGoalsWidget extends StatefulWidget {
   String goalType;
+  bool changeableDate;
   bool buttonEnabled;
   TimeGoalsWidget(
-      {super.key, this.buttonEnabled = true, this.goalType = 'daily'});
+      {super.key,
+      this.buttonEnabled = true,
+      this.goalType = 'daily',
+      this.changeableDate = false});
   @override
   _TimeGoalsWidgetState createState() => _TimeGoalsWidgetState();
 }
@@ -28,8 +32,11 @@ class _TimeGoalsWidgetState extends State<TimeGoalsWidget> {
                       : null;
                 },
                 child: state.todaysSessions.totalMinutes <
-                        state.timeGoals.daily.goal
-                    ? TimeGoalCircle(goalType: widget.goalType)
+                            state.timeGoals.daily.goal ||
+                        widget.changeableDate
+                    ? TimeGoalCircle(
+                        goalType: widget.goalType,
+                        changeableDate: widget.changeableDate)
                     : TimeGoalDone());
           } else if (state is LeaderboardLoading) {
             return Container(
@@ -49,9 +56,11 @@ class _TimeGoalsWidgetState extends State<TimeGoalsWidget> {
 
 class TimeGoalCircle extends StatelessWidget {
   String goalType;
+  bool changeableDate;
 
   TimeGoalCircle({
     required this.goalType,
+    this.changeableDate = false,
     super.key,
   });
 
@@ -62,22 +71,42 @@ class TimeGoalCircle extends StatelessWidget {
         if (state is LeaderboardLoaded) {
           TimeGoal goal;
           int totalMinutes;
-          switch (goalType) {
-            case 'daily':
-              goal = state.timeGoals.daily;
-              totalMinutes = state.todaysSessions.totalMinutes;
-              break;
-            case 'weekly':
-              goal = state.timeGoals.weekly;
-              totalMinutes = 50;
-              break;
-            case 'monthly':
-              goal = state.timeGoals.monthly;
-              totalMinutes = 50;
-              break;
-            default:
-              goal = state.timeGoals.daily;
-              totalMinutes = state.todaysSessions.totalMinutes;
+          if (!changeableDate) {
+            switch (goalType) {
+              case 'daily':
+                goal = state.timeGoals.daily;
+                totalMinutes = state.todaysSessions.totalMinutes;
+                break;
+              case 'weekly':
+                goal = state.timeGoals.weekly;
+                totalMinutes = 50;
+                break;
+              case 'monthly':
+                goal = state.timeGoals.monthly;
+                totalMinutes = 50;
+                break;
+              default:
+                goal = state.timeGoals.daily;
+                totalMinutes = state.todaysSessions.totalMinutes;
+            }
+          } else {
+            switch (goalType) {
+              case 'daily':
+                goal = state.timeGoals.daily;
+                totalMinutes = state.dailySessions.totalMinutes;
+                break;
+              case 'weekly':
+                goal = state.timeGoals.weekly;
+                totalMinutes = 50;
+                break;
+              case 'monthly':
+                goal = state.timeGoals.monthly;
+                totalMinutes = 50;
+                break;
+              default:
+                goal = state.timeGoals.daily;
+                totalMinutes = state.todaysSessions.totalMinutes;
+            }
           }
 
           return Container(

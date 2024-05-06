@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/models/timer_result.dart';
@@ -5,6 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DayBar extends StatefulWidget {
+  bool changeableDate;
+  DayBar({this.changeableDate = false});
+
   @override
   _DayBarState createState() => _DayBarState();
 }
@@ -27,7 +32,8 @@ class _DayBarState extends State<DayBar> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Stack(
-                    children: generateDaysBars(state, constraints, context),
+                    children: generateDaysBars(
+                        state, constraints, context, widget.changeableDate),
                   )
                   // Widget content goes here
                   );
@@ -50,13 +56,17 @@ class _DayBarState extends State<DayBar> {
   }
 }
 
-List<Widget> generateDaysBars(
-    LeaderboardLoaded state, BoxConstraints constraints, BuildContext context) {
+List<Widget> generateDaysBars(LeaderboardLoaded state,
+    BoxConstraints constraints, BuildContext context, bool changeableDate) {
   // get the parent data widget width and divide by 86400
 
   List<Widget> daysBars = [];
 
-  for (TimerResult timerResult in state.todaysSessions.sessions) {
+  List<TimerResult> sessions = changeableDate
+      ? state.dailySessions.sessions
+      : state.todaysSessions.sessions;
+
+  for (TimerResult timerResult in sessions) {
     // get the start time and end time
     // calculate the width of the bar
     // add the bar to the stack
@@ -77,19 +87,20 @@ List<Widget> generateDaysBars(
 
     buildPauses(timerResult, constraints);
   }
-
-  daysBars.add(Positioned(
-    left: centerOfCurrentTimeBar(constraints),
-    child: Container(
-      width: widthOfCurrentTimeBar(state.timerValue, constraints),
-      height: 12,
-      decoration: BoxDecoration(
-        color: BlocProvider.of<SettingsBloc>(context).isDarkMode
-            ? Colors.red[800]
-            : Colors.red[400],
+  if (!changeableDate) {
+    daysBars.add(Positioned(
+      left: centerOfCurrentTimeBar(constraints),
+      child: Container(
+        width: widthOfCurrentTimeBar(state.timerValue, constraints),
+        height: 12,
+        decoration: BoxDecoration(
+          color: BlocProvider.of<SettingsBloc>(context).isDarkMode
+              ? Colors.red[800]
+              : Colors.red[400],
+        ),
       ),
-    ),
-  ));
+    ));
+  }
 
   return daysBars;
 }

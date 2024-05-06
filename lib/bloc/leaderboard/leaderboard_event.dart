@@ -14,3 +14,7 @@ class SelectDate extends LeaderboardEvent {
 
   SelectDate(this.date);
 }
+
+class BackArrowPressed extends LeaderboardEvent {}
+
+class ForwardArrowPressed extends LeaderboardEvent {}

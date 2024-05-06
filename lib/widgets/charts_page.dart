@@ -1,9 +1,12 @@
+import 'package:bloc/bloc.dart';
+import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:deep_work/widgets/day_bar.dart';
 import 'package:deep_work/widgets/day_selector.dart';
 import 'package:deep_work/widgets/graphic_weekly_chart.dart';
 import 'package:deep_work/widgets/sidebar.dart';
 import 'package:deep_work/widgets/timegoals.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChartsPage extends StatefulWidget {
   @override
@@ -24,9 +27,29 @@ class _ChartsPageState extends State<ChartsPage> {
               padding: const EdgeInsets.fromLTRB(5, 30, 5, 5),
               child: ListView(children: [
                 DaySelector(),
+                BlocBuilder<LeaderboardBloc, LeaderboardState>(
+                  builder: (context, state) {
+                    if (state is LeaderboardLoaded) {
+                      return Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          child: Text(
+                            state.dailySessions.totalMinutes.toString(),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.w200),
+                          ));
+                    } else {
+                      return SizedBox(
+                        height: 1,
+                      );
+                    }
+                  },
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 50),
-                  child: DayBar(),
+                  child: DayBar(
+                    changeableDate: true,
+                  ),
                 ),
                 Container(
                   child: GraphicWeeklyChart(),
@@ -42,6 +65,7 @@ class _ChartsPageState extends State<ChartsPage> {
                         width: 100,
                         child: TimeGoalsWidget(
                           goalType: 'daily',
+                          changeableDate: true,
                         ),
                       ),
                       Container(

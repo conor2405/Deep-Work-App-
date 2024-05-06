@@ -1,4 +1,5 @@
 import 'package:deep_work/models/timer_result.dart';
+import 'package:equatable/equatable.dart';
 
 class TodaysSessions {
   final List<TimerResult> sessions;
@@ -47,5 +48,14 @@ class TodaysSessions {
                 hour: 23, minute: 59, second: 59, millisecond: 900)))
         .toList());
     return TodaysSessions(sessions: today);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is TodaysSessions &&
+        sessions == other.sessions &&
+        total == other.total;
   }
 }

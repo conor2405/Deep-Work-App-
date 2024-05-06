@@ -19,20 +19,26 @@ class _DaySelectorState extends State<DaySelector> {
               children: [
                 Padding(
                   padding: EdgeInsets.all(5.0),
-                  child: Container(
-                    width: 25,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(5.0, 0, 0, 0),
-                      child: Icon(Icons.arrow_back_ios,
+                  child: GestureDetector(
+                    onTap: () {
+                      BlocProvider.of<LeaderboardBloc>(context)
+                          .add(BackArrowPressed());
+                    },
+                    child: Container(
+                      width: 25,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(
                           color: Theme.of(context).colorScheme.primary,
-                          size: 20),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(5.0, 0, 0, 0),
+                        child: Icon(Icons.arrow_back_ios,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 20),
+                      ),
                     ),
                   ),
                 ),
@@ -41,19 +47,25 @@ class _DaySelectorState extends State<DaySelector> {
                 ),
                 Padding(
                   padding: EdgeInsets.all(5.0),
-                  child: Container(
-                    width: 25,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(Icons.arrow_forward_ios,
+                  child: GestureDetector(
+                    onTap: () {
+                      BlocProvider.of<LeaderboardBloc>(context)
+                          .add(ForwardArrowPressed());
+                    },
+                    child: Container(
+                      width: 25,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(
                           color: Theme.of(context).colorScheme.primary,
-                          size: 20),
+                        ),
+                      ),
+                      child: Center(
+                        child: Icon(Icons.arrow_forward_ios,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 20),
+                      ),
                     ),
                   ),
                 ),
