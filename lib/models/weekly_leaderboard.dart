@@ -172,8 +172,8 @@ class WeeklyScoreboard {
     );
   }
 
-  factory WeeklyScoreboard.fromTimerResult(
-      List<TimerResult> timerResults, DateTime startDate, DateTime endDate) {
+  factory WeeklyScoreboard.fromTimerResult(List<TimerResult> timerResults,
+      {required DateTime startDate, required DateTime endDate}) {
     List<double> tempDays = List<double>.filled(7, 0);
 
     for (int i = 1; i <= 7; i++) {

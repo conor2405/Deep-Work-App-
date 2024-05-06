@@ -5,6 +5,8 @@ sealed class LeaderboardEvent {}
 
 class LeaderboardInit extends LeaderboardEvent {}
 
-class LeaderboardRefresh extends LeaderboardEvent {}
+class LeaderboardRefresh extends LeaderboardInit {}
 
 class RefreshTimeGoals extends LeaderboardEvent {}
+
+class initSessionsWithToday extends LeaderboardEvent {}

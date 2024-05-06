@@ -35,30 +35,16 @@ class TodaysSessions {
     return TodaysSessions(sessions: today);
   }
 
-  factory TodaysSessions.fromTimerResult(
-      List<TimerResult> timerResults, DateTime startDate, DateTime endDate) {
+  factory TodaysSessions.fromTimerResult(List<TimerResult> timerResults,
+      {required DateTime date}) {
     List<TimerResult> today = [];
 
     today.addAll(timerResults
         .where((TimerResult timerResult) =>
-            timerResult.timeFinished
-                .copyWith(
-                  hour: 0,
-                  minute: 0,
-                  second: 0,
-                  millisecond: 0,
-                  microsecond: 0,
-                )
-                .isAfter(startDate) &&
-            timerResult.timeFinished
-                .copyWith(
-                  hour: 0,
-                  minute: 0,
-                  second: 0,
-                  millisecond: 0,
-                  microsecond: 0,
-                )
-                .isBefore(endDate))
+            timerResult.timeFinished.isAfter(
+                date.copyWith(hour: 0, minute: 0, second: 0, millisecond: 0)) &&
+            timerResult.timeFinished.isBefore(date.copyWith(
+                hour: 23, minute: 59, second: 59, millisecond: 900)))
         .toList());
     return TodaysSessions(sessions: today);
   }

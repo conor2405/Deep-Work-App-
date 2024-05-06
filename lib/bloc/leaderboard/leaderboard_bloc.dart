@@ -27,18 +27,22 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   late StreamSubscription<TimerState> _timerBlocSubscription;
   TimerBloc timerBloc;
   int timerValue = 90 * 60; // default value
-
+  // will be populated with the current week based on todays date.
   late WeeklyScoreboard weeklyScoreboard;
   late WeeklyScoreboard LastWeekScoreboard;
   late MonthlyScoreboard monthlyScoreboard;
   late TodaysSessions todaysSessions;
   List<Goal> goals = [];
   late TimeGoalsAll timeGoals;
-
+  // will be populated with the week the user selects.
   late TodaysSessions dailySessions;
   late WeeklyScoreboard weeklySessions;
   late MonthlyScoreboard monthlySessions;
+  // todays date at 00:00:00
+  DateTime today =
+      DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
 
+  // listens to the timer bloc in order to get selected time for red section of the day bar.
   void _listenToTimerBloc() {
     _timerBlocSubscription = timerBloc.stream.listen((state) {
       if (state is TimerInitial) {
@@ -54,26 +58,13 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
     _listenToTimerBloc();
 
     on<LeaderboardInit>((event, emit) async {
-      emit(LeaderboardLoading());
+      /// leaderboard refresh extends init.
+      /// this event is called by both, if init we want to show loading
+      /// if refresh we want to keep the current state and refresh in background then update.
+      if (event is! LeaderboardRefresh) {
+        emit(LeaderboardLoading());
+      }
 
-      List<TimerResult> sessions = await firestoreRepo.getSessions();
-      timeGoals = await firestoreRepo.getTimeGoals();
-
-      weeklyScoreboard = WeeklyScoreboard.thisWeekFromTimerResult(sessions);
-
-      monthlyScoreboard = MonthlyScoreboard.fromTimerResult(sessions);
-
-      todaysSessions = TodaysSessions.fromTimerResultToday(sessions);
-
-      LastWeekScoreboard = WeeklyScoreboard.lastWeekFromTimerResult(sessions);
-
-      //goals = await firestoreRepo.getGoals();
-
-      emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
-          todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
-    });
-
-    on<LeaderboardRefresh>((event, emit) async {
       List<TimerResult> sessions = await firestoreRepo.getSessions();
       timeGoals = await firestoreRepo.getTimeGoals();
 
@@ -97,5 +88,68 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
           todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
     });
+
+    on<initSessionsWithToday>((event, emit) async {
+      List<TimerResult> sessions = await firestoreRepo.getSessions();
+
+      emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
+          todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
+    });
   }
 }
+
+// on<LeaderboardRefresh>((event, emit) async {
+//   List<TimerResult> sessions = await firestoreRepo.getSessions();
+//   timeGoals = await firestoreRepo.getTimeGoals();
+
+//   weeklyScoreboard = WeeklyScoreboard.thisWeekFromTimerResult(sessions);
+
+//   monthlyScoreboard = MonthlyScoreboard.fromTimerResult(sessions);
+
+//   todaysSessions = TodaysSessions.fromTimerResultToday(sessions);
+
+//   LastWeekScoreboard = WeeklyScoreboard.lastWeekFromTimerResult(sessions);
+
+//   //goals = await firestoreRepo.getGoals();
+
+//   /// init the objects that are needed for the chart page
+//   /// get the weekly sessions
+//   /// get the monthly sessions
+//   /// get the daily sessions
+//   ///
+
+//   // daily sessions, based on today
+//     dailySessions = TodaysSessions.fromTimerResult(
+//     sessions,
+//     date: today,
+//   );
+
+//   /// day of week needed to get the start of the week
+//   int dayOfWeek = today.weekday;
+//   // weekly sessions, based on the start of the week and end.
+//    weeklySessions = WeeklyScoreboard.fromTimerResult(
+//     sessions,
+//     startDate: today.subtract(Duration(days: dayOfWeek - 1)),
+//     endDate: today.add(Duration(days: 7 - dayOfWeek)),
+//   );
+//   // list of dates that contain int for date, and true or false for past or future
+//   List<Map<String, dynamic>> dates = [];
+//   //// get the dates for this week
+//   ///
+//   /// 1. get the date for the start of the week
+//   /// increment the date by 1 until the end of the week
+//   /// if date < today add true to past, else add false
+//   for (int i = 0; i < 7; i++) {
+//     DateTime date = today
+//         .subtract(Duration(days: dayOfWeek - 1 + i))
+//         .copyWith(
+//             hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
+//     dates.add({
+//       'date': date,
+//       'past': date.isBefore(today),
+//     });
+//   }
+
+//   emit(LeaderboardLoaded(weeklyScoreboard, monthlyScoreboard,
+//       todaysSessions, timerValue, LastWeekScoreboard, goals, timeGoals));
+// });
