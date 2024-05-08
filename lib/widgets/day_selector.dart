@@ -1,6 +1,7 @@
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:math';
 
 class DaySelector extends StatefulWidget {
   @override
@@ -14,61 +15,93 @@ class _DaySelectorState extends State<DaySelector> {
       builder: (context, state) {
         if (state is LeaderboardLoaded) {
           return Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
               children: [
-                Padding(
-                  padding: EdgeInsets.all(5.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      BlocProvider.of<LeaderboardBloc>(context)
-                          .add(BackArrowPressed());
-                    },
-                    child: Container(
-                      width: 25,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(5.0, 0, 0, 0),
-                        child: Icon(Icons.arrow_back_ios,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 20),
-                      ),
-                    ),
-                  ),
-                ),
+                state.selectedDate
+                            .copyWith(
+                                hour: 0, minute: 0, second: 0, microsecond: 0)
+                            .difference(DateTime.now().copyWith(
+                                hour: 0, minute: 0, second: 0, microsecond: 0))
+                            .inHours
+                            .abs() <
+                        23
+                    ? Text('Today')
+                    : Text(
+                        '${state.selectedDate.day}/${state.selectedDate.month}/${state.selectedDate.year}'),
                 Row(
-                  children: dayList(state, context),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(5.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      BlocProvider.of<LeaderboardBloc>(context)
-                          .add(ForwardArrowPressed());
-                    },
-                    child: Container(
-                      width: 25,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(5.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          BlocProvider.of<LeaderboardBloc>(context)
+                              .add(BackArrowPressed());
+                        },
+                        child: Container(
+                          width: 25,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(5.0, 0, 0, 0),
+                            child: Icon(Icons.arrow_back_ios,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 20),
+                          ),
                         ),
                       ),
-                      child: Center(
-                        child: Icon(Icons.arrow_forward_ios,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 20),
+                    ),
+                    Row(
+                      children: dayList(state, context),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(5.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          BlocProvider.of<LeaderboardBloc>(context)
+                              .add(ForwardArrowPressed());
+                        },
+                        child: Container(
+                          width: 25,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(Icons.arrow_forward_ios,
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 20),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
+                state.selectedDate
+                            .copyWith(
+                                hour: 0, minute: 0, second: 0, microsecond: 0)
+                            .difference(DateTime.now().copyWith(
+                                hour: 0, minute: 0, second: 0, microsecond: 0))
+                            .inDays
+                            .abs() >
+                        5
+                    ? ElevatedButton(
+                        onPressed: () {
+                          BlocProvider.of<LeaderboardBloc>(context)
+                              .add(SelectDate(DateTime.now()));
+                        },
+                        child: Text('Today'))
+                    : Container(
+                        height: 31,
+                      ),
               ],
             ),
           );

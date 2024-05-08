@@ -232,15 +232,23 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                     touchTooltipData: LineTouchTooltipData(
                       getTooltipItems: (touchedSpots) {
                         List<LineTooltipItem> items = [];
-                        items.add(LineTooltipItem(
-                            touchedSpots.first.y.toString(),
-                            TextStyle(color: Colors.white)));
 
-                        items.add(LineTooltipItem(
-                            touchedSpots.first.y.toString(),
-                            TextStyle(color: Colors.white.withOpacity(0))));
+                        if (touchedSpots.length == 1) {
+                          items.add(LineTooltipItem(
+                              touchedSpots.first.y.toString(),
+                              TextStyle(color: Colors.white.withOpacity(0.3))));
+                          return items;
+                        } else {
+                          items.add(LineTooltipItem(
+                              touchedSpots.first.y.toString(),
+                              TextStyle(color: Colors.white)));
 
-                        return items;
+                          items.add(LineTooltipItem(
+                              touchedSpots[1].y.toString(),
+                              TextStyle(color: Colors.white.withOpacity(0.3))));
+
+                          return items;
+                        }
                       },
                     )),
                 minY: 0,
