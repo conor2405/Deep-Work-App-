@@ -30,6 +30,8 @@ class TimerStats {
   Duration get timeElapsed => DateTime.now().difference(startTime);
 
   int get timePaused => timeElapsed.inSeconds - timeRun;
+  double get sessionEfficiency =>
+      timeRun / timeElapsed.inSeconds > 1 ? 1 : timeRun / timeElapsed.inSeconds;
 
   set setUID(String uid) => this.uid = uid;
 
@@ -52,6 +54,7 @@ class TimerStats {
       'timeFinished': timeFinished,
       'pauses': pauses,
       'pauseEvents': pauseEvents.map((Pause pause) => pause.toJson()),
+      'sessionEfficiency': sessionEfficiency,
     };
   }
 
@@ -77,6 +80,7 @@ class TimerResult {
   final DateTime timeFinished;
   final List<Pause> pauseEvents;
   final int pauses;
+  final double sessionEfficiency;
 
   TimerResult({
     required this.timeLeft,
@@ -89,12 +93,17 @@ class TimerResult {
     required this.timeFinished,
     required this.pauses,
     required this.pauseEvents,
+    required this.sessionEfficiency,
   });
 
   factory TimerResult.fromJson(Map<String, dynamic> json) {
     List<Pause> pauseEvents = [];
     for (Map<String, dynamic> pause in json['pauseEvents']) {
       pauseEvents.add(Pause.fromJson(pause));
+    }
+    double sessionEfficiency = 1;
+    if (json.containsKey('sessionEfficiency')) {
+      sessionEfficiency = json['sessionEfficiency'];
     }
     return TimerResult(
       timeLeft: TimeModel(json['timeLeft']),
@@ -107,6 +116,7 @@ class TimerResult {
       timeFinished: DateTime.parse(json['timeFinished'].toDate().toString()),
       pauses: json['pauses'],
       pauseEvents: pauseEvents,
+      sessionEfficiency: sessionEfficiency,
     );
   }
 }

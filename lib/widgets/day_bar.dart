@@ -80,6 +80,7 @@ List<Widget> generateDaysBars(LeaderboardLoaded state,
         decoration: BoxDecoration(
           color: BlocProvider.of<SettingsBloc>(context).isDarkMode
               ? Colors.green[800]
+                  ?.withRed((1 - timerResult.sessionEfficiency) * 255 ~/ 1)
               : Colors.green,
         ),
       ),

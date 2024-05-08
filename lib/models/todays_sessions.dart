@@ -18,7 +18,7 @@ class TodaysSessions {
 
     today.addAll(timerResults
         .where((TimerResult timerResult) =>
-            timerResult.timeFinished.copyWith(
+            timerResult.startTime.copyWith(
               hour: 0,
               minute: 0,
               second: 0,
@@ -42,9 +42,9 @@ class TodaysSessions {
 
     today.addAll(timerResults
         .where((TimerResult timerResult) =>
-            timerResult.timeFinished.isAfter(
+            timerResult.startTime.isAfter(
                 date.copyWith(hour: 0, minute: 0, second: 0, millisecond: 0)) &&
-            timerResult.timeFinished.isBefore(date.copyWith(
+            timerResult.startTime.isBefore(date.copyWith(
                 hour: 23, minute: 59, second: 59, millisecond: 900)))
         .toList());
     return TodaysSessions(sessions: today);
