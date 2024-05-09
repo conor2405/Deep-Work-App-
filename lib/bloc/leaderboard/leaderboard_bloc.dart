@@ -40,6 +40,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   // will be populated with the week the user selects.
   late TodaysSessions dailySessions;
   late WeeklyScoreboard weeklySessions;
+  late WeeklyScoreboard weeklySessionsLastWeek;
   late MonthlyScoreboard monthlySessions;
   // todays date at 00:00:00
   DateTime today =
@@ -55,16 +56,19 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       if (state is TimerInitial) {
         timerValue = state.time.seconds;
         emit(LeaderboardLoaded(
-            weeklyScoreboard,
-            monthlyScoreboard,
-            todaysSessions,
-            timerValue,
-            LastWeekScoreboard,
-            goals,
-            timeGoals,
-            dates,
-            selectedDate,
-            dailySessions));
+          weeklyScoreboard,
+          monthlyScoreboard,
+          todaysSessions,
+          timerValue,
+          LastWeekScoreboard,
+          goals,
+          timeGoals,
+          dates,
+          selectedDate,
+          dailySessions,
+          weeklySessions,
+          weeklySessionsLastWeek,
+        ));
       }
     });
   }
@@ -99,35 +103,53 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
         date: selectedDate,
       );
 
+      weeklySessions = WeeklyScoreboard.fromTimerResult(
+        sessions,
+        startDate: dates.first,
+        endDate: dates.last,
+      );
+
+      weeklySessionsLastWeek = WeeklyScoreboard.fromTimerResult(
+        sessions,
+        startDate: dates.first.subtract(Duration(days: 7)),
+        endDate: dates.last.subtract(Duration(days: 7)),
+      );
+
       //goals = await firestoreRepo.getGoals();
 
       emit(LeaderboardLoaded(
-          weeklyScoreboard,
-          monthlyScoreboard,
-          todaysSessions,
-          timerValue,
-          LastWeekScoreboard,
-          goals,
-          timeGoals,
-          dates,
-          selectedDate,
-          dailySessions));
+        weeklyScoreboard,
+        monthlyScoreboard,
+        todaysSessions,
+        timerValue,
+        LastWeekScoreboard,
+        goals,
+        timeGoals,
+        dates,
+        selectedDate,
+        dailySessions,
+        weeklySessions,
+        weeklySessionsLastWeek,
+      ));
     });
 
     on<RefreshTimeGoals>((event, emit) async {
       timeGoals = await firestoreRepo.getTimeGoals();
 
       emit(LeaderboardLoaded(
-          weeklyScoreboard,
-          monthlyScoreboard,
-          todaysSessions,
-          timerValue,
-          LastWeekScoreboard,
-          goals,
-          timeGoals,
-          dates,
-          selectedDate,
-          dailySessions));
+        weeklyScoreboard,
+        monthlyScoreboard,
+        todaysSessions,
+        timerValue,
+        LastWeekScoreboard,
+        goals,
+        timeGoals,
+        dates,
+        selectedDate,
+        dailySessions,
+        weeklySessions,
+        weeklySessionsLastWeek,
+      ));
     });
     on<SelectDate>((event, emit) {
       selectedDate = event.date;
@@ -138,17 +160,32 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       );
       dates = datesForWeek(selectedDate);
 
+      weeklySessions = WeeklyScoreboard.fromTimerResult(
+        sessions,
+        startDate: dates.first,
+        endDate: dates.last,
+      );
+
+      weeklySessionsLastWeek = WeeklyScoreboard.fromTimerResult(
+        sessions,
+        startDate: dates.first.subtract(Duration(days: 7)),
+        endDate: dates.last.subtract(Duration(days: 7)),
+      );
+
       emit(LeaderboardLoaded(
-          weeklyScoreboard,
-          monthlyScoreboard,
-          todaysSessions,
-          timerValue,
-          LastWeekScoreboard,
-          goals,
-          timeGoals,
-          dates,
-          selectedDate,
-          dailySessions));
+        weeklyScoreboard,
+        monthlyScoreboard,
+        todaysSessions,
+        timerValue,
+        LastWeekScoreboard,
+        goals,
+        timeGoals,
+        dates,
+        selectedDate,
+        dailySessions,
+        weeklySessions,
+        weeklySessionsLastWeek,
+      ));
     });
 
     on<BackArrowPressed>((event, emit) {
@@ -160,17 +197,32 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       );
       dates = datesForWeek(selectedDate);
 
+      weeklySessions = WeeklyScoreboard.fromTimerResult(
+        sessions,
+        startDate: dates.first,
+        endDate: dates.last,
+      );
+
+      weeklySessionsLastWeek = WeeklyScoreboard.fromTimerResult(
+        sessions,
+        startDate: dates.first.subtract(Duration(days: 7)),
+        endDate: dates.last.subtract(Duration(days: 7)),
+      );
+
       emit(LeaderboardLoaded(
-          weeklyScoreboard,
-          monthlyScoreboard,
-          todaysSessions,
-          timerValue,
-          LastWeekScoreboard,
-          goals,
-          timeGoals,
-          dates,
-          selectedDate,
-          dailySessions));
+        weeklyScoreboard,
+        monthlyScoreboard,
+        todaysSessions,
+        timerValue,
+        LastWeekScoreboard,
+        goals,
+        timeGoals,
+        dates,
+        selectedDate,
+        dailySessions,
+        weeklySessions,
+        weeklySessionsLastWeek,
+      ));
     });
 
     on<ForwardArrowPressed>((event, emit) {
@@ -182,21 +234,38 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       );
 
       dates = datesForWeek(selectedDate);
+
+      weeklySessions = WeeklyScoreboard.fromTimerResult(
+        sessions,
+        startDate: dates.first,
+        endDate: dates.last,
+      );
+
+      weeklySessionsLastWeek = WeeklyScoreboard.fromTimerResult(
+        sessions,
+        startDate: dates.first.subtract(Duration(days: 7)),
+        endDate: dates.last.subtract(Duration(days: 7)),
+      );
       emit(LeaderboardLoaded(
-          weeklyScoreboard,
-          monthlyScoreboard,
-          todaysSessions,
-          timerValue,
-          LastWeekScoreboard,
-          goals,
-          timeGoals,
-          dates,
-          selectedDate,
-          dailySessions));
+        weeklyScoreboard,
+        monthlyScoreboard,
+        todaysSessions,
+        timerValue,
+        LastWeekScoreboard,
+        goals,
+        timeGoals,
+        dates,
+        selectedDate,
+        dailySessions,
+        weeklySessions,
+        weeklySessionsLastWeek,
+      ));
     });
   }
 
   List<DateTime> datesForWeek(DateTime dateTime) {
+    dateTime = dateTime.copyWith(
+        hour: 0, minute: 0, second: 0, millisecond: 0, microsecond: 0);
     List<DateTime> dates = [];
     int dayOfWeek = dateTime.weekday;
     for (int i = 0; i < 7; i++) {

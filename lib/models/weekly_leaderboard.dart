@@ -179,8 +179,18 @@ class WeeklyScoreboard {
     for (int i = 1; i <= 7; i++) {
       tempDays[i - 1] = TimeModel(timerResults
               .where((TimerResult timerResult) =>
-                  timerResult.startTime.isAfter(startDate) &&
-                  timerResult.startTime.isBefore(endDate) &&
+                  timerResult.startTime.isAfter(startDate.copyWith(
+                      hour: 0,
+                      minute: 0,
+                      second: 0,
+                      millisecond: 0,
+                      microsecond: 0)) &&
+                  timerResult.startTime.isBefore(endDate.copyWith(
+                      hour: 23,
+                      minute: 59,
+                      second: 59,
+                      millisecond: 0,
+                      microsecond: 0)) &&
                   timerResult.startTime.weekday == i)
               .map((TimerResult timerResult) => timerResult.timeRun)
               .fold(0,

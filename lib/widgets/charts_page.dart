@@ -52,7 +52,9 @@ class _ChartsPageState extends State<ChartsPage> {
                   ),
                 ),
                 Container(
-                  child: GraphicWeeklyChart(),
+                  child: GraphicWeeklyChart(
+                    changeableDate: true,
+                  ),
                   height: 300,
                 ),
                 SizedBox(

@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GraphicWeeklyChart extends StatefulWidget {
+  bool changeableDate;
+
+  GraphicWeeklyChart({this.changeableDate = false});
   @override
   _GraphicWeeklyChartState createState() => _GraphicWeeklyChartState();
 }
@@ -15,9 +18,20 @@ class GraphicWeeklyChart extends StatefulWidget {
 class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
   @override
   Widget build(BuildContext context) {
+    WeeklyScoreboard weeklyScoreboard;
+    WeeklyScoreboard LastWeekScoreboard;
+
     return Container(child: BlocBuilder<LeaderboardBloc, LeaderboardState>(
       builder: (context, state) {
         if (state is LeaderboardLoaded) {
+          widget.changeableDate
+              ? weeklyScoreboard = state.weeklySessions
+              : weeklyScoreboard = state.weeklyScoreboard;
+
+          widget.changeableDate
+              ? LastWeekScoreboard = state.weeklySessionsLastWeek
+              : LastWeekScoreboard = state.LastWeekScoreboard;
+
           TextStyle style = TextStyle(
               color: BlocProvider.of<SettingsBloc>(context).isDarkMode
                   ? Colors.white
@@ -27,8 +41,8 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
           return Stack(children: [
             BarChart(BarChartData(
                 minY: 0,
-                maxY: (max<double>(state.weeklyScoreboard.total,
-                            state.LastWeekScoreboard.total)
+                maxY: (max<double>(
+                            weeklyScoreboard.total, LastWeekScoreboard.total)
                         .toDouble() *
                     1.1),
                 gridData: FlGridData(show: false),
@@ -81,8 +95,8 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                         getTitlesWidget: (double value, TitleMeta meta) {
                           return Text((value.toInt()).toString());
                         },
-                        interval: (max<double>(state.weeklyScoreboard.total,
-                                        state.LastWeekScoreboard.total)
+                        interval: (max<double>(weeklyScoreboard.total,
+                                        LastWeekScoreboard.total)
                                     .toDouble() *
                                 1.1) /
                             4,
@@ -91,11 +105,11 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                 barGroups: <BarChartGroupData>[
                   BarChartGroupData(x: 0, barRods: [
                     BarChartRodData(
-                      toY: state.weeklyScoreboard.monday,
+                      toY: weeklyScoreboard.monday,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     BarChartRodData(
-                        toY: state.LastWeekScoreboard.monday,
+                        toY: LastWeekScoreboard.monday,
                         color: Theme.of(context)
                             .colorScheme
                             .tertiary
@@ -111,10 +125,10 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                   ]),
                   BarChartGroupData(x: 1, barRods: [
                     BarChartRodData(
-                        toY: state.weeklyScoreboard.tuesday,
+                        toY: weeklyScoreboard.tuesday,
                         color: Theme.of(context).colorScheme.primary),
                     BarChartRodData(
-                        toY: state.LastWeekScoreboard.tuesday,
+                        toY: LastWeekScoreboard.tuesday,
                         color: Theme.of(context)
                             .colorScheme
                             .tertiary
@@ -130,10 +144,10 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                   ]),
                   BarChartGroupData(x: 2, barRods: [
                     BarChartRodData(
-                        toY: state.weeklyScoreboard.wednesday,
+                        toY: weeklyScoreboard.wednesday,
                         color: Theme.of(context).colorScheme.primary),
                     BarChartRodData(
-                        toY: state.LastWeekScoreboard.wednesday,
+                        toY: LastWeekScoreboard.wednesday,
                         color: Theme.of(context)
                             .colorScheme
                             .tertiary
@@ -149,10 +163,10 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                   ]),
                   BarChartGroupData(x: 3, barRods: [
                     BarChartRodData(
-                        toY: state.weeklyScoreboard.thursday,
+                        toY: weeklyScoreboard.thursday,
                         color: Theme.of(context).colorScheme.primary),
                     BarChartRodData(
-                        toY: state.LastWeekScoreboard.thursday,
+                        toY: LastWeekScoreboard.thursday,
                         color: Theme.of(context)
                             .colorScheme
                             .tertiary
@@ -168,10 +182,10 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                   ]),
                   BarChartGroupData(x: 4, barRods: [
                     BarChartRodData(
-                        toY: state.weeklyScoreboard.friday,
+                        toY: weeklyScoreboard.friday,
                         color: Theme.of(context).colorScheme.primary),
                     BarChartRodData(
-                        toY: state.LastWeekScoreboard.friday,
+                        toY: LastWeekScoreboard.friday,
                         color: Theme.of(context)
                             .colorScheme
                             .tertiary
@@ -187,10 +201,10 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                   ]),
                   BarChartGroupData(x: 5, barRods: [
                     BarChartRodData(
-                        toY: state.weeklyScoreboard.saturday,
+                        toY: weeklyScoreboard.saturday,
                         color: Theme.of(context).colorScheme.primary),
                     BarChartRodData(
-                        toY: state.LastWeekScoreboard.saturday,
+                        toY: LastWeekScoreboard.saturday,
                         color: Theme.of(context)
                             .colorScheme
                             .tertiary
@@ -206,10 +220,10 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                   ]),
                   BarChartGroupData(x: 6, barRods: [
                     BarChartRodData(
-                        toY: state.weeklyScoreboard.sunday,
+                        toY: weeklyScoreboard.sunday,
                         color: Theme.of(context).colorScheme.primary),
                     BarChartRodData(
-                        toY: state.LastWeekScoreboard.sunday,
+                        toY: LastWeekScoreboard.sunday,
                         color: Theme.of(context)
                             .colorScheme
                             .tertiary
@@ -252,8 +266,8 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                       },
                     )),
                 minY: 0,
-                maxY: (max<double>(state.weeklyScoreboard.total,
-                            state.LastWeekScoreboard.total)
+                maxY: (max<double>(
+                            weeklyScoreboard.total, LastWeekScoreboard.total)
                         .toDouble() *
                     1.1),
                 minX: 0,
@@ -279,15 +293,16 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                       dashArray: [10, 5],
                       dotData: FlDotData(show: false),
                       spots: [
-                        FlSpot(1, state.LastWeekScoreboard.mondayCumulative),
-                        FlSpot(2, state.LastWeekScoreboard.tuesdayCumulative),
-                        FlSpot(3, state.LastWeekScoreboard.wednesdayCumulative),
-                        FlSpot(4, state.LastWeekScoreboard.thursdayCumulative),
-                        FlSpot(5, state.LastWeekScoreboard.fridayCumulative),
-                        FlSpot(6, state.LastWeekScoreboard.saturdayCumulative),
-                        FlSpot(7, state.LastWeekScoreboard.sundayCumulative),
+                        FlSpot(1, LastWeekScoreboard.mondayCumulative),
+                        FlSpot(2, LastWeekScoreboard.tuesdayCumulative),
+                        FlSpot(3, LastWeekScoreboard.wednesdayCumulative),
+                        FlSpot(4, LastWeekScoreboard.thursdayCumulative),
+                        FlSpot(5, LastWeekScoreboard.fridayCumulative),
+                        FlSpot(6, LastWeekScoreboard.saturdayCumulative),
+                        FlSpot(7, LastWeekScoreboard.sundayCumulative),
                       ]),
-                  thisWeekLineData(state.weeklyScoreboard, context),
+                  thisWeekLineData(weeklyScoreboard, context,
+                      widget.changeableDate, state.selectedDate),
                 ],
               )),
             ),
@@ -304,9 +319,13 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
   }
 }
 
-LineChartBarData thisWeekLineData(
-    WeeklyScoreboard weeklyScoreboard, BuildContext context) {
+LineChartBarData thisWeekLineData(WeeklyScoreboard weeklyScoreboard,
+    BuildContext context, bool changeableDate, DateTime date) {
   int weekDay = DateTime.now().weekday;
+
+  DateTime startOfWeek = DateTime.now()
+      .subtract(Duration(days: weekDay - 1))
+      .copyWith(hour: 0, minute: 0, second: 0, microsecond: 0);
 
   List<FlSpot> spots = [
     FlSpot(1, weeklyScoreboard.mondayCumulative),
@@ -317,11 +336,20 @@ LineChartBarData thisWeekLineData(
     FlSpot(6, weeklyScoreboard.saturdayCumulative),
     FlSpot(7, weeklyScoreboard.sundayCumulative),
   ];
-
-  return LineChartBarData(
-      color: Theme.of(context).colorScheme.primary,
-      dotData: FlDotData(show: false),
-      spots: [
-        ...spots.sublist(0, weekDay),
-      ]);
+  if (changeableDate &&
+      date
+          .copyWith(hour: 1, minute: 0, second: 0, microsecond: 0)
+          .isBefore(startOfWeek)) {
+    return LineChartBarData(
+        color: Theme.of(context).colorScheme.primary,
+        dotData: FlDotData(show: false),
+        spots: spots);
+  } else {
+    return LineChartBarData(
+        color: Theme.of(context).colorScheme.primary,
+        dotData: FlDotData(show: false),
+        spots: [
+          ...spots.sublist(0, weekDay),
+        ]);
+  }
 }

@@ -32,6 +32,8 @@ class LeaderboardLoaded extends LeaderboardState {
   List<DateTime> dates;
   DateTime selectedDate;
   TodaysSessions dailySessions;
+  WeeklyScoreboard weeklySessions;
+  WeeklyScoreboard weeklySessionsLastWeek;
   LeaderboardLoaded(
       this.weeklyScoreboard,
       this.monthlyScoreboard,
@@ -42,7 +44,9 @@ class LeaderboardLoaded extends LeaderboardState {
       this.timeGoals,
       this.dates,
       this.selectedDate,
-      this.dailySessions);
+      this.dailySessions,
+      this.weeklySessions,
+      this.weeklySessionsLastWeek);
 
   @override
   List<Object> get props => [
@@ -57,5 +61,7 @@ class LeaderboardLoaded extends LeaderboardState {
         selectedDate,
         dailySessions,
         dailySessions.total,
+        weeklySessions,
+        weeklySessionsLastWeek
       ];
 }
