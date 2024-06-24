@@ -1,3 +1,4 @@
+import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/bloc/timer/timer_bloc.dart';
 import 'package:deep_work/models/time.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
@@ -211,7 +212,52 @@ class _CentralTimerState extends State<CentralTimer> {
                           ),
                         ),
                       ],
-                    )
+                    ),
+                    (BlocProvider.of<SettingsBloc>(context).state
+                                as SettingsInitial)
+                            .showNotes
+                        ? IconButton(
+                            icon: Icon(Icons.notes_rounded),
+                            onPressed: () {
+                              BlocProvider.of<SettingsBloc>(context).add(
+                                ToggleNotes(),
+                              );
+                            })
+                        : Container(
+                            width: MediaQuery.of(context).size.width / 2.5,
+                            child: Stack(children: [
+                              TextField(
+                                keyboardType: TextInputType.multiline,
+                                onChanged: (value) {
+                                  BlocProvider.of<TimerBloc>(context).add(
+                                    TimerSetNotes(value),
+                                  );
+                                },
+                                maxLines: null,
+                                textAlign: TextAlign.center,
+                                decoration: InputDecoration(
+                                  hintText:
+                                      '''Action may not always bring happiness,
+but there is no happiness without action.''',
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: IconButton(
+                                  onPressed: () {
+                                    BlocProvider.of<SettingsBloc>(context).add(
+                                      ToggleNotes(),
+                                    );
+
+                                    BlocProvider.of<TimerBloc>(context).add(
+                                      TimerSubmitNotes(),
+                                    );
+                                  },
+                                  icon: Icon(Icons.close),
+                                ),
+                              )
+                            ]),
+                          ),
                   ],
                 ),
               );

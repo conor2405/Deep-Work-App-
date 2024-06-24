@@ -14,6 +14,8 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
   late TimerStats timerResult;
   Timer? _timer;
 
+  String currentNote = '';
+
   void _startTimer() async {
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       timerResult.tick();
@@ -50,6 +52,7 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
 
     on<TimerEnd>((event, emit) async {
       _stopTimer();
+      currentNote == '' ? null : timerResult.notes.add(currentNote);
       firestoreRepo.unsetLiveUser();
       emit(TimerDone(timerResult));
     });
@@ -106,6 +109,14 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
         timerResult.timeLeft.seconds = 3;
       }
       emit(TimerRunning(timerResult));
+    });
+    on<TimerSetNotes>((event, emit) async {
+      currentNote = event.notes;
+    });
+
+    on<TimerSubmitNotes>((event, emit) async {
+      timerResult.notes.add(currentNote);
+      currentNote = '';
     });
 
     @override

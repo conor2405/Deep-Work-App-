@@ -11,6 +11,7 @@ class TimerStats {
   List<Pause> pauseEvents = [];
   String? uid;
   int timeRun = 0;
+  List<String> notes = [];
 
   TimerStats({
     required this.targetTime,
@@ -55,6 +56,7 @@ class TimerStats {
       'pauses': pauses,
       'pauseEvents': pauseEvents.map((Pause pause) => pause.toJson()),
       'sessionEfficiency': sessionEfficiency,
+      'notes': notes,
     };
   }
 
@@ -81,6 +83,7 @@ class TimerResult {
   final List<Pause> pauseEvents;
   final int pauses;
   final double sessionEfficiency;
+  List<String> notes = [];
 
   TimerResult({
     required this.timeLeft,
@@ -94,6 +97,7 @@ class TimerResult {
     required this.pauses,
     required this.pauseEvents,
     required this.sessionEfficiency,
+    this.notes = const [],
   });
 
   factory TimerResult.fromJson(Map<String, dynamic> json) {
@@ -104,6 +108,12 @@ class TimerResult {
     double sessionEfficiency = 1;
     if (json.containsKey('sessionEfficiency')) {
       sessionEfficiency = json['sessionEfficiency'];
+    }
+    List<String> notes = [];
+    if (json.containsKey('notes')) {
+      json['notes'].forEach((note) {
+        notes.add(note);
+      });
     }
     return TimerResult(
       timeLeft: TimeModel(json['timeLeft']),
@@ -117,6 +127,7 @@ class TimerResult {
       pauses: json['pauses'],
       pauseEvents: pauseEvents,
       sessionEfficiency: sessionEfficiency,
+      notes: notes,
     );
   }
 }

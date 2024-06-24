@@ -51,3 +51,13 @@ final class TimerTakeFive extends TimerEvent {
 final class TimerConfirm extends TimerEvent {
   TimerConfirm();
 }
+
+final class TimerSetNotes extends TimerEvent {
+  final String notes;
+
+  TimerSetNotes(this.notes);
+}
+
+final class TimerSubmitNotes extends TimerEvent {
+  TimerSubmitNotes();
+}

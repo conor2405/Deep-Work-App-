@@ -95,8 +95,10 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                         getTitlesWidget: (double value, TitleMeta meta) {
                           return Text((value.toInt()).toString());
                         },
-                        interval: (max<double>(weeklyScoreboard.total,
-                                        LastWeekScoreboard.total)
+                        interval: (max<double>(
+                                        max<double>(weeklyScoreboard.total,
+                                            LastWeekScoreboard.total),
+                                        1)
                                     .toDouble() *
                                 1.1) /
                             4,
