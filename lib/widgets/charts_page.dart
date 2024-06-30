@@ -1,8 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
+import 'package:deep_work/models/timer_result.dart';
 import 'package:deep_work/widgets/day_bar.dart';
 import 'package:deep_work/widgets/day_selector.dart';
 import 'package:deep_work/widgets/graphic_weekly_chart.dart';
+import 'package:deep_work/widgets/notes_list.dart';
 import 'package:deep_work/widgets/sidebar.dart';
 import 'package:deep_work/widgets/timegoals.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +85,29 @@ class _ChartsPageState extends State<ChartsPage> {
                         ),
                       ),
                     ]),
+                SizedBox(height: 50),
+                // BlocBuilder<LeaderboardBloc, LeaderboardState>(
+                //     builder: (context, state) {
+                //   if (state is LeaderboardLoaded) {
+                //     return Container(
+                //       child: Center(
+                //         child: Column(
+                //           mainAxisAlignment: MainAxisAlignment.center,
+                //           crossAxisAlignment: CrossAxisAlignment.center,
+                //           children: notesList(state.dailySessions.sessions),
+                //         ),
+                //       ),
+                //     );
+                //   } else {
+                //     return Text('error loading leaderboard');
+                //   }
+                // }),
+                Center(
+                  child: Container(
+                      width: double.infinity,
+                      height: 600,
+                      child: Center(child: WidgetForNotesList())),
+                )
               ]),
             ),
           ),
@@ -91,4 +116,23 @@ class _ChartsPageState extends State<ChartsPage> {
       ),
     );
   }
+}
+
+String concatNotes(List<String> notes) {
+  String x = "";
+  for (String i in notes) {
+    x += i;
+  }
+  return x;
+}
+
+List<Widget> notesList(List<TimerResult> sessions) {
+  List<Widget> notes = [];
+  for (TimerResult session in sessions) {
+    notes.add(ListTile(
+      title: Text(session.startTime.toString()),
+      subtitle: Text(concatNotes(session.notes)),
+    ));
+  }
+  return notes;
 }

@@ -1,6 +1,5 @@
 import 'package:deep_work/models/time.dart';
 import 'package:deep_work/models/timer_result.dart';
-import '';
 
 class WeeklyScoreboard {
   double monday;
