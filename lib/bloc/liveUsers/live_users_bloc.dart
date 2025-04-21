@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:deep_work/models/live_users.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
+import 'package:deep_work/repo/realtime_db_repo.dart';
 
 import 'package:meta/meta.dart';
 
@@ -38,6 +39,8 @@ class LiveUsersBloc extends Bloc<LiveUsersEvent, LiveUsersState> {
     on<LiveUsersInit>((event, emit) async {
       emit(LiveUsersLoading());
       _listenToLiveUsers();
+      RealtimeDBRepo realtimeDBRepo = RealtimeDBRepo();
+      realtimeDBRepo.setDisconnect();
     });
   }
 

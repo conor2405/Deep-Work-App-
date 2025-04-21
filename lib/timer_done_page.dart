@@ -36,7 +36,7 @@ class _TimerDonePageState extends State<TimerDonePage> {
                   BlocProvider.of<LeaderboardBloc>(context)
                       .add(LeaderboardRefresh());
                 },
-                child: Text('Go back to Timer Page'),
+                child: Text('Confirm'),
               ),
             ],
           ),

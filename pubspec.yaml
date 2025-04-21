@@ -52,6 +52,7 @@ dependencies:
   url_launcher: ^6.2.6
   flutter_map_cache: ^1.5.0
   dio_cache_interceptor_hive_store: ^3.2.2
+  firebase_database: ^10.4.9
 
 dev_dependencies:
   flutter_test:
