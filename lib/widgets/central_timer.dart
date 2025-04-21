@@ -162,17 +162,6 @@ class _CentralTimerState extends State<CentralTimer> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        state is TimerPaused
-                            ? IconButton(
-                                onPressed: () {
-                                  BlocProvider.of<TimerBloc>(context)
-                                      .add(TimerStop());
-                                },
-                                icon: Icon(
-                                  Icons.stop,
-                                  size: 50,
-                                ))
-                            : Container(),
                         IconButton(
                             onPressed: () {
                               BlocProvider.of<TimerBloc>(context)
@@ -265,59 +254,57 @@ but there is no happiness without action.''',
               );
             },
           );
-        }
-        // } else if (state is TimerDone) {
-        //   return SleekCircularSlider(
-        //     appearance: CircularSliderAppearance(
-        //       infoProperties: InfoProperties(
-        //         mainLabelStyle: TextStyle(
-        //             color: Colors.black,
-        //             fontSize: 24,
-        //             fontWeight: FontWeight.w700),
-        //         topLabelText: 'Time Remaining',
-        //       ),
-        //       customWidths: CustomSliderWidths(
-        //           progressBarWidth: 3,
-        //           trackWidth: 3,
-        //           shadowWidth: 1,
-        //           handlerSize: 7),
-        //       customColors: CustomSliderColors(
-        //         progressBarColors: [
-        //           Theme.of(context).colorScheme.primary,
-        //           Theme.of(context).colorScheme.tertiary
-        //         ],
-        //         trackColor: Colors.grey,
-        //         shadowColor: Colors.black,
-        //         shadowMaxOpacity: 0.05,
-        //         shadowStep: 10,
-        //         dotColor: Colors.black,
-        //         hideShadow: false,
-        //         gradientStartAngle: 0,
-        //         gradientEndAngle: 180,
-        //       ),
-        //       animDurationMultiplier: 0.5,
-        //     ),
-        //     min: 0,
-        //     max: state.timeModel.targetTime.seconds.toDouble(),
-        //     initialValue: state.timeModel.timeLeft.seconds.toDouble(),
-        //     innerWidget: (double percentage) {
-        //       int _percentage_int = percentage.toInt();
-        //       int hours = (_percentage_int / 60).floor();
-        //       int minutes = (_percentage_int % 60);
-        //       return Center(
-        //         child: Column(
-        //           mainAxisAlignment: MainAxisAlignment.center,
-        //           children: [
-        //             Text(state.timeModel.timeLeft.timeString,
-        //                 style: TextStyle(
-        //                     fontSize: 30, fontWeight: FontWeight.w200)),
-        //           ],
-        //         ),
-        //       );
-        //     },
-        //   );
-        // }
-        else {
+        } else if (state is TimerDone) {
+          return SleekCircularSlider(
+            appearance: CircularSliderAppearance(
+              infoProperties: InfoProperties(
+                mainLabelStyle: TextStyle(
+                    color: Colors.black,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700),
+                topLabelText: 'Time Remaining',
+              ),
+              customWidths: CustomSliderWidths(
+                  progressBarWidth: 3,
+                  trackWidth: 3,
+                  shadowWidth: 1,
+                  handlerSize: 7),
+              customColors: CustomSliderColors(
+                progressBarColors: [
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.tertiary
+                ],
+                trackColor: Colors.grey,
+                shadowColor: Colors.black,
+                shadowMaxOpacity: 0.05,
+                shadowStep: 10,
+                dotColor: Colors.black,
+                hideShadow: false,
+                gradientStartAngle: 0,
+                gradientEndAngle: 180,
+              ),
+              animDurationMultiplier: 0.5,
+            ),
+            min: 0,
+            max: state.timeModel.targetTime.seconds.toDouble(),
+            initialValue: state.timeModel.timeLeft.seconds.toDouble(),
+            innerWidget: (double percentage) {
+              int _percentage_int = percentage.toInt();
+              int hours = (_percentage_int / 60).floor();
+              int minutes = (_percentage_int % 60);
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(state.timeModel.timeLeft.timeString,
+                        style: TextStyle(
+                            fontSize: 30, fontWeight: FontWeight.w200)),
+                  ],
+                ),
+              );
+            },
+          );
+        } else {
           return Center(child: Text('error loading timer'));
         }
       },
