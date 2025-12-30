@@ -38,6 +38,21 @@ void main() {
     PathProviderPlatform.instance = originalPathProvider;
   });
 
+  test('shouldUseCachedTiles disables cache on web', () {
+    expect(
+      shouldUseCachedTiles(enableTiles: true, isWeb: true),
+      isFalse,
+    );
+    expect(
+      shouldUseCachedTiles(enableTiles: true, isWeb: false),
+      isTrue,
+    );
+    expect(
+      shouldUseCachedTiles(enableTiles: false, isWeb: false),
+      isFalse,
+    );
+  });
+
   testWidgets('marker count matches live users', (tester) async {
     final liveUsersBloc = MockLiveUsersBloc();
     final users = LiveUsers(users: [

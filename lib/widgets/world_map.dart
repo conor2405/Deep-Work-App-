@@ -2,6 +2,7 @@ import 'package:deep_work/bloc/liveUsers/live_users_bloc.dart';
 import 'package:deep_work/models/live_users.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
 import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -30,6 +31,10 @@ class _WorldMapState extends State<WorldMap> {
   @override
   void initState() {
     super.initState();
+    if (kIsWeb) {
+      path = '';
+      return;
+    }
     getPath().then((value) {
       if (!mounted) {
         return;
@@ -43,7 +48,9 @@ class _WorldMapState extends State<WorldMap> {
   @override
   Widget build(BuildContext context) {
     final bloc = widget.liveUsersBloc;
-    if (path == null) {
+    final useCache =
+        shouldUseCachedTiles(enableTiles: widget.enableTiles, isWeb: kIsWeb);
+    if (useCache && path == null) {
       return Container(
         alignment: Alignment.center,
         child: CircularProgressIndicator(),
@@ -65,6 +72,8 @@ class _WorldMapState extends State<WorldMap> {
   }
 
   Widget _buildMap(BuildContext context) {
+    final useCache =
+        shouldUseCachedTiles(enableTiles: widget.enableTiles, isWeb: kIsWeb);
     return BlocBuilder<LiveUsersBloc, LiveUsersState>(
       builder: (context, state) {
         if (state is LiveUsersInitial) {
@@ -92,15 +101,17 @@ class _WorldMapState extends State<WorldMap> {
                           urlTemplate:
                               'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
                           userAgentPackageName: 'com.deep_work.app',
-                          tileProvider: CachedTileProvider(
-                            // maxStale keeps the tile cached for the given Duration and
-                            // tries to revalidate the next time it gets requested
-                            maxStale: const Duration(days: 1000),
-                            store: HiveCacheStore(
-                              path!,
-                              hiveBoxName: 'HiveCacheStore',
-                            ),
-                          ),
+                          tileProvider: useCache
+                              ? CachedTileProvider(
+                                  // maxStale keeps the tile cached for the given Duration and
+                                  // tries to revalidate the next time it gets requested
+                                  maxStale: const Duration(days: 1000),
+                                  store: HiveCacheStore(
+                                    path!,
+                                    hiveBoxName: 'HiveCacheStore',
+                                  ),
+                                )
+                              : null,
                         ),
                       MarkerLayer(markers: [
                         Marker(
@@ -128,6 +139,11 @@ class _WorldMapState extends State<WorldMap> {
       },
     );
   }
+}
+
+@visibleForTesting
+bool shouldUseCachedTiles({required bool enableTiles, required bool isWeb}) {
+  return enableTiles && !isWeb;
 }
 
 List<Marker> getMarkers(LiveUsers liveUsers) {

@@ -10,6 +10,36 @@ class MockDatabaseReference extends Mock implements DatabaseReference {}
 class MockOnDisconnect extends Mock implements OnDisconnect {}
 
 void main() {
+  test('resolveDatabaseUrl uses provided url', () {
+    expect(
+      resolveDatabaseUrl(
+        databaseUrl: 'https://example.firebaseio.com',
+        projectId: 'demo',
+      ),
+      'https://example.firebaseio.com',
+    );
+  });
+
+  test('resolveDatabaseUrl falls back to default url', () {
+    expect(
+      resolveDatabaseUrl(
+        databaseUrl: null,
+        projectId: 'demo-project',
+      ),
+      'https://demo-project-default-rtdb.firebaseio.com',
+    );
+  });
+
+  test('resolveDatabaseUrl throws when projectId is missing', () {
+    expect(
+      () => resolveDatabaseUrl(
+        databaseUrl: null,
+        projectId: '',
+      ),
+      throwsA(isA<StateError>()),
+    );
+  });
+
   test('setDisconnect writes expected fields', () async {
     final auth = MockFirebaseAuth(
       mockUser: MockUser(uid: 'user-1'),
