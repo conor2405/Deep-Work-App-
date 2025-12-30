@@ -10,6 +10,10 @@ import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
 
 class WorldMap extends StatefulWidget {
+  final LiveUsersBloc? liveUsersBloc;
+
+  WorldMap({super.key, this.liveUsersBloc});
+
   @override
   _WorldMapState createState() => _WorldMapState();
 }
@@ -20,19 +24,54 @@ Future<String> getPath() async {
 }
 
 class _WorldMapState extends State<WorldMap> {
-  String path = getPath().toString();
+  String? path;
+
+  @override
+  void initState() {
+    super.initState();
+    getPath().then((value) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        path = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
+    final bloc = widget.liveUsersBloc;
+    if (path == null) {
+      return Container(
+        alignment: Alignment.center,
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (bloc != null) {
+      return BlocProvider.value(
+        value: bloc,
+        child: _buildMap(context),
+      );
+    }
+
+    return BlocProvider<LiveUsersBloc>(
       create: (context) => LiveUsersBloc()..add(LiveUsersInit()),
-      child: BlocBuilder<LiveUsersBloc, LiveUsersState>(
-        builder: (context, state) {
-          if (state is LiveUsersInitial) {
-            return Container(
-              alignment: Alignment.center,
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is LiveUsersLoaded) {
+      lazy: false,
+      child: _buildMap(context),
+    );
+  }
+
+  Widget _buildMap(BuildContext context) {
+    return BlocBuilder<LiveUsersBloc, LiveUsersState>(
+      builder: (context, state) {
+        if (state is LiveUsersInitial) {
+          return Container(
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(),
+          );
+        } else if (state is LiveUsersLoaded) {
             return Stack(children: [
               Container(
                   alignment: Alignment.center,
@@ -56,7 +95,7 @@ class _WorldMapState extends State<WorldMap> {
                           // tries to revalidate the next time it gets requested
                           maxStale: const Duration(days: 1000),
                           store: HiveCacheStore(
-                            path,
+                            path!,
                             hiveBoxName: 'HiveCacheStore',
                           ),
                         ),
@@ -84,8 +123,7 @@ class _WorldMapState extends State<WorldMap> {
               child: Text('Error'),
             );
           }
-        },
-      ),
+      },
     );
   }
 }
