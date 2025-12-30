@@ -1,4 +1,3 @@
-import 'package:deep_work/repo/firestore_repo.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:meta/meta.dart';
 
@@ -6,8 +5,6 @@ part 'settings_event.dart';
 part 'settings_state.dart';
 
 class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
-  FirestoreRepo firestoreRepo = FirestoreRepo();
-
   bool isDarkMode = true;
   bool showMap = true;
   bool notes = true;
@@ -52,7 +49,14 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
       showMap = true;
     }
 
-    return SettingsInitial(isDarkMode: isDarkMode, showMap: showMap);
+    if (json['showNotes'] != null) {
+      notes = json['showNotes'];
+    } else {
+      notes = true;
+    }
+
+    return SettingsInitial(
+        isDarkMode: isDarkMode, showMap: showMap, showNotes: notes);
   }
 
   @override
@@ -60,6 +64,7 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     return {
       'isDarkMode': isDarkMode,
       'showMap': showMap,
+      'showNotes': notes,
     };
   }
 }

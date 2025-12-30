@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:deep_work/bloc/timer/timer_bloc.dart';
+import 'package:deep_work/models/goal.dart';
 import 'package:deep_work/models/monthly_leaderboard.dart';
 import 'package:deep_work/models/time.dart';
 import 'package:deep_work/models/timer_result.dart';
@@ -29,8 +30,16 @@ class MockFirestoreRepo extends Mock implements FirestoreRepo {
                 8)), // picking a date that is this month but not this week most of the time
         timeFinished:
             DateTime.now().subtract(Duration(days: 7, hours: 22, minutes: 30)),
+        pauseEvents: const [],
+        pauses: 0,
+        sessionEfficiency: 1,
       ),
     ];
+  }
+
+  @override
+  Future<TimeGoalsAll> getTimeGoals() async {
+    return TimeGoalsAll();
   }
 }
 

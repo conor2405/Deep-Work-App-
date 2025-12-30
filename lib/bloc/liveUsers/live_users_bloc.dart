@@ -12,44 +12,56 @@ part 'live_users_event.dart';
 part 'live_users_state.dart';
 
 class LiveUsersBloc extends Bloc<LiveUsersEvent, LiveUsersState> {
-  late StreamSubscription liveUsersStreamSubscription;
+  StreamSubscription<LiveUsers>? _liveUsersStreamSubscription;
   List<LiveUser> liveUsers = [];
 
-  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore? _firestore;
+  final RealtimeDBRepo _realtimeDBRepo;
+  final Stream<LiveUsers>? _liveUsersStream;
 
-  late CollectionReference<Map<String, dynamic>> collectionRef =
-      _firestore.collection('activeUsers');
-
-  void _listenToLiveUsers() async {
-    liveUsersStreamSubscription = collectionRef
-        .where('isActive', isEqualTo: true)
-        .snapshots()
-        .listen((event) {
-      // clear list to avoid adding duplicates
-      liveUsers = [];
-      event.docs.forEach((element) {
-        liveUsers.add(LiveUser.fromJson(element.data()));
-      });
-
-      emit(LiveUsersLoaded(LiveUsers(users: liveUsers)));
-    });
-  }
-
-  LiveUsersBloc() : super(LiveUsersInitial()) {
+  LiveUsersBloc({
+    FirebaseFirestore? firestore,
+    RealtimeDBRepo? realtimeDBRepo,
+    Stream<LiveUsers>? liveUsersStream,
+  })  : _firestore = firestore,
+        _realtimeDBRepo = realtimeDBRepo ?? RealtimeDBRepo(),
+        _liveUsersStream = liveUsersStream,
+        super(LiveUsersInitial()) {
     on<LiveUsersInit>((event, emit) async {
       emit(LiveUsersLoading());
       _listenToLiveUsers();
-      RealtimeDBRepo realtimeDBRepo = RealtimeDBRepo();
-      realtimeDBRepo.setDisconnect();
+      _realtimeDBRepo.setDisconnect();
+    });
+  }
+
+  Stream<LiveUsers> _buildLiveUsersStream() {
+    if (_liveUsersStream != null) {
+      return _liveUsersStream!;
+    }
+    final firestore = _firestore ?? FirebaseFirestore.instance;
+    return firestore
+        .collection('activeUsers')
+        .where('isActive', isEqualTo: true)
+        .snapshots()
+        .map((snapshot) {
+      final users = snapshot.docs
+          .map((doc) => LiveUser.fromJson(doc.data()))
+          .toList();
+      return LiveUsers(users: users);
+    });
+  }
+
+  void _listenToLiveUsers() {
+    _liveUsersStreamSubscription?.cancel();
+    _liveUsersStreamSubscription = _buildLiveUsersStream().listen((users) {
+      liveUsers = users.users;
+      emit(LiveUsersLoaded(users));
     });
   }
 
   @override
-  Future<void> close() {
-    // TODO: implement close
-
-    liveUsersStreamSubscription.cancel();
-
+  Future<void> close() async {
+    await _liveUsersStreamSubscription?.cancel();
     return super.close();
   }
 }

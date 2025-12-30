@@ -20,43 +20,30 @@ part 'to_do_state.dart';
 ///
 ///
 class ToDoBloc extends Bloc<ToDoEvent, ToDoState> {
-  ToDoBloc(FirestoreRepo firestoreRepo) : super(ToDoInitial()) {
+  final FirestoreRepo firestoreRepo;
+  final User? userOverride;
+
+  ToDoBloc(
+    this.firestoreRepo, {
+    this.userOverride,
+  }) : super(ToDoInitial()) {
     on<ToDoInit>((event, emit) async {
       emit(ToDoInitial());
       // List<Goal> goals = await firestoreRepo.getGoals();
+      final user = userOverride ?? FirebaseAuth.instance.currentUser!;
       List<Goal> goals = [
         Goal(
             id: 1,
             name: 'Goal 1',
             tasks: [
-              Task(
-                  id: 1,
-                  name: 'Task 1',
-                  uid: 'uid',
-                  user: FirebaseAuth.instance.currentUser!),
-              Task(
-                  id: 1,
-                  name: 'Task 2',
-                  uid: 'uid',
-                  user: FirebaseAuth.instance.currentUser!),
-              Task(
-                  id: 1,
-                  name: 'Task 3',
-                  uid: 'uid',
-                  user: FirebaseAuth.instance.currentUser!),
-              Task(
-                  id: 1,
-                  name: 'Task 4',
-                  uid: 'uid',
-                  user: FirebaseAuth.instance.currentUser!),
-              Task(
-                  id: 1,
-                  name: 'Task 5',
-                  uid: 'uid',
-                  user: FirebaseAuth.instance.currentUser!),
+              Task(id: 1, name: 'Task 1', uid: 'uid', user: user),
+              Task(id: 1, name: 'Task 2', uid: 'uid', user: user),
+              Task(id: 1, name: 'Task 3', uid: 'uid', user: user),
+              Task(id: 1, name: 'Task 4', uid: 'uid', user: user),
+              Task(id: 1, name: 'Task 5', uid: 'uid', user: user),
             ],
             uid: 'uid',
-            user: FirebaseAuth.instance.currentUser!)
+            user: user)
       ];
       emit(ToDoLoaded(goals));
     });
