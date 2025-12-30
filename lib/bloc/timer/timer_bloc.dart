@@ -11,13 +11,15 @@ part 'timer_event.dart';
 part 'timer_state.dart';
 
 class TimerBloc extends Bloc<TimerEvent, TimerState> {
+  final FirestoreRepo _firestoreRepo;
   late TimerStats timerResult;
   Timer? _timer;
+  Timer? _breakTimer;
 
   String currentNote = '';
 
   void _startTimer() async {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       timerResult.tick();
 
       // ignore: invalid_use_of_visible_for_testing_member
@@ -36,15 +38,39 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
     _timer = null;
   }
 
+  void _startBreakTimer() {
+    _breakTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      timerResult.tickBreak();
+
+      // ignore: invalid_use_of_visible_for_testing_member
+      emit(TimerBreakRunning(timerResult));
+
+      if (timerResult.breakTimeLeft.seconds <= 0) {
+        timerResult.breakTimeLeft = TimeModel.zero();
+        timerResult.endBreak();
+        timer.cancel();
+        _breakTimer = null;
+        _firestoreRepo.setLiveUserActive();
+        _startTimer();
+        emit(TimerRunning(timerResult));
+      }
+    });
+  }
+
+  void _stopBreakTimer() {
+    _breakTimer?.cancel();
+    _breakTimer = null;
+  }
+
   TimeModel time = TimeModel(90 * 60); // 90 minutes
 
-  TimerBloc(FirestoreRepo firestoreRepo)
+  TimerBloc(this._firestoreRepo)
       : super(TimerInitial(TimeModel(90 * 60))) {
     on<TimerStart>((event, emit) async {
       timerResult = TimerStats(targetTime: time);
       emit(TimerRunning(timerResult));
 
-      firestoreRepo.setLiveUser(
+      _firestoreRepo.setLiveUser(
           timerResult, 53.280687520332016, 6.326202939104593);
 
       _startTimer();
@@ -52,24 +78,28 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
 
     on<TimerEnd>((event, emit) async {
       _stopTimer();
+      _stopBreakTimer();
+      timerResult.endBreak();
       currentNote == '' ? null : timerResult.notes.add(currentNote);
-      firestoreRepo.unsetLiveUser();
+      _firestoreRepo.unsetLiveUser();
       emit(TimerDone(timerResult));
     });
 
     on<TimerStop>((event, emit) async {
       _stopTimer();
+      _stopBreakTimer();
       emit(TimerRunning(timerResult));
     });
 
     on<TimerConfirm>((event, emit) async {
-      firestoreRepo.postSession(timerResult);
+      _firestoreRepo.postSession(timerResult);
       time = TimeModel(90 * 60);
       emit(TimerInitial(time));
     });
 
     on<TimerReset>((event, emit) async {
       _stopTimer();
+      _stopBreakTimer();
       time.setMinutes = 90;
       print(time.seconds); // increment index to trigger a rebuild
       emit(TimerInitial(TimeModel(90 * 60)));
@@ -81,10 +111,13 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
     });
 
     on<TimerPause>((event, emit) async {
+      if (_breakTimer != null) {
+        return;
+      }
       // check its not already paused
       if (_timer != null) {
         timerResult.pause();
-        firestoreRepo.unsetLiveUser();
+        _firestoreRepo.unsetLiveUser();
       }
 
       _stopTimer();
@@ -92,20 +125,29 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       emit(TimerPaused(timerResult));
     });
     on<TimerResume>((event, emit) async {
+      if (_breakTimer != null) {
+        return;
+      }
       if (_timer == null) {
         _startTimer();
         timerResult.resume();
-        firestoreRepo.setLiveUserActive();
+        _firestoreRepo.setLiveUserActive();
       }
     });
 
     on<TimerAddFive>((event, emit) async {
+      if (_breakTimer != null) {
+        return;
+      }
       timerResult.timeLeft.seconds = timerResult.timeLeft.seconds + 300;
       timerResult.targetTime.seconds = timerResult.targetTime.seconds + 300;
       emit(TimerRunning(timerResult));
     });
 
     on<TimerTakeFive>((event, emit) async {
+      if (_breakTimer != null) {
+        return;
+      }
       timerResult.timeLeft.seconds = timerResult.timeLeft.seconds - 300;
       timerResult.targetTime.seconds = timerResult.targetTime.seconds - 300;
       if (timerResult.targetTime.seconds < 0 ||
@@ -115,6 +157,53 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       }
       emit(TimerRunning(timerResult));
     });
+
+    on<TimerStartBreak>((event, emit) async {
+      if (_timer == null || event.duration.seconds <= 0) {
+        return;
+      }
+      _stopTimer();
+      timerResult.startBreak(event.duration);
+      _firestoreRepo.unsetLiveUser();
+      _startBreakTimer();
+      emit(TimerBreakRunning(timerResult));
+    });
+
+    on<TimerEndBreak>((event, emit) async {
+      if (_breakTimer == null) {
+        return;
+      }
+      _stopBreakTimer();
+      timerResult.endBreak();
+      timerResult.breakTimeLeft = TimeModel.zero();
+      timerResult.breakTargetTime = TimeModel.zero();
+      _firestoreRepo.setLiveUserActive();
+      _startTimer();
+      emit(TimerRunning(timerResult));
+    });
+
+    on<TimerBreakAddFive>((event, emit) async {
+      if (_breakTimer == null) {
+        return;
+      }
+      timerResult.breakTimeLeft.seconds += 300;
+      timerResult.breakTargetTime.seconds += 300;
+      emit(TimerBreakRunning(timerResult));
+    });
+
+    on<TimerBreakTakeFive>((event, emit) async {
+      if (_breakTimer == null) {
+        return;
+      }
+      timerResult.breakTimeLeft.seconds -= 300;
+      timerResult.breakTargetTime.seconds -= 300;
+      if (timerResult.breakTimeLeft.seconds < 60 ||
+          timerResult.breakTargetTime.seconds < 60) {
+        timerResult.breakTimeLeft.seconds = 60;
+        timerResult.breakTargetTime.seconds = 60;
+      }
+      emit(TimerBreakRunning(timerResult));
+    });
     on<TimerSetNotes>((event, emit) async {
       currentNote = event.notes;
     });
@@ -123,13 +212,12 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       timerResult.notes.add(currentNote);
       currentNote = '';
     });
+  }
 
-    @override
-    close() {
-      if (_timer != null) {
-        _timer?.cancel();
-      }
-      super.close();
-    }
+  @override
+  Future<void> close() async {
+    _stopTimer();
+    _stopBreakTimer();
+    return super.close();
   }
 }

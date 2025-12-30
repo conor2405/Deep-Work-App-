@@ -44,24 +44,6 @@ class _TimerPageState extends State<TimerPage> {
                               BlocProvider.of<SettingsBloc>(context).add(
                                 ToggleShowMap(),
                               ))),
-                  BlocBuilder<TimerBloc, TimerState>(
-                    builder: (context, state) {
-                      if (state is TimerPaused) {
-                        return Container(
-                            alignment: Alignment.bottomCenter,
-                            padding: EdgeInsets.all(100),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                BlocProvider.of<TimerBloc>(context)
-                                    .add(TimerEnd());
-                              },
-                              child: Text('End Session'),
-                            ));
-                      } else {
-                        return Container();
-                      }
-                    },
-                  )
                 ]),
               );
             } else {

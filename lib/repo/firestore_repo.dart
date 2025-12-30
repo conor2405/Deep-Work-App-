@@ -23,6 +23,11 @@ class FirestoreRepo {
         pause.endTime = DateTime.now();
       }
     }
+    for (BreakPeriod breakEvent in timerResult.breakEvents) {
+      if (breakEvent.endTime == null) {
+        breakEvent.endTime = DateTime.now();
+      }
+    }
 
     _firestore.collection('sessions').add(timerResult.toJson());
   }

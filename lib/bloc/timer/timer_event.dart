@@ -48,6 +48,24 @@ final class TimerTakeFive extends TimerEvent {
   TimerTakeFive();
 }
 
+final class TimerStartBreak extends TimerEvent {
+  final TimeModel duration;
+
+  TimerStartBreak(this.duration);
+}
+
+final class TimerEndBreak extends TimerEvent {
+  TimerEndBreak();
+}
+
+final class TimerBreakAddFive extends TimerEvent {
+  TimerBreakAddFive();
+}
+
+final class TimerBreakTakeFive extends TimerEvent {
+  TimerBreakTakeFive();
+}
+
 final class TimerConfirm extends TimerEvent {
   TimerConfirm();
 }

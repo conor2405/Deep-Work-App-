@@ -5,10 +5,15 @@ class TimerStats {
   // all times and durations are in seconds
   late TimeModel timeLeft;
   final TimeModel targetTime;
+  TimeModel breakTimeLeft = TimeModel.zero();
+  TimeModel breakTargetTime = TimeModel.zero();
   bool completed = false;
   final DateTime startTime = DateTime.now();
   int pauses = 0;
   List<Pause> pauseEvents = [];
+  int breaks = 0;
+  int breakTime = 0;
+  List<BreakPeriod> breakEvents = [];
   String? uid;
   int timeRun = 0;
   List<String> notes = [];
@@ -28,6 +33,19 @@ class TimerStats {
     pauseEvents.last.endTime = DateTime.now();
   }
 
+  void startBreak(TimeModel duration) {
+    breaks++;
+    breakTargetTime = TimeModel(duration.seconds);
+    breakTimeLeft = TimeModel(duration.seconds);
+    breakEvents.add(BreakPeriod(startTime: DateTime.now()));
+  }
+
+  void endBreak() {
+    if (breakEvents.isNotEmpty && breakEvents.last.endTime == null) {
+      breakEvents.last.endTime = DateTime.now();
+    }
+  }
+
   Duration get timeElapsed => DateTime.now().difference(startTime);
 
   int get timePaused => timeElapsed.inSeconds - timeRun;
@@ -41,6 +59,11 @@ class TimerStats {
     timeRun++;
   }
 
+  void tickBreak() {
+    breakTimeLeft = TimeModel(breakTimeLeft.seconds - 1);
+    breakTime++;
+  }
+
   Map<String, dynamic> toJson() {
     final DateTime timeFinished = DateTime.now();
     return {
@@ -50,11 +73,15 @@ class TimerStats {
       'completed': completed,
       'timeRun': timeRun,
       'timePaused': timePaused,
+      'breakTime': breakTime,
       'timeElapsed': timeElapsed.inSeconds,
       'startTime': startTime,
       'timeFinished': timeFinished,
       'pauses': pauses,
+      'breaks': breaks,
       'pauseEvents': pauseEvents.map((Pause pause) => pause.toJson()).toList(),
+      'breakEvents':
+          breakEvents.map((BreakPeriod breakEvent) => breakEvent.toJson()).toList(),
       'sessionEfficiency': sessionEfficiency,
       'notes': notes,
     };
@@ -66,6 +93,18 @@ class TimerStats {
     );
     timerStats.timeLeft = TimeModel(json['timeLeft']);
     timerStats.completed = json['completed'];
+    if (json.containsKey('breakTime')) {
+      timerStats.breakTime = json['breakTime'];
+    }
+    if (json.containsKey('breaks')) {
+      timerStats.breaks = json['breaks'];
+    }
+    if (json.containsKey('breakEvents')) {
+      final breakEvents = json['breakEvents'] as List<dynamic>;
+      timerStats.breakEvents = breakEvents
+          .map((event) => BreakPeriod.fromJson(event as Map<String, dynamic>))
+          .toList();
+    }
     return timerStats;
   }
 }
@@ -77,11 +116,14 @@ class TimerResult {
   final bool completed;
   final int timeRun;
   final int timePaused;
+  final int breakTime;
   final int timeElapsed;
   final DateTime startTime;
   final DateTime timeFinished;
   final List<Pause> pauseEvents;
   final int pauses;
+  final List<BreakPeriod> breakEvents;
+  final int breaks;
   final double sessionEfficiency;
   List<String> notes = [];
 
@@ -91,11 +133,14 @@ class TimerResult {
     required this.completed,
     required this.timeRun,
     required this.timePaused,
+    this.breakTime = 0,
     required this.timeElapsed,
     required this.startTime,
     required this.timeFinished,
     required this.pauses,
     required this.pauseEvents,
+    this.breakEvents = const [],
+    this.breaks = 0,
     required this.sessionEfficiency,
     this.notes = const [],
   });
@@ -104,6 +149,12 @@ class TimerResult {
     List<Pause> pauseEvents = [];
     for (Map<String, dynamic> pause in json['pauseEvents']) {
       pauseEvents.add(Pause.fromJson(pause));
+    }
+    List<BreakPeriod> breakEvents = [];
+    if (json.containsKey('breakEvents')) {
+      for (Map<String, dynamic> breakEvent in json['breakEvents']) {
+        breakEvents.add(BreakPeriod.fromJson(breakEvent));
+      }
     }
     double sessionEfficiency = 1;
     if (json.containsKey('sessionEfficiency')) {
@@ -121,11 +172,14 @@ class TimerResult {
       completed: json['completed'],
       timeRun: json['timeRun'],
       timePaused: json['timePaused'],
+      breakTime: json['breakTime'] ?? 0,
       timeElapsed: json['timeElapsed'],
       startTime: DateTime.parse(json['startTime'].toDate().toString()),
       timeFinished: DateTime.parse(json['timeFinished'].toDate().toString()),
       pauses: json['pauses'],
       pauseEvents: pauseEvents,
+      breaks: json['breaks'] ?? breakEvents.length,
+      breakEvents: breakEvents,
       sessionEfficiency: sessionEfficiency,
       notes: notes,
     );
@@ -159,6 +213,39 @@ class Pause {
       );
     }
     return Pause(
+      startTime: DateTime.parse(json['startTime'].toDate().toString()),
+      endTime: DateTime.parse(json['endTime'].toDate().toString()),
+    );
+  }
+}
+
+/// holds the start and end time of a break event.
+class BreakPeriod {
+  final DateTime startTime;
+  DateTime? endTime;
+
+  BreakPeriod({
+    required this.startTime,
+    this.endTime,
+  });
+
+  int get timeOnBreak =>
+      endTime == null ? 0 : endTime!.difference(startTime).inSeconds;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'startTime': startTime,
+      'endTime': endTime,
+    };
+  }
+
+  factory BreakPeriod.fromJson(Map<String, dynamic> json) {
+    if (json['endTime'] == null) {
+      return BreakPeriod(
+        startTime: DateTime.parse(json['startTime'].toDate().toString()),
+      );
+    }
+    return BreakPeriod(
       startTime: DateTime.parse(json['startTime'].toDate().toString()),
       endTime: DateTime.parse(json['endTime'].toDate().toString()),
     );

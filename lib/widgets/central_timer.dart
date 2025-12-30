@@ -1,10 +1,8 @@
 import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/bloc/timer/timer_bloc.dart';
 import 'package:deep_work/models/time.dart';
-import 'package:deep_work/repo/firestore_repo.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
@@ -17,6 +15,83 @@ class CentralTimer extends StatefulWidget {
 }
 
 class _CentralTimerState extends State<CentralTimer> {
+  Future<void> _showBreakDialog(BuildContext context) async {
+    int selectedMinutes = 5;
+    final int? breakMinutes = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Take a break'),
+              content: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.remove),
+                    onPressed: selectedMinutes <= 5
+                        ? null
+                        : () => setState(() => selectedMinutes -= 5),
+                  ),
+                  Text(
+                    '$selectedMinutes min',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () => setState(() => selectedMinutes += 5),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, selectedMinutes),
+                  child: Text('Start Break'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (breakMinutes != null && breakMinutes > 0) {
+      BlocProvider.of<TimerBloc>(context).add(
+        TimerStartBreak(TimeModel(breakMinutes * 60)),
+      );
+    }
+  }
+
+  Future<void> _showEndSessionDialog(BuildContext context) async {
+    final bool? shouldEnd = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('End session?'),
+          content: Text('Are you sure you want to end this focus session?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text('End Session'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldEnd == true) {
+      BlocProvider.of<TimerBloc>(context).add(TimerEnd());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TimerBloc, TimerState>(
@@ -114,6 +189,92 @@ class _CentralTimerState extends State<CentralTimer> {
               ]),
             ],
           );
+        } else if (state is TimerBreakRunning) {
+          final maxSeconds = state.timeModel.breakTargetTime.seconds > 0
+              ? state.timeModel.breakTargetTime.seconds.toDouble()
+              : state.timeModel.breakTimeLeft.seconds.toDouble();
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints.tight(Size(500, 500)),
+              child: SleekCircularSlider(
+                appearance: CircularSliderAppearance(
+                  infoProperties: InfoProperties(
+                    mainLabelStyle: TextStyle(
+                        color: Colors.black,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700),
+                    topLabelText: 'Break Remaining',
+                  ),
+                  customWidths: CustomSliderWidths(
+                      progressBarWidth: 3,
+                      trackWidth: 3,
+                      shadowWidth: 1,
+                      handlerSize: 7),
+                  customColors: CustomSliderColors(
+                    progressBarColors: [
+                      Theme.of(context).colorScheme.tertiary,
+                      Colors.orange.shade100
+                    ],
+                    trackColor: Colors.grey,
+                    shadowColor: Colors.black,
+                    shadowMaxOpacity: 0.05,
+                    shadowStep: 10,
+                    dotColor: Colors.black,
+                    hideShadow: false,
+                    gradientStartAngle: 0,
+                    gradientEndAngle: 180,
+                  ),
+                  animDurationMultiplier: 0.5,
+                ),
+                min: 0,
+                max: maxSeconds == 0 ? 1 : maxSeconds,
+                initialValue:
+                    state.timeModel.breakTimeLeft.seconds.toDouble(),
+                innerWidget: (double percentage) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(state.timeModel.breakTimeLeft.timeString,
+                            style: TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.w200)),
+                        TextButton(
+                          onPressed: () {
+                            BlocProvider.of<TimerBloc>(context)
+                                .add(TimerEndBreak());
+                          },
+                          child: Text('End Break'),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(50.0),
+                              child: IconButton(
+                                icon: Icon(Icons.remove),
+                                onPressed: () =>
+                                    BlocProvider.of<TimerBloc>(context)
+                                        .add(TimerBreakTakeFive()),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(50),
+                              child: IconButton(
+                                icon: Icon(Icons.add),
+                                onPressed: () =>
+                                    BlocProvider.of<TimerBloc>(context)
+                                        .add(TimerBreakAddFive()),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
         } else if (state is TimerRunning && state is! TimerDone) {
           return Center(
             child: ConstrainedBox(
@@ -165,30 +326,6 @@ class _CentralTimerState extends State<CentralTimer> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            IconButton(
-                                onPressed: () {
-                                  BlocProvider.of<TimerBloc>(context)
-                                      .add(TimerPause());
-                                },
-                                icon: Icon(
-                                  Icons.pause,
-                                  size: 50,
-                                )),
-                            IconButton(
-                              onPressed: () {
-                                BlocProvider.of<TimerBloc>(context)
-                                    .add(TimerResume());
-                              },
-                              icon: Icon(
-                                Icons.play_arrow,
-                                size: 50,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
                             Padding(
                               padding: const EdgeInsets.all(50.0),
                               child: IconButton(
@@ -208,6 +345,16 @@ class _CentralTimerState extends State<CentralTimer> {
                               ),
                             ),
                           ],
+                        ),
+                        OutlinedButton.icon(
+                          icon: Icon(Icons.stop_circle_outlined),
+                          onPressed: () => _showEndSessionDialog(context),
+                          label: Text('End Session'),
+                        ),
+                        OutlinedButton.icon(
+                          icon: Icon(Icons.free_breakfast),
+                          onPressed: () => _showBreakDialog(context),
+                          label: Text('Take Break'),
                         ),
                         (BlocProvider.of<SettingsBloc>(context).state
                                     as SettingsInitial)

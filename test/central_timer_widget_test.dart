@@ -18,10 +18,13 @@ class MockSettingsBloc extends MockBloc<SettingsEvent, SettingsState>
 void main() {
   setUpAll(() {
     registerFallbackValue(TimerStart());
-    registerFallbackValue(TimerPause());
-    registerFallbackValue(TimerResume());
+    registerFallbackValue(TimerEnd());
     registerFallbackValue(TimerAddFive());
     registerFallbackValue(TimerTakeFive());
+    registerFallbackValue(TimerStartBreak(TimeModel(300)));
+    registerFallbackValue(TimerEndBreak());
+    registerFallbackValue(TimerBreakAddFive());
+    registerFallbackValue(TimerBreakTakeFive());
     registerFallbackValue(TimerSetNotes(''));
     registerFallbackValue(TimerSubmitNotes());
     registerFallbackValue(ToggleNotes());
@@ -83,15 +86,21 @@ void main() {
       ),
     );
 
-    await tester.tap(find.byIcon(Icons.pause));
-    await tester.tap(find.byIcon(Icons.play_arrow));
     await tester.tap(find.byIcon(Icons.remove));
     await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.widgetWithText(OutlinedButton, 'End Session'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ElevatedButton, 'End Session'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Take Break'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Start Break'));
+    await tester.pumpAndSettle();
 
-    verify(() => timerBloc.add(any(that: isA<TimerPause>()))).called(1);
-    verify(() => timerBloc.add(any(that: isA<TimerResume>()))).called(1);
     verify(() => timerBloc.add(any(that: isA<TimerTakeFive>()))).called(1);
     verify(() => timerBloc.add(any(that: isA<TimerAddFive>()))).called(1);
+    verify(() => timerBloc.add(any(that: isA<TimerEnd>()))).called(1);
+    verify(() => timerBloc.add(any(that: isA<TimerStartBreak>()))).called(1);
   });
 
   testWidgets('notes panel respects settings', (tester) async {
@@ -137,5 +146,39 @@ void main() {
 
     expect(find.byType(TextField), findsOneWidget);
     expect(find.byIcon(Icons.close), findsOneWidget);
+  });
+
+  testWidgets('break controls dispatch events', (tester) async {
+    final timerBloc = MockTimerBloc();
+    final settingsBloc = MockSettingsBloc();
+    final stats = TimerStats(targetTime: TimeModel(600));
+    stats.breakTargetTime = TimeModel(300);
+    stats.breakTimeLeft = TimeModel(300);
+
+    when(() => timerBloc.state).thenReturn(TimerBreakRunning(stats));
+    when(() => settingsBloc.state).thenReturn(SettingsInitial(showNotes: true));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: MultiBlocProvider(
+            providers: [
+              BlocProvider<TimerBloc>.value(value: timerBloc),
+              BlocProvider<SettingsBloc>.value(value: settingsBloc),
+            ],
+            child: CentralTimer(),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('End Break'));
+    await tester.tap(find.byIcon(Icons.remove));
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pump();
+
+    verify(() => timerBloc.add(any(that: isA<TimerEndBreak>()))).called(1);
+    verify(() => timerBloc.add(any(that: isA<TimerBreakTakeFive>()))).called(1);
+    verify(() => timerBloc.add(any(that: isA<TimerBreakAddFive>()))).called(1);
   });
 }

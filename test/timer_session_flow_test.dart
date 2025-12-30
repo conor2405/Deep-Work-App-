@@ -25,10 +25,10 @@ void main() {
     bloc.add(TimerStart());
     await pumpEventQueue();
 
-    bloc.add(TimerPause());
+    bloc.add(TimerStartBreak(TimeModel(5 * 60)));
     await pumpEventQueue();
 
-    bloc.add(TimerResume());
+    bloc.add(TimerEndBreak());
     await pumpEventQueue();
 
     bloc.add(TimerEnd());

@@ -27,6 +27,22 @@ void main() {
 
       expect(stats.pauseEvents.last.endTime, isNotNull);
     });
+
+    test('break tracking updates break time and events', () {
+      final stats = TimerStats(targetTime: TimeModel(10));
+
+      stats.startBreak(TimeModel(300));
+      stats.tickBreak();
+
+      expect(stats.breaks, 1);
+      expect(stats.breakTime, 1);
+      expect(stats.breakEvents.length, 1);
+      expect(stats.breakEvents.last.endTime, isNull);
+
+      stats.endBreak();
+
+      expect(stats.breakEvents.last.endTime, isNotNull);
+    });
   });
 
   group('TimerResult.fromJson', () {
@@ -35,6 +51,8 @@ void main() {
       final end = start.add(Duration(minutes: 10));
       final pauseStart = start.add(Duration(minutes: 2));
       final pauseEnd = pauseStart.add(Duration(minutes: 1));
+      final breakStart = start.add(Duration(minutes: 4));
+      final breakEnd = breakStart.add(Duration(minutes: 2));
 
       final json = {
         'timeLeft': 0,
@@ -42,14 +60,22 @@ void main() {
         'completed': true,
         'timeRun': 600,
         'timePaused': 60,
+        'breakTime': 120,
         'timeElapsed': 660,
         'startTime': Timestamp.fromDate(start),
         'timeFinished': Timestamp.fromDate(end),
         'pauses': 1,
+        'breaks': 1,
         'pauseEvents': [
           {
             'startTime': Timestamp.fromDate(pauseStart),
             'endTime': Timestamp.fromDate(pauseEnd),
+          }
+        ],
+        'breakEvents': [
+          {
+            'startTime': Timestamp.fromDate(breakStart),
+            'endTime': Timestamp.fromDate(breakEnd),
           }
         ],
         'sessionEfficiency': 0.9,
@@ -62,6 +88,11 @@ void main() {
       expect(result.pauseEvents.length, 1);
       expect(result.pauseEvents.first.startTime, pauseStart);
       expect(result.pauseEvents.first.endTime, pauseEnd);
+      expect(result.breakEvents.length, 1);
+      expect(result.breakEvents.first.startTime, breakStart);
+      expect(result.breakEvents.first.endTime, breakEnd);
+      expect(result.breakTime, 120);
+      expect(result.breaks, 1);
       expect(result.sessionEfficiency, 0.9);
     });
 
@@ -86,6 +117,9 @@ void main() {
 
       expect(result.sessionEfficiency, 1);
       expect(result.notes, isEmpty);
+      expect(result.breakTime, 0);
+      expect(result.breaks, 0);
+      expect(result.breakEvents, isEmpty);
     });
   });
 }
