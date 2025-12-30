@@ -86,8 +86,6 @@ List<Widget> generateDaysBars(LeaderboardLoaded state,
         ),
       ),
     ));
-
-    buildPauses(timerResult, constraints);
   }
   if (!changeableDate) {
     daysBars.add(Positioned(
@@ -133,26 +131,4 @@ double widthOfCurrentTimeBar(int timeSetOnTimer, BoxConstraints constraints) {
   double percentOfDay = timeSetOnTimer / 86400;
 
   return (constraints.maxWidth * percentOfDay);
-}
-
-Widget buildPauses(TimerResult timerResult, BoxConstraints constraints) {
-  List<Widget> pauses = [];
-
-  for (Pause pause in timerResult.pauseEvents) {
-    pauses.add(Positioned(
-      left: alignmentPosition(pause.startTime, constraints),
-      child: Container(
-        width: widthofBar(pause.startTime, pause.endTime!, constraints),
-        height: 12,
-        decoration: BoxDecoration(
-          color: Colors.orange,
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    ));
-  }
-
-  return Stack(
-    children: pauses,
-  );
 }

@@ -26,17 +26,14 @@ void main() {
       repo = FirestoreRepo(firestore: firestore, authRepo: authRepo);
     });
 
-    test('postSession sets uid and closes open pauses', () async {
+    test('postSession sets uid and closes open breaks', () async {
       final stats = TimerStats(targetTime: TimeModel(600));
-      stats.pause();
       stats.startBreak(TimeModel(300));
-      expect(stats.pauseEvents.first.endTime, isNull);
       expect(stats.breakEvents.first.endTime, isNull);
 
       repo.postSession(stats);
 
       expect(stats.uid, 'user-1');
-      expect(stats.pauseEvents.first.endTime, isNotNull);
       expect(stats.breakEvents.first.endTime, isNotNull);
 
       final snapshot = await firestore.collection('sessions').get();

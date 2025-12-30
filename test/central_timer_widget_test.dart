@@ -88,11 +88,11 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.remove));
     await tester.tap(find.byIcon(Icons.add));
-    await tester.tap(find.widgetWithText(OutlinedButton, 'End Session'));
+    await tester.tap(find.byIcon(Icons.stop_circle_outlined));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ElevatedButton, 'End Session'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Take Break'));
+    await tester.tap(find.byIcon(Icons.free_breakfast));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ElevatedButton, 'Start Break'));
     await tester.pumpAndSettle();

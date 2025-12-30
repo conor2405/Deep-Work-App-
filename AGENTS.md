@@ -38,9 +38,9 @@
 
 ## Firebase data model (current)
 - `sessions` collection
-  - Fields: `uid`, `timeLeft`, `targetTime`, `completed`, `timeRun`, `timePaused`,
-    `breakTime`, `timeElapsed`, `startTime`, `timeFinished`, `pauses`, `breaks`,
-    `pauseEvents`, `breakEvents`, `sessionEfficiency`, `notes`.
+  - Fields: `uid`, `timeLeft`, `targetTime`, `completed`, `timeRun`, `breakTime`,
+    `timeElapsed`, `startTime`, `timeFinished`, `breaks`, `breakEvents`,
+    `sessionEfficiency`, `notes`.
 - `activeUsers` collection
   - Fields: `uid`, `isActive`, `lat`, `lng`.
 - `timeGoals` collection

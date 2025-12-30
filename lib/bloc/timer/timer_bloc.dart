@@ -110,31 +110,6 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       emit(TimerInitial(time));
     });
 
-    on<TimerPause>((event, emit) async {
-      if (_breakTimer != null) {
-        return;
-      }
-      // check its not already paused
-      if (_timer != null) {
-        timerResult.pause();
-        _firestoreRepo.unsetLiveUser();
-      }
-
-      _stopTimer();
-
-      emit(TimerPaused(timerResult));
-    });
-    on<TimerResume>((event, emit) async {
-      if (_breakTimer != null) {
-        return;
-      }
-      if (_timer == null) {
-        _startTimer();
-        timerResult.resume();
-        _firestoreRepo.setLiveUserActive();
-      }
-    });
-
     on<TimerAddFive>((event, emit) async {
       if (_breakTimer != null) {
         return;

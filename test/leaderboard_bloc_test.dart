@@ -22,7 +22,6 @@ class MockFirestoreRepo extends Mock implements FirestoreRepo {
         targetTime: TimeModel(90 * 60),
         completed: true,
         timeLeft: TimeModel(0),
-        timePaused: 0,
         timeRun: 90 * 60,
         timeElapsed: 90 * 60,
         startTime: DateTime.now().subtract(Duration(
@@ -30,8 +29,6 @@ class MockFirestoreRepo extends Mock implements FirestoreRepo {
                 8)), // picking a date that is this month but not this week most of the time
         timeFinished:
             DateTime.now().subtract(Duration(days: 7, hours: 22, minutes: 30)),
-        pauseEvents: const [],
-        pauses: 0,
         sessionEfficiency: 1,
       ),
     ];

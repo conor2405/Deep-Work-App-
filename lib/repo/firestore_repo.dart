@@ -18,11 +18,6 @@ class FirestoreRepo {
 
   void postSession(TimerStats timerResult) {
     timerResult.setUID = uid!;
-    for (Pause pause in timerResult.pauseEvents) {
-      if (pause.endTime == null) {
-        pause.endTime = DateTime.now();
-      }
-    }
     for (BreakPeriod breakEvent in timerResult.breakEvents) {
       if (breakEvent.endTime == null) {
         breakEvent.endTime = DateTime.now();
@@ -106,7 +101,7 @@ class FirestoreRepo {
 
   // update live user time
 
-  // pause live user
+  // deactivate live user
   void unsetLiveUser() {
     _firestore.collection('activeUsers').doc(uid).set(
       {
@@ -116,7 +111,7 @@ class FirestoreRepo {
     );
   }
 
-  // unpause live user
+  // reactivate live user
   void setLiveUserActive() {
     _firestore.collection('activeUsers').doc(uid).set(
       {

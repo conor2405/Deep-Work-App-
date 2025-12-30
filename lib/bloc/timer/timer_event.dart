@@ -28,14 +28,6 @@ final class Tick extends TimerEvent {
   List<Object> get props => [counter];
 }
 
-final class TimerPause extends TimerEvent {
-  TimerPause();
-}
-
-final class TimerResume extends TimerEvent {
-  TimerResume();
-}
-
 final class TimerStop extends TimerEnd {
   TimerStop() : super();
 }

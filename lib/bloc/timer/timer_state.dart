@@ -25,12 +25,6 @@ final class TimerRunning extends TimerState {
   List<Object> get props => [timeModel, identityHashCode(this)];
 }
 
-final class TimerPaused extends TimerRunning {
-  final TimerStats timeModel;
-
-  TimerPaused(this.timeModel) : super(timeModel);
-}
-
 final class TimerBreakRunning extends TimerState {
   final TimerStats timeModel;
 

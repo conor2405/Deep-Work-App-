@@ -9,8 +9,6 @@ class TimerStats {
   TimeModel breakTargetTime = TimeModel.zero();
   bool completed = false;
   final DateTime startTime = DateTime.now();
-  int pauses = 0;
-  List<Pause> pauseEvents = [];
   int breaks = 0;
   int breakTime = 0;
   List<BreakPeriod> breakEvents = [];
@@ -22,15 +20,6 @@ class TimerStats {
     required this.targetTime,
   }) {
     timeLeft = targetTime;
-  }
-
-  void pause() {
-    pauses++;
-    pauseEvents.add(Pause(startTime: DateTime.now()));
-  }
-
-  void resume() {
-    pauseEvents.last.endTime = DateTime.now();
   }
 
   void startBreak(TimeModel duration) {
@@ -48,7 +37,6 @@ class TimerStats {
 
   Duration get timeElapsed => DateTime.now().difference(startTime);
 
-  int get timePaused => timeElapsed.inSeconds - timeRun;
   double get sessionEfficiency =>
       timeRun / timeElapsed.inSeconds > 1 ? 1 : timeRun / timeElapsed.inSeconds;
 
@@ -72,14 +60,11 @@ class TimerStats {
       'targetTime': targetTime.seconds,
       'completed': completed,
       'timeRun': timeRun,
-      'timePaused': timePaused,
       'breakTime': breakTime,
       'timeElapsed': timeElapsed.inSeconds,
       'startTime': startTime,
       'timeFinished': timeFinished,
-      'pauses': pauses,
       'breaks': breaks,
-      'pauseEvents': pauseEvents.map((Pause pause) => pause.toJson()).toList(),
       'breakEvents':
           breakEvents.map((BreakPeriod breakEvent) => breakEvent.toJson()).toList(),
       'sessionEfficiency': sessionEfficiency,
@@ -115,13 +100,10 @@ class TimerResult {
   final TimeModel targetTime;
   final bool completed;
   final int timeRun;
-  final int timePaused;
   final int breakTime;
   final int timeElapsed;
   final DateTime startTime;
   final DateTime timeFinished;
-  final List<Pause> pauseEvents;
-  final int pauses;
   final List<BreakPeriod> breakEvents;
   final int breaks;
   final double sessionEfficiency;
@@ -132,13 +114,10 @@ class TimerResult {
     required this.targetTime,
     required this.completed,
     required this.timeRun,
-    required this.timePaused,
     this.breakTime = 0,
     required this.timeElapsed,
     required this.startTime,
     required this.timeFinished,
-    required this.pauses,
-    required this.pauseEvents,
     this.breakEvents = const [],
     this.breaks = 0,
     required this.sessionEfficiency,
@@ -146,10 +125,6 @@ class TimerResult {
   });
 
   factory TimerResult.fromJson(Map<String, dynamic> json) {
-    List<Pause> pauseEvents = [];
-    for (Map<String, dynamic> pause in json['pauseEvents']) {
-      pauseEvents.add(Pause.fromJson(pause));
-    }
     List<BreakPeriod> breakEvents = [];
     if (json.containsKey('breakEvents')) {
       for (Map<String, dynamic> breakEvent in json['breakEvents']) {
@@ -171,50 +146,14 @@ class TimerResult {
       targetTime: TimeModel(json['targetTime']),
       completed: json['completed'],
       timeRun: json['timeRun'],
-      timePaused: json['timePaused'],
       breakTime: json['breakTime'] ?? 0,
       timeElapsed: json['timeElapsed'],
       startTime: DateTime.parse(json['startTime'].toDate().toString()),
       timeFinished: DateTime.parse(json['timeFinished'].toDate().toString()),
-      pauses: json['pauses'],
-      pauseEvents: pauseEvents,
       breaks: json['breaks'] ?? breakEvents.length,
       breakEvents: breakEvents,
       sessionEfficiency: sessionEfficiency,
       notes: notes,
-    );
-  }
-}
-
-/// holds the start and end time of a pause event.
-/// strored in timerstats and timerresult as a list of [Pause] events.
-class Pause {
-  final DateTime startTime;
-  DateTime? endTime;
-
-  Pause({
-    required this.startTime,
-    this.endTime,
-  });
-
-  get timePaused => endTime!.difference(startTime).inSeconds;
-
-  Map<String, dynamic> toJson() {
-    return {
-      'startTime': startTime,
-      'endTime': endTime,
-    };
-  }
-
-  factory Pause.fromJson(Map<String, dynamic> json) {
-    if (json['endTime'] == null) {
-      return Pause(
-        startTime: DateTime.parse(json['startTime'].toDate().toString()),
-      );
-    }
-    return Pause(
-      startTime: DateTime.parse(json['startTime'].toDate().toString()),
-      endTime: DateTime.parse(json['endTime'].toDate().toString()),
     );
   }
 }
