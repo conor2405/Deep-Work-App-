@@ -27,6 +27,16 @@ void main() {
     registerFallbackValue(ToggleNotes());
   });
 
+  setUp(() {
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    binding.window.physicalSizeTestValue = const Size(1200, 1200);
+    binding.window.devicePixelRatioTestValue = 1.0;
+    addTearDown(() {
+      binding.window.clearPhysicalSizeTestValue();
+      binding.window.clearDevicePixelRatioTestValue();
+    });
+  });
+
   testWidgets('renders time from TimerBloc state', (tester) async {
     final timerBloc = MockTimerBloc();
     final settingsBloc = MockSettingsBloc();
@@ -35,12 +45,14 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: MultiBlocProvider(
-          providers: [
-            BlocProvider<TimerBloc>.value(value: timerBloc),
-            BlocProvider<SettingsBloc>.value(value: settingsBloc),
-          ],
-          child: CentralTimer(),
+        home: Scaffold(
+          body: MultiBlocProvider(
+            providers: [
+              BlocProvider<TimerBloc>.value(value: timerBloc),
+              BlocProvider<SettingsBloc>.value(value: settingsBloc),
+            ],
+            child: CentralTimer(),
+          ),
         ),
       ),
     );
@@ -59,12 +71,14 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: MultiBlocProvider(
-          providers: [
-            BlocProvider<TimerBloc>.value(value: timerBloc),
-            BlocProvider<SettingsBloc>.value(value: settingsBloc),
-          ],
-          child: CentralTimer(),
+        home: Scaffold(
+          body: MultiBlocProvider(
+            providers: [
+              BlocProvider<TimerBloc>.value(value: timerBloc),
+              BlocProvider<SettingsBloc>.value(value: settingsBloc),
+            ],
+            child: CentralTimer(),
+          ),
         ),
       ),
     );
@@ -91,12 +105,14 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: MultiBlocProvider(
-          providers: [
-            BlocProvider<TimerBloc>.value(value: timerBloc),
-            BlocProvider<SettingsBloc>.value(value: settingsBloc),
-          ],
-          child: CentralTimer(),
+        home: Scaffold(
+          body: MultiBlocProvider(
+            providers: [
+              BlocProvider<TimerBloc>.value(value: timerBloc),
+              BlocProvider<SettingsBloc>.value(value: settingsBloc),
+            ],
+            child: CentralTimer(),
+          ),
         ),
       ),
     );
@@ -107,12 +123,14 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: MultiBlocProvider(
-          providers: [
-            BlocProvider<TimerBloc>.value(value: timerBloc),
-            BlocProvider<SettingsBloc>.value(value: settingsBloc),
-          ],
-          child: CentralTimer(),
+        home: Scaffold(
+          body: MultiBlocProvider(
+            providers: [
+              BlocProvider<TimerBloc>.value(value: timerBloc),
+              BlocProvider<SettingsBloc>.value(value: settingsBloc),
+            ],
+            child: CentralTimer(),
+          ),
         ),
       ),
     );

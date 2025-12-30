@@ -11,8 +11,9 @@ import 'package:path_provider/path_provider.dart';
 
 class WorldMap extends StatefulWidget {
   final LiveUsersBloc? liveUsersBloc;
+  final bool enableTiles;
 
-  WorldMap({super.key, this.liveUsersBloc});
+  WorldMap({super.key, this.liveUsersBloc, this.enableTiles = true});
 
   @override
   _WorldMapState createState() => _WorldMapState();
@@ -85,21 +86,22 @@ class _WorldMapState extends State<WorldMap> {
                         backgroundColor:
                             Theme.of(context).colorScheme.background),
                     children: [
-                      TileLayer(
-                        retinaMode: true,
-                        urlTemplate:
-                            'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
-                        userAgentPackageName: 'com.deep_work.app',
-                        tileProvider: CachedTileProvider(
-                          // maxStale keeps the tile cached for the given Duration and
-                          // tries to revalidate the next time it gets requested
-                          maxStale: const Duration(days: 1000),
-                          store: HiveCacheStore(
-                            path!,
-                            hiveBoxName: 'HiveCacheStore',
+                      if (widget.enableTiles)
+                        TileLayer(
+                          retinaMode: true,
+                          urlTemplate:
+                              'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+                          userAgentPackageName: 'com.deep_work.app',
+                          tileProvider: CachedTileProvider(
+                            // maxStale keeps the tile cached for the given Duration and
+                            // tries to revalidate the next time it gets requested
+                            maxStale: const Duration(days: 1000),
+                            store: HiveCacheStore(
+                              path!,
+                              hiveBoxName: 'HiveCacheStore',
+                            ),
                           ),
                         ),
-                      ),
                       MarkerLayer(markers: [
                         Marker(
                             point:

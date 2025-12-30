@@ -64,6 +64,10 @@ void main() {
         await HydratedStorage.build(storageDirectory: storageDirectory);
   });
 
+  tearDownAll(() async {
+    await HydratedBloc.storage.close();
+  });
+
   testWidgets('DayBar background color respects dark mode', (tester) async {
     final leaderboardBloc = MockLeaderboardBloc();
     final settingsBloc = MockSettingsBloc();

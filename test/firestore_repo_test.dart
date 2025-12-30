@@ -3,11 +3,12 @@ import 'package:deep_work/models/timer_result.dart';
 import 'package:deep_work/repo/firebase_auth_repo.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
-import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockFirebaseAuthRepo extends Mock implements FirebaseAuthRepo {}
+class MockUser extends Mock implements User {}
 
 void main() {
   group('FirestoreRepo', () {
@@ -19,7 +20,8 @@ void main() {
     setUp(() {
       firestore = FakeFirebaseFirestore();
       authRepo = MockFirebaseAuthRepo();
-      user = MockUser(uid: 'user-1');
+      user = MockUser();
+      when(() => user.uid).thenReturn('user-1');
       when(() => authRepo.currentUser).thenReturn(user);
       repo = FirestoreRepo(firestore: firestore, authRepo: authRepo);
     });

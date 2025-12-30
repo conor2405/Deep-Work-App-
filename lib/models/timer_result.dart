@@ -54,7 +54,7 @@ class TimerStats {
       'startTime': startTime,
       'timeFinished': timeFinished,
       'pauses': pauses,
-      'pauseEvents': pauseEvents.map((Pause pause) => pause.toJson()),
+      'pauseEvents': pauseEvents.map((Pause pause) => pause.toJson()).toList(),
       'sessionEfficiency': sessionEfficiency,
       'notes': notes,
     };

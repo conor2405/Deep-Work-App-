@@ -84,18 +84,20 @@ class WeeklyScoreboard {
       List<TimerResult> timerResults,
       {DateTime? referenceDate}) {
     final DateTime now = referenceDate ?? DateTime.now();
-    print(now.subtract(Duration(days: now.weekday - 1)));
+    final DateTime startOfWeek = now
+        .subtract(Duration(days: now.weekday - 1))
+        .copyWith(
+            hour: 0,
+            minute: 0,
+            second: 0,
+            millisecond: 0,
+            microsecond: 0);
+    final DateTime endExclusive = startOfWeek.add(const Duration(days: 7));
     // get all the timer results for the current week
     final List<TimerResult> currentWeek = timerResults
-        .where((TimerResult timerResult) => timerResult.startTime.isAfter(
-            now
-                .subtract(Duration(days: now.weekday - 1))
-                .copyWith(
-                    hour: 0,
-                    minute: 0,
-                    second: 0,
-                    millisecond: 0,
-                    microsecond: 0)))
+        .where((TimerResult timerResult) =>
+            !timerResult.startTime.isBefore(startOfWeek) &&
+            timerResult.startTime.isBefore(endExclusive))
         .toList();
     List<double> tempDays = List<double>.filled(7, 0);
 

@@ -18,18 +18,21 @@ class MockSettingsBloc extends MockBloc<SettingsEvent, SettingsState>
 void main() {
   testWidgets('map toggles with settings showMap', (tester) async {
     final timerBloc = MockTimerBloc();
-    final settingsBloc = MockSettingsBloc();
+    final settingsBlocOn = MockSettingsBloc();
+    final settingsBlocOff = MockSettingsBloc();
 
     when(() => timerBloc.state).thenReturn(TimerInitial(TimeModel(90 * 60)));
-    when(() => settingsBloc.state)
+    when(() => settingsBlocOn.state)
         .thenReturn(SettingsInitial(showMap: true));
+    when(() => settingsBlocOff.state)
+        .thenReturn(SettingsInitial(showMap: false));
 
     await tester.pumpWidget(
       MaterialApp(
         home: MultiBlocProvider(
           providers: [
             BlocProvider<TimerBloc>.value(value: timerBloc),
-            BlocProvider<SettingsBloc>.value(value: settingsBloc),
+            BlocProvider<SettingsBloc>.value(value: settingsBlocOn),
           ],
           child: TimerPage(),
         ),
@@ -38,15 +41,12 @@ void main() {
 
     expect(find.byType(WorldMap), findsOneWidget);
 
-    when(() => settingsBloc.state)
-        .thenReturn(SettingsInitial(showMap: false));
-
     await tester.pumpWidget(
       MaterialApp(
         home: MultiBlocProvider(
           providers: [
             BlocProvider<TimerBloc>.value(value: timerBloc),
-            BlocProvider<SettingsBloc>.value(value: settingsBloc),
+            BlocProvider<SettingsBloc>.value(value: settingsBlocOff),
           ],
           child: TimerPage(),
         ),

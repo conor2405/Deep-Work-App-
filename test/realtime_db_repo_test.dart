@@ -11,7 +11,10 @@ class MockOnDisconnect extends Mock implements OnDisconnect {}
 
 void main() {
   test('setDisconnect writes expected fields', () async {
-    final auth = MockFirebaseAuth(mockUser: MockUser(uid: 'user-1'));
+    final auth = MockFirebaseAuth(
+      mockUser: MockUser(uid: 'user-1'),
+      signedIn: true,
+    );
     final activeUsersRef = MockDatabaseReference();
     final onDisconnect = MockOnDisconnect();
 

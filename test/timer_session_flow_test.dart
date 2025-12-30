@@ -1,4 +1,6 @@
 import 'package:deep_work/bloc/timer/timer_bloc.dart';
+import 'package:deep_work/models/time.dart';
+import 'package:deep_work/models/timer_result.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -6,6 +8,10 @@ import 'package:mocktail/mocktail.dart';
 class MockFirestoreRepo extends Mock implements FirestoreRepo {}
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(TimerStats(targetTime: TimeModel(0)));
+  });
+
   test('timer session flow triggers presence calls in order', () async {
     final firestoreRepo = MockFirestoreRepo();
     final bloc = TimerBloc(firestoreRepo);

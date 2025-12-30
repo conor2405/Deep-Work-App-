@@ -48,6 +48,7 @@ void main() {
     },
     act: (bloc) async {
       bloc.add(LeaderboardInit());
+      await bloc.stream.firstWhere((state) => state is LeaderboardLoaded);
       bloc.add(SelectDate(DateTime(2024, 5, 8)));
     },
     expect: () => [

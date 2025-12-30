@@ -42,6 +42,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   late WeeklyScoreboard weeklySessions;
   late WeeklyScoreboard weeklySessionsLastWeek;
   late MonthlyScoreboard monthlySessions;
+  bool _hasLoaded = false;
   // todays date at 00:00:00
   DateTime today =
       DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
@@ -55,6 +56,9 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
     _timerBlocSubscription = timerBloc.stream.listen((state) {
       if (state is TimerInitial) {
         timerValue = state.time.seconds;
+        if (!_hasLoaded) {
+          return;
+        }
         emit(LeaderboardLoaded(
           weeklyScoreboard,
           monthlyScoreboard,
@@ -116,7 +120,7 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       );
 
       //goals = await firestoreRepo.getGoals();
-
+      _hasLoaded = true;
       emit(LeaderboardLoaded(
         weeklyScoreboard,
         monthlyScoreboard,
@@ -153,6 +157,9 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
     });
     on<SelectDate>((event, emit) {
       selectedDate = event.date;
+      if (!_hasLoaded) {
+        return;
+      }
 
       dailySessions = TodaysSessions.fromTimerResult(
         sessions,
@@ -190,6 +197,9 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
 
     on<BackArrowPressed>((event, emit) {
       selectedDate = selectedDate.subtract(Duration(days: 1));
+      if (!_hasLoaded) {
+        return;
+      }
 
       dailySessions = TodaysSessions.fromTimerResult(
         sessions,
@@ -227,6 +237,9 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
 
     on<ForwardArrowPressed>((event, emit) {
       selectedDate = selectedDate.add(Duration(days: 1));
+      if (!_hasLoaded) {
+        return;
+      }
 
       dailySessions = TodaysSessions.fromTimerResult(
         sessions,

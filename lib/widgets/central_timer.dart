@@ -115,194 +115,207 @@ class _CentralTimerState extends State<CentralTimer> {
             ],
           );
         } else if (state is TimerRunning && state is! TimerDone) {
-          return SleekCircularSlider(
-            appearance: CircularSliderAppearance(
-              infoProperties: InfoProperties(
-                mainLabelStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700),
-                topLabelText: 'Time Remaining',
-              ),
-              customWidths: CustomSliderWidths(
-                  progressBarWidth: 3,
-                  trackWidth: 3,
-                  shadowWidth: 1,
-                  handlerSize: 7),
-              customColors: CustomSliderColors(
-                progressBarColors: [
-                  Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.tertiary
-                ],
-                trackColor: Colors.grey,
-                shadowColor: Colors.black,
-                shadowMaxOpacity: 0.05,
-                shadowStep: 10,
-                dotColor: Colors.black,
-                hideShadow: false,
-                gradientStartAngle: 0,
-                gradientEndAngle: 180,
-              ),
-              animDurationMultiplier: 0.5,
-            ),
-            min: 0,
-            max: state.timeModel.targetTime.seconds.toDouble(),
-            initialValue: state.timeModel.timeLeft.seconds.toDouble(),
-            innerWidget: (double percentage) {
-              int _percentage_int = percentage.toInt();
-              int hours = (_percentage_int / 60).floor();
-              int minutes = (_percentage_int % 60);
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(state.timeModel.timeLeft.timeString,
-                        style: TextStyle(
-                            fontSize: 30, fontWeight: FontWeight.w200)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                            onPressed: () {
-                              BlocProvider.of<TimerBloc>(context)
-                                  .add(TimerPause());
-                            },
-                            icon: Icon(
-                              Icons.pause,
-                              size: 50,
-                            )),
-                        IconButton(
-                          onPressed: () {
-                            BlocProvider.of<TimerBloc>(context)
-                                .add(TimerResume());
-                          },
-                          icon: Icon(
-                            Icons.play_arrow,
-                            size: 50,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(50.0),
-                          child: IconButton(
-                            icon: Icon(Icons.remove),
-                            onPressed: () => BlocProvider.of<TimerBloc>(context)
-                                .add(TimerTakeFive()),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(50),
-                          child: IconButton(
-                            icon: Icon(Icons.add),
-                            onPressed: () => BlocProvider.of<TimerBloc>(context)
-                                .add(TimerAddFive()),
-                          ),
-                        ),
-                      ],
-                    ),
-                    (BlocProvider.of<SettingsBloc>(context).state
-                                as SettingsInitial)
-                            .showNotes
-                        ? IconButton(
-                            icon: Icon(Icons.notes_rounded),
-                            onPressed: () {
-                              BlocProvider.of<SettingsBloc>(context).add(
-                                ToggleNotes(),
-                              );
-                            })
-                        : Container(
-                            width: MediaQuery.of(context).size.width / 2.5,
-                            child: Stack(children: [
-                              TextField(
-                                keyboardType: TextInputType.multiline,
-                                onChanged: (value) {
-                                  BlocProvider.of<TimerBloc>(context).add(
-                                    TimerSetNotes(value),
-                                  );
-                                },
-                                maxLines: null,
-                                textAlign: TextAlign.center,
-                                decoration: InputDecoration(
-                                  hintText:
-                                      '''Action may not always bring happiness,
-but there is no happiness without action.''',
-                                ),
-                              ),
-                              Align(
-                                alignment: Alignment.topRight,
-                                child: IconButton(
-                                  onPressed: () {
-                                    BlocProvider.of<SettingsBloc>(context).add(
-                                      ToggleNotes(),
-                                    );
-
-                                    BlocProvider.of<TimerBloc>(context).add(
-                                      TimerSubmitNotes(),
-                                    );
-                                  },
-                                  icon: Icon(Icons.close),
-                                ),
-                              )
-                            ]),
-                          ),
-                  ],
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints.tight(Size(500, 500)),
+              child: SleekCircularSlider(
+                appearance: CircularSliderAppearance(
+                  infoProperties: InfoProperties(
+                    mainLabelStyle: TextStyle(
+                        color: Colors.black,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700),
+                    topLabelText: 'Time Remaining',
+                  ),
+                  customWidths: CustomSliderWidths(
+                      progressBarWidth: 3,
+                      trackWidth: 3,
+                      shadowWidth: 1,
+                      handlerSize: 7),
+                  customColors: CustomSliderColors(
+                    progressBarColors: [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.tertiary
+                    ],
+                    trackColor: Colors.grey,
+                    shadowColor: Colors.black,
+                    shadowMaxOpacity: 0.05,
+                    shadowStep: 10,
+                    dotColor: Colors.black,
+                    hideShadow: false,
+                    gradientStartAngle: 0,
+                    gradientEndAngle: 180,
+                  ),
+                  animDurationMultiplier: 0.5,
                 ),
-              );
-            },
+                min: 0,
+                max: state.timeModel.targetTime.seconds.toDouble(),
+                initialValue: state.timeModel.timeLeft.seconds.toDouble(),
+                innerWidget: (double percentage) {
+                  int _percentage_int = percentage.toInt();
+                  int hours = (_percentage_int / 60).floor();
+                  int minutes = (_percentage_int % 60);
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(state.timeModel.timeLeft.timeString,
+                            style: TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.w200)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  BlocProvider.of<TimerBloc>(context)
+                                      .add(TimerPause());
+                                },
+                                icon: Icon(
+                                  Icons.pause,
+                                  size: 50,
+                                )),
+                            IconButton(
+                              onPressed: () {
+                                BlocProvider.of<TimerBloc>(context)
+                                    .add(TimerResume());
+                              },
+                              icon: Icon(
+                                Icons.play_arrow,
+                                size: 50,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(50.0),
+                              child: IconButton(
+                                icon: Icon(Icons.remove),
+                                onPressed: () =>
+                                    BlocProvider.of<TimerBloc>(context)
+                                        .add(TimerTakeFive()),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(50),
+                              child: IconButton(
+                                icon: Icon(Icons.add),
+                                onPressed: () =>
+                                    BlocProvider.of<TimerBloc>(context)
+                                        .add(TimerAddFive()),
+                              ),
+                            ),
+                          ],
+                        ),
+                        (BlocProvider.of<SettingsBloc>(context).state
+                                    as SettingsInitial)
+                                .showNotes
+                            ? IconButton(
+                                icon: Icon(Icons.notes_rounded),
+                                onPressed: () {
+                                  BlocProvider.of<SettingsBloc>(context).add(
+                                    ToggleNotes(),
+                                  );
+                                })
+                            : Container(
+                                width: MediaQuery.of(context).size.width / 2.5,
+                                child: Stack(children: [
+                                  TextField(
+                                    keyboardType: TextInputType.multiline,
+                                    onChanged: (value) {
+                                      BlocProvider.of<TimerBloc>(context).add(
+                                        TimerSetNotes(value),
+                                      );
+                                    },
+                                    maxLines: null,
+                                    textAlign: TextAlign.center,
+                                    decoration: InputDecoration(
+                                      hintText:
+                                          '''Action may not always bring happiness,
+but there is no happiness without action.''',
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: IconButton(
+                                      onPressed: () {
+                                        BlocProvider.of<SettingsBloc>(context)
+                                            .add(
+                                          ToggleNotes(),
+                                        );
+
+                                        BlocProvider.of<TimerBloc>(context).add(
+                                          TimerSubmitNotes(),
+                                        );
+                                      },
+                                      icon: Icon(Icons.close),
+                                    ),
+                                  )
+                                ]),
+                              ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
           );
         } else if (state is TimerDone) {
-          return SleekCircularSlider(
-            appearance: CircularSliderAppearance(
-              infoProperties: InfoProperties(
-                mainLabelStyle: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700),
-                topLabelText: 'Time Remaining',
-              ),
-              customWidths: CustomSliderWidths(
-                  progressBarWidth: 3,
-                  trackWidth: 3,
-                  shadowWidth: 1,
-                  handlerSize: 7),
-              customColors: CustomSliderColors(
-                progressBarColors: [
-                  Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.tertiary
-                ],
-                trackColor: Colors.grey,
-                shadowColor: Colors.black,
-                shadowMaxOpacity: 0.05,
-                shadowStep: 10,
-                dotColor: Colors.black,
-                hideShadow: false,
-                gradientStartAngle: 0,
-                gradientEndAngle: 180,
-              ),
-              animDurationMultiplier: 0.5,
-            ),
-            min: 0,
-            max: state.timeModel.targetTime.seconds.toDouble(),
-            initialValue: state.timeModel.timeLeft.seconds.toDouble(),
-            innerWidget: (double percentage) {
-              int _percentage_int = percentage.toInt();
-              int hours = (_percentage_int / 60).floor();
-              int minutes = (_percentage_int % 60);
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(state.timeModel.timeLeft.timeString,
-                        style: TextStyle(
-                            fontSize: 30, fontWeight: FontWeight.w200)),
-                  ],
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints.tight(Size(500, 500)),
+              child: SleekCircularSlider(
+                appearance: CircularSliderAppearance(
+                  infoProperties: InfoProperties(
+                    mainLabelStyle: TextStyle(
+                        color: Colors.black,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700),
+                    topLabelText: 'Time Remaining',
+                  ),
+                  customWidths: CustomSliderWidths(
+                      progressBarWidth: 3,
+                      trackWidth: 3,
+                      shadowWidth: 1,
+                      handlerSize: 7),
+                  customColors: CustomSliderColors(
+                    progressBarColors: [
+                      Theme.of(context).colorScheme.primary,
+                      Theme.of(context).colorScheme.tertiary
+                    ],
+                    trackColor: Colors.grey,
+                    shadowColor: Colors.black,
+                    shadowMaxOpacity: 0.05,
+                    shadowStep: 10,
+                    dotColor: Colors.black,
+                    hideShadow: false,
+                    gradientStartAngle: 0,
+                    gradientEndAngle: 180,
+                  ),
+                  animDurationMultiplier: 0.5,
                 ),
-              );
-            },
+                min: 0,
+                max: state.timeModel.targetTime.seconds.toDouble(),
+                initialValue: state.timeModel.timeLeft.seconds.toDouble(),
+                innerWidget: (double percentage) {
+                  int _percentage_int = percentage.toInt();
+                  int hours = (_percentage_int / 60).floor();
+                  int minutes = (_percentage_int % 60);
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(state.timeModel.timeLeft.timeString,
+                            style: TextStyle(
+                                fontSize: 30, fontWeight: FontWeight.w200)),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
           );
         } else {
           return Center(child: Text('error loading timer'));

@@ -8,7 +8,6 @@ import 'package:meta/meta.dart';
 /// remove users from the active users list when they disconnect or close the app.
 class RealtimeDBRepo {
   static final RealtimeDBRepo _instance = RealtimeDBRepo._internal();
-  final FirebaseDatabase _database;
   final DatabaseReference _activeUsersRef;
   final FirebaseAuth _auth;
   String? get uid => _auth.currentUser?.uid;
@@ -18,19 +17,15 @@ class RealtimeDBRepo {
   }
 
   RealtimeDBRepo._internal()
-      : _database = FirebaseDatabase.instance,
-        _activeUsersRef = FirebaseDatabase.instance.ref('activeUsers'),
+      : _activeUsersRef = FirebaseDatabase.instance.ref('activeUsers'),
         _auth = FirebaseAuth.instance;
 
   @visibleForTesting
   RealtimeDBRepo.test({
-    FirebaseDatabase? database,
     DatabaseReference? activeUsersRef,
     FirebaseAuth? auth,
-  })  : _database = database ?? FirebaseDatabase.instance,
-        _activeUsersRef =
-            activeUsersRef ?? (database ?? FirebaseDatabase.instance)
-                .ref('activeUsers'),
+  })  : _activeUsersRef =
+            activeUsersRef ?? FirebaseDatabase.instance.ref('activeUsers'),
         _auth = auth ?? FirebaseAuth.instance;
 
   void setDisconnect() {

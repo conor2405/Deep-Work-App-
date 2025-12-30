@@ -18,6 +18,7 @@ void main() {
 
   testWidgets('switches dispatch events and mirror state', (tester) async {
     final settingsBloc = SettingsBloc();
+    addTearDown(settingsBloc.close);
 
     await tester.pumpWidget(
       MaterialApp(
