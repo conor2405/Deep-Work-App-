@@ -9,6 +9,23 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late Directory storageDir;
 
+  Future<void> waitForSettingsPersisted({
+    required bool showMap,
+    required bool showNotes,
+  }) async {
+    for (var attempt = 0; attempt < 20; attempt++) {
+      final stored = await HydratedBloc.storage.read('SettingsBloc');
+      if (stored is Map) {
+        final data = Map<String, dynamic>.from(stored);
+        if (data['showMap'] == showMap && data['showNotes'] == showNotes) {
+          return;
+        }
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
+    fail('SettingsBloc did not persist expected values.');
+  }
+
   setUpAll(() async {
     storageDir = await Directory.systemTemp.createTemp();
     HydratedBloc.storage =
@@ -80,7 +97,7 @@ void main() {
             state.showMap == false &&
             state.showNotes == false;
       });
-      await Future<void>.delayed(Duration(milliseconds: 1));
+      await waitForSettingsPersisted(showMap: false, showNotes: false);
       await bloc.close();
 
       final rehydrated = SettingsBloc();

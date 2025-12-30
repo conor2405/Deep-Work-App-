@@ -1,7 +1,6 @@
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:math';
 
 class DaySelector extends StatefulWidget {
   @override
@@ -28,19 +27,21 @@ class _DaySelectorState extends State<DaySelector> {
                     ? Text('Today')
                     : Text(
                         '${state.selectedDate.day}/${state.selectedDate.month}/${state.selectedDate.year}'),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Padding(
                       padding: EdgeInsets.all(5.0),
-                      child: GestureDetector(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(5),
                         onTap: () {
                           BlocProvider.of<LeaderboardBloc>(context)
                               .add(BackArrowPressed());
                         },
                         child: Container(
-                          width: 25,
-                          height: 60,
+                          width: 32,
+                          height: 56,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(5),
                             border: Border.all(
@@ -51,24 +52,26 @@ class _DaySelectorState extends State<DaySelector> {
                             padding: const EdgeInsets.fromLTRB(5.0, 0, 0, 0),
                             child: Icon(Icons.arrow_back_ios,
                                 color: Theme.of(context).colorScheme.primary,
-                                size: 20),
+                                size: 18),
                           ),
                         ),
                       ),
                     ),
-                    Row(
+                    Wrap(
+                      alignment: WrapAlignment.center,
                       children: dayList(state, context),
                     ),
                     Padding(
                       padding: EdgeInsets.all(5.0),
-                      child: GestureDetector(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(5),
                         onTap: () {
                           BlocProvider.of<LeaderboardBloc>(context)
                               .add(ForwardArrowPressed());
                         },
                         child: Container(
-                          width: 25,
-                          height: 60,
+                          width: 32,
+                          height: 56,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(5),
                             border: Border.all(
@@ -78,7 +81,7 @@ class _DaySelectorState extends State<DaySelector> {
                           child: Center(
                             child: Icon(Icons.arrow_forward_ios,
                                 color: Theme.of(context).colorScheme.primary,
-                                size: 20),
+                                size: 18),
                           ),
                         ),
                       ),
@@ -142,14 +145,15 @@ List<Widget> dayList(LeaderboardLoaded state, BuildContext context) {
 
     days.add(Padding(
       padding: const EdgeInsets.all(2),
-      child: GestureDetector(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(5),
         onTap: () {
           BlocProvider.of<LeaderboardBloc>(context)
               .add(SelectDate(state.dates[i]));
         },
         child: Container(
-          width: 60,
-          height: 60,
+          width: 58,
+          height: 58,
           decoration: BoxDecoration(
             color: state.selectedDate.day == state.dates[i].day
                 ? Theme.of(context).colorScheme.primary.withOpacity(0.2)

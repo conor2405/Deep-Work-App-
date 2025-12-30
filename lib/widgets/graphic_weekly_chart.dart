@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
-import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/models/weekly_leaderboard.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -32,19 +31,16 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
               ? LastWeekScoreboard = state.weeklySessionsLastWeek
               : LastWeekScoreboard = state.LastWeekScoreboard;
 
-          TextStyle style = TextStyle(
-              color: BlocProvider.of<SettingsBloc>(context).isDarkMode
-                  ? Colors.white
-                  : Colors.black,
-              fontSize: 10);
+          final maxY = weeklyMaxY(weeklyScoreboard, LastWeekScoreboard);
+          final style = Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                fontSize: 10,
+              );
 
           return Stack(children: [
             BarChart(BarChartData(
                 minY: 0,
-                maxY: (max<double>(
-                            weeklyScoreboard.total, LastWeekScoreboard.total)
-                        .toDouble() *
-                    1.1),
+                maxY: maxY,
                 gridData: FlGridData(show: false),
                 borderData: FlBorderData(show: false),
                 titlesData: FlTitlesData(
@@ -93,15 +89,9 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: (double value, TitleMeta meta) {
-                          return Text((value.toInt()).toString());
+                          return Text('${value.toInt()}m', style: style);
                         },
-                        interval: (max<double>(
-                                        max<double>(weeklyScoreboard.total,
-                                            LastWeekScoreboard.total),
-                                        1)
-                                    .toDouble() *
-                                1.1) /
-                            4,
+                        interval: maxY / 4,
                       )),
                 ),
                 barGroups: <BarChartGroupData>[
@@ -247,31 +237,24 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                     enabled: true,
                     touchTooltipData: LineTouchTooltipData(
                       getTooltipItems: (touchedSpots) {
-                        List<LineTooltipItem> items = [];
-
-                        if (touchedSpots.length == 1) {
-                          items.add(LineTooltipItem(
-                              touchedSpots.first.y.toString(),
-                              TextStyle(color: Colors.white.withOpacity(0.3))));
-                          return items;
-                        } else {
-                          items.add(LineTooltipItem(
-                              touchedSpots.first.y.toString(),
-                              TextStyle(color: Colors.white)));
-
-                          items.add(LineTooltipItem(
-                              touchedSpots[1].y.toString(),
-                              TextStyle(color: Colors.white.withOpacity(0.3))));
-
-                          return items;
-                        }
+                        return touchedSpots.map((spot) {
+                          final isThisWeek = spot.barIndex == 1;
+                          final label = isThisWeek ? 'This week' : 'Last week';
+                          final color = isThisWeek
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .tertiary
+                                  .withOpacity(0.6);
+                          return LineTooltipItem(
+                            '$label: ${formatMinutes(spot.y)}',
+                            TextStyle(color: color, fontSize: 10),
+                          );
+                        }).toList();
                       },
                     )),
                 minY: 0,
-                maxY: (max<double>(
-                            weeklyScoreboard.total, LastWeekScoreboard.total)
-                        .toDouble() *
-                    1.1),
+                maxY: maxY,
                 minX: 0,
                 maxX: 8,
                 borderData: FlBorderData(show: false),
@@ -308,6 +291,26 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
                 ],
               )),
             ),
+            Positioned(
+              right: 8,
+              top: 8,
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  LegendItem(
+                    label: 'This week',
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  LegendItem(
+                    label: 'Last week',
+                    color: Theme.of(context)
+                        .colorScheme
+                        .tertiary
+                        .withOpacity(0.6),
+                  ),
+                ],
+              ),
+            ),
           ]);
         } else if (state is LeaderboardLoading) {
           return Center(
@@ -318,6 +321,43 @@ class _GraphicWeeklyChartState extends State<GraphicWeeklyChart> {
         }
       },
     ));
+  }
+}
+
+double weeklyMaxY(
+    WeeklyScoreboard weeklyScoreboard, WeeklyScoreboard lastWeekScoreboard) {
+  final maxTotal = max(weeklyScoreboard.total, lastWeekScoreboard.total);
+  return max(maxTotal * 1.1, 10);
+}
+
+String formatMinutes(double minutes) {
+  return '${minutes.toStringAsFixed(0)} min';
+}
+
+class LegendItem extends StatelessWidget {
+  final String label;
+  final Color color;
+
+  const LegendItem({required this.label, required this.color, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final labelStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+          fontSize: 10,
+        );
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 4),
+        Text(label, style: labelStyle),
+      ],
+    );
   }
 }
 

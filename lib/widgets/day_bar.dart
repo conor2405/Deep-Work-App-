@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/models/timer_result.dart';
@@ -71,21 +69,27 @@ List<Widget> generateDaysBars(LeaderboardLoaded state,
     // calculate the width of the bar
     // add the bar to the stack
 
-    daysBars.add(Positioned(
-      left: alignmentPosition(timerResult.startTime, constraints),
-      child: Container(
-        width: widthofBar(
-            timerResult.startTime, timerResult.timeFinished, constraints),
-        height: 12,
-        decoration: BoxDecoration(
-          color: BlocProvider.of<SettingsBloc>(context).isDarkMode
-              ? Colors.green[800]
-                  ?.withRed((1 - timerResult.sessionEfficiency) * 255 ~/ 1)
-              : Colors.green
-                  .withRed((1 - timerResult.sessionEfficiency) * 255 ~/ 1),
+    final efficiency = timerResult.sessionEfficiency.clamp(0.0, 1.0);
+    final redValue = ((1 - efficiency) * 255).round().clamp(0, 255);
+    final barWidth = widthofBar(
+        timerResult.startTime, timerResult.timeFinished, constraints);
+
+    if (barWidth > 0) {
+      daysBars.add(Positioned(
+        left: alignmentPosition(timerResult.startTime, constraints),
+        child: Container(
+          width: barWidth,
+          height: 12,
+          decoration: BoxDecoration(
+            color: BlocProvider.of<SettingsBloc>(context).isDarkMode
+                ? Colors.green[800]?.withRed(redValue)
+                : Colors.green.withRed(redValue),
+          ),
         ),
-      ),
-    ));
+      ));
+    }
+
+    daysBars.addAll(buildBreaks(timerResult, constraints));
   }
   if (!changeableDate) {
     daysBars.add(Positioned(
@@ -109,14 +113,17 @@ double alignmentPosition(DateTime time, BoxConstraints constraints) {
   double percentOfDay =
       (time.hour * 3600 + time.minute * 60 + time.second) / 86400;
 
-  return percentOfDay * constraints.maxWidth;
+  return (percentOfDay * constraints.maxWidth).clamp(0.0, constraints.maxWidth);
 }
 
 double widthofBar(
     DateTime startTime, DateTime endTime, BoxConstraints constraints) {
-  double percentOfDay = endTime.difference(startTime).inSeconds / 86400;
+  final safeEnd = isSameDay(startTime, endTime) && endTime.isAfter(startTime)
+      ? endTime
+      : startTime.copyWith(hour: 23, minute: 59, second: 59);
+  double percentOfDay = safeEnd.difference(startTime).inSeconds / 86400;
 
-  return (constraints.maxWidth * percentOfDay);
+  return (constraints.maxWidth * percentOfDay).clamp(0.0, constraints.maxWidth);
 }
 
 double centerOfCurrentTimeBar(BoxConstraints constraints) {
@@ -130,5 +137,39 @@ double centerOfCurrentTimeBar(BoxConstraints constraints) {
 double widthOfCurrentTimeBar(int timeSetOnTimer, BoxConstraints constraints) {
   double percentOfDay = timeSetOnTimer / 86400;
 
-  return (constraints.maxWidth * percentOfDay);
+  return (constraints.maxWidth * percentOfDay).clamp(0.0, constraints.maxWidth);
+}
+
+List<Widget> buildBreaks(TimerResult timerResult, BoxConstraints constraints) {
+  final List<Widget> breaks = [];
+
+  for (BreakPeriod breakPeriod in timerResult.breakEvents) {
+    if (breakPeriod.endTime == null) {
+      continue;
+    }
+    final breakWidth =
+        widthofBar(breakPeriod.startTime, breakPeriod.endTime!, constraints);
+    if (breakWidth <= 0) {
+      continue;
+    }
+    breaks.add(Positioned(
+      left: alignmentPosition(breakPeriod.startTime, constraints),
+      child: Container(
+        width: breakWidth,
+        height: 12,
+        decoration: BoxDecoration(
+          color: Colors.blueGrey,
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    ));
+  }
+
+  return breaks;
+}
+
+bool isSameDay(DateTime left, DateTime right) {
+  return left.year == right.year &&
+      left.month == right.month &&
+      left.day == right.day;
 }

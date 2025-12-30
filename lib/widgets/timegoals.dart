@@ -1,4 +1,3 @@
-import 'package:deep_work/bloc/goal/goal_bloc.dart';
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:deep_work/models/goal.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -6,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TimeGoalsWidget extends StatefulWidget {
-  String goalType;
-  bool changeableDate;
-  bool buttonEnabled;
-  TimeGoalsWidget(
+  final String goalType;
+  final bool changeableDate;
+  final bool buttonEnabled;
+  const TimeGoalsWidget(
       {super.key,
       this.buttonEnabled = true,
       this.goalType = 'daily',
@@ -25,19 +24,24 @@ class _TimeGoalsWidgetState extends State<TimeGoalsWidget> {
       child: BlocBuilder<LeaderboardBloc, LeaderboardState>(
         builder: (context, state) {
           if (state is LeaderboardLoaded) {
+            final goal = goalForType(state, widget.goalType);
+            final totalMinutes = totalMinutesForType(
+                state, widget.goalType, widget.changeableDate);
+            final isComplete = totalMinutes >= goal.goal;
+
             return GestureDetector(
-                onTap: () {
-                  widget.buttonEnabled
-                      ? Navigator.pushNamed(context, '/timeGoalsPageDaily')
-                      : null;
-                },
-                child: state.todaysSessions.totalMinutes <
-                            state.timeGoals.daily.goal ||
-                        widget.changeableDate
-                    ? TimeGoalCircle(
-                        goalType: widget.goalType,
-                        changeableDate: widget.changeableDate)
-                    : TimeGoalDone());
+              onTap: widget.buttonEnabled
+                  ? () {
+                      Navigator.pushNamed(
+                          context, goalRouteForType(widget.goalType));
+                    }
+                  : null,
+              child: isComplete
+                  ? const TimeGoalDone()
+                  : TimeGoalCircle(
+                      goalType: widget.goalType,
+                      changeableDate: widget.changeableDate),
+            );
           } else if (state is LeaderboardLoading) {
             return Container(
               child: CircularProgressIndicator(),
@@ -55,10 +59,10 @@ class _TimeGoalsWidgetState extends State<TimeGoalsWidget> {
 }
 
 class TimeGoalCircle extends StatelessWidget {
-  String goalType;
-  bool changeableDate;
+  final String goalType;
+  final bool changeableDate;
 
-  TimeGoalCircle({
+  const TimeGoalCircle({
     required this.goalType,
     this.changeableDate = false,
     super.key,
@@ -69,45 +73,12 @@ class TimeGoalCircle extends StatelessWidget {
     return BlocBuilder<LeaderboardBloc, LeaderboardState>(
       builder: (context, state) {
         if (state is LeaderboardLoaded) {
-          TimeGoal goal;
-          int totalMinutes;
-          if (!changeableDate) {
-            switch (goalType) {
-              case 'daily':
-                goal = state.timeGoals.daily;
-                totalMinutes = state.todaysSessions.totalMinutes;
-                break;
-              case 'weekly':
-                goal = state.timeGoals.weekly;
-                totalMinutes = 50;
-                break;
-              case 'monthly':
-                goal = state.timeGoals.monthly;
-                totalMinutes = 50;
-                break;
-              default:
-                goal = state.timeGoals.daily;
-                totalMinutes = state.todaysSessions.totalMinutes;
-            }
-          } else {
-            switch (goalType) {
-              case 'daily':
-                goal = state.timeGoals.daily;
-                totalMinutes = state.dailySessions.totalMinutes;
-                break;
-              case 'weekly':
-                goal = state.timeGoals.weekly;
-                totalMinutes = 50;
-                break;
-              case 'monthly':
-                goal = state.timeGoals.monthly;
-                totalMinutes = 50;
-                break;
-              default:
-                goal = state.timeGoals.daily;
-                totalMinutes = state.todaysSessions.totalMinutes;
-            }
-          }
+          final goal = goalForType(state, goalType);
+          final totalMinutes =
+              totalMinutesForType(state, goalType, changeableDate);
+          final ratio = goal.goal == 0
+              ? 0.0
+              : (totalMinutes / goal.goal.toDouble()).clamp(0.0, 1.0);
 
           return Container(
             height: 100,
@@ -121,9 +92,7 @@ class TimeGoalCircle extends StatelessWidget {
                       showTitle: false,
                       radius: 10,
                       color: Theme.of(context).colorScheme.primary,
-                      value: totalMinutes / goal.goal.toDouble() > 1
-                          ? 1
-                          : totalMinutes / goal.goal.toDouble(),
+                      value: ratio,
                       title: totalMinutes.toString(),
                       //title: null,
                     ),
@@ -134,9 +103,7 @@ class TimeGoalCircle extends StatelessWidget {
                           .colorScheme
                           .primary
                           .withOpacity(0.2),
-                      value: 1 - totalMinutes / goal.goal.toDouble() > 0
-                          ? 1 - totalMinutes / goal.goal.toDouble()
-                          : 0,
+                      value: (1 - ratio).clamp(0.0, 1.0),
                       // title: goalType
                     ),
                   ],
@@ -187,5 +154,47 @@ class TimeGoalDone extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+String goalRouteForType(String goalType) {
+  switch (goalType) {
+    case 'weekly':
+      return '/timeGoalsPageWeekly';
+    case 'monthly':
+      return '/timeGoalsPageMonthly';
+    case 'daily':
+    default:
+      return '/timeGoalsPageDaily';
+  }
+}
+
+TimeGoal goalForType(LeaderboardLoaded state, String goalType) {
+  switch (goalType) {
+    case 'weekly':
+      return state.timeGoals.weekly;
+    case 'monthly':
+      return state.timeGoals.monthly;
+    case 'daily':
+    default:
+      return state.timeGoals.daily;
+  }
+}
+
+int totalMinutesForType(
+    LeaderboardLoaded state, String goalType, bool changeableDate) {
+  switch (goalType) {
+    case 'weekly':
+      final weeklyTotal = changeableDate
+          ? state.weeklySessions.total
+          : state.weeklyScoreboard.total;
+      return weeklyTotal.round();
+    case 'monthly':
+      return state.monthlyScoreboard.total.round();
+    case 'daily':
+    default:
+      return changeableDate
+          ? state.dailySessions.totalMinutes
+          : state.todaysSessions.totalMinutes;
   }
 }

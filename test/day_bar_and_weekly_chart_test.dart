@@ -5,6 +5,8 @@ import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/models/goal.dart';
 import 'package:deep_work/models/monthly_leaderboard.dart';
+import 'package:deep_work/models/time.dart';
+import 'package:deep_work/models/timer_result.dart';
 import 'package:deep_work/models/todays_sessions.dart';
 import 'package:deep_work/models/weekly_leaderboard.dart';
 import 'package:deep_work/widgets/day_bar.dart';
@@ -22,6 +24,11 @@ class MockSettingsBloc extends MockBloc<SettingsEvent, SettingsState>
     implements SettingsBloc {}
 
 LeaderboardLoaded buildLeaderboardLoaded() {
+  return buildLeaderboardLoadedWithSessions();
+}
+
+LeaderboardLoaded buildLeaderboardLoadedWithSessions(
+    {List<TimerResult> sessions = const []}) {
   final weekly = WeeklyScoreboard(
     monday: 0,
     tuesday: 0,
@@ -33,7 +40,7 @@ LeaderboardLoaded buildLeaderboardLoaded() {
     total: 0,
   );
   final monthly = MonthlyScoreboard(month: 'May', time: List.filled(31, 0));
-  final today = TodaysSessions(sessions: []);
+  final today = TodaysSessions(sessions: sessions);
   final goals = <Goal>[];
   final timeGoals = TimeGoalsAll();
   final dates = List.generate(7, (index) => DateTime(2024, 5, index + 1));
@@ -120,11 +127,54 @@ void main() {
   testWidgets('GraphicWeeklyChart label color respects dark mode',
       (tester) async {
     final leaderboardBloc = MockLeaderboardBloc();
-    final settingsBloc = MockSettingsBloc();
     final state = buildLeaderboardLoaded();
+    final theme =
+        ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue));
 
     when(() => leaderboardBloc.state).thenReturn(state);
-    when(() => settingsBloc.isDarkMode).thenReturn(true);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider<LeaderboardBloc>.value(value: leaderboardBloc),
+          ],
+          child: GraphicWeeklyChart(),
+        ),
+        theme: theme,
+      ),
+    );
+
+    final text = tester.widget<Text>(find.text('Mon'));
+    expect(text.style?.color, theme.colorScheme.onSurface.withOpacity(0.7));
+  });
+
+  testWidgets('DayBar shows break segments for sessions', (tester) async {
+    final leaderboardBloc = MockLeaderboardBloc();
+    final settingsBloc = MockSettingsBloc();
+    final startTime = DateTime(2024, 5, 1, 9);
+    final breakStart = DateTime(2024, 5, 1, 9, 30);
+    final breakEnd = DateTime(2024, 5, 1, 9, 45);
+    final timerResult = TimerResult(
+      targetTime: TimeModel(3600),
+      completed: true,
+      timeLeft: TimeModel.zero(),
+      timeRun: 3600,
+      breakTime: 0,
+      timeElapsed: 3600,
+      startTime: startTime,
+      timeFinished: DateTime(2024, 5, 1, 10),
+      breakEvents: [
+        BreakPeriod(startTime: breakStart, endTime: breakEnd),
+      ],
+      breaks: 1,
+      sessionEfficiency: 0.8,
+    );
+    final state =
+        buildLeaderboardLoadedWithSessions(sessions: [timerResult]);
+
+    when(() => leaderboardBloc.state).thenReturn(state);
+    when(() => settingsBloc.isDarkMode).thenReturn(false);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -133,12 +183,16 @@ void main() {
             BlocProvider<LeaderboardBloc>.value(value: leaderboardBloc),
             BlocProvider<SettingsBloc>.value(value: settingsBloc),
           ],
-          child: GraphicWeeklyChart(),
+          child: DayBar(),
         ),
       ),
     );
 
-    final text = tester.widget<Text>(find.text('Mon'));
-    expect(text.style?.color, Colors.white);
+    final breakSegmentFinder = find.byWidgetPredicate((widget) {
+      return widget is Container &&
+          widget.decoration is BoxDecoration &&
+          (widget.decoration as BoxDecoration).color == Colors.blueGrey;
+    });
+    expect(breakSegmentFinder, findsWidgets);
   });
 }

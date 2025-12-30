@@ -169,6 +169,10 @@ class MyApp extends StatelessWidget {
                     '/timer/confirm': (context) => TimerDonePage(),
                     '/timeGoalsPageDaily': (context) =>
                         TimeGoalsPage(goalType: 'daily'),
+                    '/timeGoalsPageWeekly': (context) =>
+                        TimeGoalsPage(goalType: 'weekly'),
+                    '/timeGoalsPageMonthly': (context) =>
+                        TimeGoalsPage(goalType: 'monthly'),
                     '/worldMapPage': (context) => WorldMapPage(),
                   },
                   initialRoute: BlocProvider.of<AuthBloc>(context).state
