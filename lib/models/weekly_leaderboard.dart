@@ -81,13 +81,15 @@ class WeeklyScoreboard {
   });
 
   factory WeeklyScoreboard.thisWeekFromTimerResult(
-      List<TimerResult> timerResults) {
-    print(DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)));
+      List<TimerResult> timerResults,
+      {DateTime? referenceDate}) {
+    final DateTime now = referenceDate ?? DateTime.now();
+    print(now.subtract(Duration(days: now.weekday - 1)));
     // get all the timer results for the current week
     final List<TimerResult> currentWeek = timerResults
         .where((TimerResult timerResult) => timerResult.startTime.isAfter(
-            DateTime.now()
-                .subtract(Duration(days: DateTime.now().weekday - 1))
+            now
+                .subtract(Duration(days: now.weekday - 1))
                 .copyWith(
                     hour: 0,
                     minute: 0,
@@ -122,27 +124,29 @@ class WeeklyScoreboard {
     );
   }
   factory WeeklyScoreboard.lastWeekFromTimerResult(
-      List<TimerResult> timerResults) {
+      List<TimerResult> timerResults,
+      {DateTime? referenceDate}) {
+    final DateTime now = referenceDate ?? DateTime.now();
     // get all the timer results for the last week
     final List<TimerResult> lastWeek = timerResults
         .where((TimerResult timerResult) => timerResult.startTime.isAfter(
-            DateTime.now()
+            now
                 .copyWith(
                     hour: 0,
                     minute: 0,
                     second: 0,
                     millisecond: 0,
                     microsecond: 0)
-                .subtract(Duration(days: DateTime.now().weekday + 6))))
+                .subtract(Duration(days: now.weekday + 6))))
         .where((TimerResult timerResult) => timerResult.startTime.isBefore(
-            DateTime.now()
+            now
                 .copyWith(
                     hour: 0,
                     minute: 0,
                     second: 0,
                     millisecond: 0,
                     microsecond: 0)
-                .subtract(Duration(days: DateTime.now().weekday - 1))))
+                .subtract(Duration(days: now.weekday - 1))))
         .toList();
     List<double> tempDays = List<double>.filled(7, 0);
 

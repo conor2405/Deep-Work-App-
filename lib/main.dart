@@ -59,7 +59,24 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({
+    super.key,
+    this.authRepo,
+    this.firestoreRepo,
+    this.authBloc,
+    this.timerBloc,
+    this.leaderboardBloc,
+    this.goalBloc,
+    this.settingsBloc,
+  });
+
+  final FirebaseAuthRepo? authRepo;
+  final FirestoreRepo? firestoreRepo;
+  final AuthBloc? authBloc;
+  final TimerBloc? timerBloc;
+  final LeaderboardBloc? leaderboardBloc;
+  final GoalBloc? goalBloc;
+  final SettingsBloc? settingsBloc;
 
   // This widget is the root of your application.
   @override
@@ -67,36 +84,47 @@ class MyApp extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(
-          create: (context) => FirebaseAuthRepo(),
+          create: (context) => authRepo ?? FirebaseAuthRepo(),
         ),
         RepositoryProvider(
-          create: (context) => FirestoreRepo(),
+          create: (context) => firestoreRepo ?? FirestoreRepo(),
         ),
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(
-            create: (context) =>
-                AuthBloc(RepositoryProvider.of<FirebaseAuthRepo>(context))
-                  ..add(AuthInit()),
-          ),
-          BlocProvider(
-              lazy: false,
-              create: (context) =>
-                  TimerBloc(RepositoryProvider.of<FirestoreRepo>(context))),
-          BlocProvider(
-            lazy: false,
-            create: (context) => LeaderboardBloc(
-                timerBloc: BlocProvider.of<TimerBloc>(context),
-                firestoreRepo: RepositoryProvider.of<FirestoreRepo>(context))
-              ..add(LeaderboardInit()), // placeholder for now does nothing;
-          ),
-          BlocProvider(
-              lazy: false,
-              create: (context) =>
-                  GoalBloc(RepositoryProvider.of<FirestoreRepo>(context))
-                    ..add(GoalInit())),
-          BlocProvider(lazy: false, create: (context) => SettingsBloc())
+          authBloc != null
+              ? BlocProvider<AuthBloc>.value(value: authBloc!)
+              : BlocProvider(
+                  create: (context) =>
+                      AuthBloc(RepositoryProvider.of<FirebaseAuthRepo>(context))
+                        ..add(AuthInit()),
+                ),
+          timerBloc != null
+              ? BlocProvider<TimerBloc>.value(value: timerBloc!)
+              : BlocProvider(
+                  lazy: false,
+                  create: (context) =>
+                      TimerBloc(RepositoryProvider.of<FirestoreRepo>(context))),
+          leaderboardBloc != null
+              ? BlocProvider<LeaderboardBloc>.value(value: leaderboardBloc!)
+              : BlocProvider(
+                  lazy: false,
+                  create: (context) => LeaderboardBloc(
+                      timerBloc: BlocProvider.of<TimerBloc>(context),
+                      firestoreRepo:
+                          RepositoryProvider.of<FirestoreRepo>(context))
+                    ..add(LeaderboardInit()), // placeholder for now does nothing;
+                ),
+          goalBloc != null
+              ? BlocProvider<GoalBloc>.value(value: goalBloc!)
+              : BlocProvider(
+                  lazy: false,
+                  create: (context) =>
+                      GoalBloc(RepositoryProvider.of<FirestoreRepo>(context))
+                        ..add(GoalInit())),
+          settingsBloc != null
+              ? BlocProvider<SettingsBloc>.value(value: settingsBloc!)
+              : BlocProvider(lazy: false, create: (context) => SettingsBloc())
         ],
         child: BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, state) {

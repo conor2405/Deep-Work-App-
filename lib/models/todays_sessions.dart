@@ -13,7 +13,9 @@ class TodaysSessions {
 
   TodaysSessions({required this.sessions});
 
-  factory TodaysSessions.fromTimerResultToday(List<TimerResult> timerResults) {
+  factory TodaysSessions.fromTimerResultToday(List<TimerResult> timerResults,
+      {DateTime? referenceDate}) {
+    final DateTime now = referenceDate ?? DateTime.now();
     List<TimerResult> today = [];
 
     today.addAll(timerResults
@@ -25,7 +27,7 @@ class TodaysSessions {
               millisecond: 0,
               microsecond: 0,
             ) ==
-            DateTime.now().copyWith(
+            now.copyWith(
               hour: 0,
               minute: 0,
               second: 0,

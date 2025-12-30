@@ -10,14 +10,16 @@ class MonthlyScoreboard {
 
   MonthlyScoreboard({required this.month, required this.time});
 
-  factory MonthlyScoreboard.fromTimerResult(List<TimerResult> timerResults) {
+  factory MonthlyScoreboard.fromTimerResult(List<TimerResult> timerResults,
+      {DateTime? referenceDate}) {
+    final DateTime now = referenceDate ?? DateTime.now();
     List<double> tempDays = List<double>.filled(31, 0);
 
     for (int i = 1; i <= 31; i++) {
       tempDays[i - 1] = TimeModel(timerResults
               .where((TimerResult timerResult) =>
                   timerResult.startTime.day == i &&
-                  timerResult.startTime.month == DateTime.now().month)
+                  timerResult.startTime.month == now.month)
               .map((TimerResult timerResult) => timerResult.timeRun)
               .fold(0,
                   (int previousValue, int element) => previousValue + element))
@@ -39,7 +41,7 @@ class MonthlyScoreboard {
       'December'
     ];
 
-    String month = monthNames[DateTime.now().month - 1];
+    String month = monthNames[now.month - 1];
 
     return MonthlyScoreboard(
       month: month,

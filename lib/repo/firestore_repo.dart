@@ -8,9 +8,11 @@ import 'package:deep_work/repo/firebase_auth_repo.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 class FirestoreRepo {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  FirebaseAuthRepo _firebaseAuthRepo = FirebaseAuthRepo();
-  FirestoreRepo();
+  final FirebaseFirestore _firestore;
+  final FirebaseAuthRepo _firebaseAuthRepo;
+  FirestoreRepo({FirebaseFirestore? firestore, FirebaseAuthRepo? authRepo})
+      : _firestore = firestore ?? FirebaseFirestore.instance,
+        _firebaseAuthRepo = authRepo ?? FirebaseAuthRepo();
 
   String? get uid => _firebaseAuthRepo.currentUser?.uid;
 
