@@ -15,7 +15,7 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     });
 
     on<ToggleDarkMode>((event, emit) {
-      isDarkMode = !isDarkMode;
+      isDarkMode = true;
       emit(SettingsInitial(
           isDarkMode: isDarkMode, showMap: showMap, showNotes: notes));
     });
@@ -38,11 +38,8 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
     if (json.isEmpty) {
       return SettingsInitial();
     }
-    if (json['isDarkMode'] != null) {
-      isDarkMode = json['isDarkMode'];
-    } else {
-      isDarkMode = true;
-    }
+    // Theme is locked to dark for now; ignore persisted mode.
+    isDarkMode = true;
     if (json['showMap'] != null) {
       showMap = json['showMap'];
     } else {
@@ -62,7 +59,7 @@ class SettingsBloc extends HydratedBloc<SettingsEvent, SettingsState> {
   @override
   Map<String, dynamic>? toJson(SettingsState state) {
     return {
-      'isDarkMode': isDarkMode,
+      'isDarkMode': true,
       'showMap': showMap,
       'showNotes': notes,
     };

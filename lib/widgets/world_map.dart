@@ -123,12 +123,15 @@ class _WorldMapState extends State<WorldMap> {
                       ])
                     ],
                   )),
-              Container(
-                padding: EdgeInsets.all(30),
+              Align(
                 alignment: Alignment.bottomCenter,
-                child: Text('Live Users: ${state.liveUsers.users.length}',
-                    style: TextStyle(color: Colors.white, fontSize: 20)),
-              )
+                child: SafeArea(
+                  minimum: const EdgeInsets.only(bottom: 22),
+                  child: _CommunityPulse(
+                    count: state.liveUsers.users.length,
+                  ),
+                ),
+              ),
             ]);
           } else {
             return Container(
@@ -137,6 +140,145 @@ class _WorldMapState extends State<WorldMap> {
             );
           }
       },
+    );
+  }
+}
+
+class _CommunityPulse extends StatefulWidget {
+  final int count;
+
+  const _CommunityPulse({required this.count});
+
+  @override
+  State<_CommunityPulse> createState() => _CommunityPulseState();
+}
+
+class _CommunityPulseState extends State<_CommunityPulse>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulseScale;
+  late final Animation<double> _pulseFade;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    )..repeat();
+    _pulseScale = Tween<double>(begin: 0.7, end: 1.6).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+    _pulseFade = Tween<double>(begin: 0.35, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textColor = scheme.onSurface.withOpacity(0.86);
+    final subTextColor = scheme.onSurface.withOpacity(0.62);
+    final accent = scheme.primary.withOpacity(0.9);
+    final count = widget.count;
+    final label = count == 1 ? 'mind' : 'minds';
+
+    return Container(
+      key: const Key('focus_pulse_badge'),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      decoration: BoxDecoration(
+        color: scheme.surface.withOpacity(0.18),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: scheme.onSurface.withOpacity(0.12)),
+        boxShadow: [
+          BoxShadow(
+            color: accent.withOpacity(0.18),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    final size = 18 * _pulseScale.value;
+                    return Container(
+                      width: size,
+                      height: size,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: accent.withOpacity(_pulseFade.value),
+                      ),
+                    );
+                  },
+                ),
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: accent,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Focus Pulse',
+                style: TextStyle(
+                  color: subTextColor,
+                  fontSize: 12,
+                  letterSpacing: 0.6,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '$count',
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    TextSpan(
+                      text: ' $label in session',
+                      style: TextStyle(
+                        color: subTextColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

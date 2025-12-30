@@ -35,12 +35,12 @@ void main() {
     });
 
     blocTest<SettingsBloc, SettingsState>(
-      'toggles dark mode',
+      'keeps dark mode locked',
       build: () => SettingsBloc(),
       act: (bloc) => bloc.add(ToggleDarkMode()),
       expect: () => [
         isA<SettingsInitial>()
-            .having((state) => state.isDarkMode, 'isDarkMode', false)
+            .having((state) => state.isDarkMode, 'isDarkMode', true)
             .having((state) => state.showMap, 'showMap', true)
             .having((state) => state.showNotes, 'showNotes', true),
       ],
@@ -72,12 +72,11 @@ void main() {
 
     test('rehydrates persisted settings across instances', () async {
       final bloc = SettingsBloc();
-      bloc.add(ToggleDarkMode());
       bloc.add(ToggleShowMap());
       bloc.add(ToggleNotes());
       await bloc.stream.firstWhere((state) {
         return state is SettingsInitial &&
-            state.isDarkMode == false &&
+            state.isDarkMode == true &&
             state.showMap == false &&
             state.showNotes == false;
       });
@@ -86,7 +85,7 @@ void main() {
 
       final rehydrated = SettingsBloc();
       final state = rehydrated.state as SettingsInitial;
-      expect(state.isDarkMode, false);
+      expect(state.isDarkMode, true);
       expect(state.showMap, false);
       expect(state.showNotes, false);
       await rehydrated.close();
@@ -100,7 +99,7 @@ void main() {
 
       final bloc = SettingsBloc();
       final state = bloc.state as SettingsInitial;
-      expect(state.isDarkMode, false);
+      expect(state.isDarkMode, true);
       expect(state.showMap, false);
       expect(state.showNotes, true);
       await bloc.close();

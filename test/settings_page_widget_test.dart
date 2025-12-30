@@ -30,7 +30,8 @@ void main() {
     );
 
     final switches = find.byType(Switch);
-    expect(switches, findsNWidgets(3));
+    expect(switches, findsNWidgets(2));
+    expect(find.text('Dark Mode'), findsNothing);
 
     expect(settingsBloc.state, isA<SettingsInitial>());
     expect((settingsBloc.state as SettingsInitial).isDarkMode, true);
@@ -38,14 +39,9 @@ void main() {
     await tester.tap(switches.at(0));
     await tester.pump();
 
-    expect((settingsBloc.state as SettingsInitial).isDarkMode, false);
-
-    await tester.tap(switches.at(1));
-    await tester.pump();
-
     expect((settingsBloc.state as SettingsInitial).showMap, false);
 
-    await tester.tap(switches.at(2));
+    await tester.tap(switches.at(1));
     await tester.pump();
 
     expect((settingsBloc.state as SettingsInitial).showNotes, false);

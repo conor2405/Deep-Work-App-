@@ -30,13 +30,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         SizedBox(
                           height: 100,
                         ),
-                        Text('Dark Mode'),
-                        Switch(
-                            value: state.isDarkMode,
-                            onChanged: (value) {
-                              BlocProvider.of<SettingsBloc>(context)
-                                  .add(ToggleDarkMode());
-                            }),
                         Text('Show Map'),
                         Switch(
                             value: state.showMap,

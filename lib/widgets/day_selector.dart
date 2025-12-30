@@ -85,14 +85,7 @@ class _DaySelectorState extends State<DaySelector> {
                     ),
                   ],
                 ),
-                state.selectedDate
-                            .copyWith(
-                                hour: 0, minute: 0, second: 0, microsecond: 0)
-                            .difference(DateTime.now().copyWith(
-                                hour: 0, minute: 0, second: 0, microsecond: 0))
-                            .inDays
-                            .abs() >
-                        5
+                !isSameDay(state.selectedDate, DateTime.now())
                     ? ElevatedButton(
                         onPressed: () {
                           BlocProvider.of<LeaderboardBloc>(context)
@@ -180,4 +173,10 @@ List<Widget> dayList(LeaderboardLoaded state, BuildContext context) {
     ));
   }
   return days;
+}
+
+bool isSameDay(DateTime left, DateTime right) {
+  return left.year == right.year &&
+      left.month == right.month &&
+      left.day == right.day;
 }

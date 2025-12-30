@@ -103,4 +103,30 @@ void main() {
         tester.widget<MarkerLayer>(find.byType(MarkerLayer).first);
     expect(markerLayer.markers.length, 1);
   });
+
+  testWidgets('community pulse badge renders count', (tester) async {
+    final liveUsersBloc = MockLiveUsersBloc();
+    final users = LiveUsers(users: [
+      LiveUser(uid: '1', isActive: true, lat: 10, lng: 20),
+      LiveUser(uid: '2', isActive: true, lat: 30, lng: 40),
+      LiveUser(uid: '3', isActive: true, lat: 50, lng: 60),
+    ]);
+
+    whenListen(
+      liveUsersBloc,
+      Stream<LiveUsersState>.fromIterable([LiveUsersLoaded(users)]),
+      initialState: LiveUsersLoaded(users),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: WorldMap(liveUsersBloc: liveUsersBloc, enableTiles: false),
+      ),
+    );
+
+    await _pumpWorldMap(tester);
+    expect(find.byKey(const Key('focus_pulse_badge')), findsOneWidget);
+    expect(find.text('Focus Pulse'), findsOneWidget);
+    expect(find.textContaining('minds in session'), findsOneWidget);
+  });
 }

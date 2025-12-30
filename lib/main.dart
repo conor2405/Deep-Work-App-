@@ -136,10 +136,7 @@ class MyApp extends StatelessWidget {
                     useMaterial3: true,
                     colorScheme: ColorScheme.fromSeed(
                         seedColor: Color.fromARGB(255, 23, 156, 239),
-                        brightness:
-                            BlocProvider.of<SettingsBloc>(context).isDarkMode
-                                ? Brightness.dark
-                                : Brightness.light),
+                        brightness: Brightness.dark),
                     pageTransitionsTheme: const PageTransitionsTheme(builders: {
                       TargetPlatform.android: ZoomPageTransitionsBuilder(),
                       TargetPlatform.iOS: ZoomPageTransitionsBuilder(),

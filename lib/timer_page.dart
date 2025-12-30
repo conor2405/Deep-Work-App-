@@ -28,7 +28,7 @@ class _TimerPageState extends State<TimerPage> {
                 width: MediaQuery.of(context).size.width,
                 child: Stack(alignment: Alignment.center, children: [
                   Opacity(
-                      opacity: 0.5, child: state.showMap ? WorldMap() : null),
+                      opacity: 0.9, child: state.showMap ? WorldMap() : null),
                   Container(
                       height: MediaQuery.of(context).size.height,
                       width: MediaQuery.of(context).size.width,
