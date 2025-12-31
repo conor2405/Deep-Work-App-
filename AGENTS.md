@@ -4,6 +4,7 @@
 - Cross-platform Deep Work / focus timer built in Flutter (Dart), targeting macOS, iOS, and Android (web/desktop scaffolding also present).
 - Core differentiator: a live world map behind the timer showing small light markers for active users globally (Halo/CoD lobby map vibe).
 - UI goal: minimalist, calm, and distraction-free with the timer as the focal element.
+- Goal of the app: to help users focus by blocking out distractions and helping them to track their focus time. The eventual goal is to have a 1 stop shop of timing their focus time, blocking distracting apps on whatever platform they are on and to track their time over days and weeks so they can set work goals. 
 
 ## Tech stack
 - Flutter (Material 3) + Dart.
@@ -12,7 +13,7 @@
 - Charts: `fl_chart`.
 - Map: `flutter_map`, `flutter_map_cache`, `latlong2`.
 - Local storage/cache: Hive (via `hydrated_bloc` and map tile cache).
-- The path to Flutter is: /Users/conorkelly/flutter/bin/flutter
+
 
 ## Repo layout (key files)
 - `lib/main.dart`: app initialization, Firebase setup, DI, routes, theme.
