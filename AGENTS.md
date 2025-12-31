@@ -15,6 +15,7 @@
 - Local storage/cache: Hive (via `hydrated_bloc` and map tile cache).
 
 
+
 ## Repo layout (key files)
 - `lib/main.dart`: app initialization, Firebase setup, DI, routes, theme.
 - `lib/homepage.dart`: main landing screen with timer and navigation.
@@ -95,3 +96,30 @@
 - Keep the minimal aesthetic and map-first differentiator intact.
 - Maintain or improve test coverage for any changed behavior.
 - Update this file if architecture, data model, or workflow changes.
+
+# Agent Instructions – Flutter (Cross-Environment)
+
+This repository is a Flutter application.
+
+## Environment assumptions
+- The `flutter` CLI is available on `PATH`.
+  - Local macOS: Flutter may be installed via SDK, Homebrew, or FVM.
+  - Codex (Linux): Flutter is installed at `/opt/flutter` and added to `PATH` by the environment setup.
+- Do **not** use hard-coded absolute paths to Flutter.
+- Always invoke Flutter via `flutter` (or `command -v flutter` if needed).
+
+## Working directory
+- All Flutter commands should be run from the repository root (where `pubspec.yaml` is located).
+
+## Standard commands
+Use the following commands when developing, testing, or fixing issues:
+
+Always verify that all tests are passing, that web builds successfully.
+use flutter run to run the app and get a screenshot of any UI changes. 
+
+```bash
+flutter pub get
+flutter analyze
+flutter test
+flutter build web
+flutter run
