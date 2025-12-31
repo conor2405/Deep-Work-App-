@@ -42,7 +42,7 @@
     `timeElapsed`, `startTime`, `timeFinished`, `breaks`, `breakEvents`,
     `sessionEfficiency`, `notes`, `focusRating`.
 - `activeUsers` collection
-  - Fields: `uid`, `isActive`, `lat`, `lng`.
+  - Fields: `uid`, `isActive`, `geohash` (4-char).
 - `timeGoals` collection
   - Document ID = `uid`; fields include `daily`, `weekly`, `monthly`, `yearly`.
 - `goals` collection

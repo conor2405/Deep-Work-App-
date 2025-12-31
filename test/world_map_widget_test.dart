@@ -62,8 +62,8 @@ void main() {
   testWidgets('marker count matches live users', (tester) async {
     final liveUsersBloc = MockLiveUsersBloc();
     final users = LiveUsers(users: [
-      LiveUser(uid: '1', isActive: true, lat: 10, lng: 20),
-      LiveUser(uid: '2', isActive: true, lat: 30, lng: 40),
+      LiveUser(uid: '1', isActive: true, geohash: 'ezs4'),
+      LiveUser(uid: '2', isActive: true, geohash: 'u4pr'),
     ]);
 
     whenListen(
@@ -113,9 +113,9 @@ void main() {
   testWidgets('community pulse badge renders count', (tester) async {
     final liveUsersBloc = MockLiveUsersBloc();
     final users = LiveUsers(users: [
-      LiveUser(uid: '1', isActive: true, lat: 10, lng: 20),
-      LiveUser(uid: '2', isActive: true, lat: 30, lng: 40),
-      LiveUser(uid: '3', isActive: true, lat: 50, lng: 60),
+      LiveUser(uid: '1', isActive: true, geohash: 'ezs4'),
+      LiveUser(uid: '2', isActive: true, geohash: 'u4pr'),
+      LiveUser(uid: '3', isActive: true, geohash: 'gcpv'),
     ]);
 
     whenListen(

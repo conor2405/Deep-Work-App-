@@ -16,7 +16,7 @@ void main() {
     final firestoreRepo = MockFirestoreRepo();
     final bloc = TimerBloc(firestoreRepo);
 
-    when(() => firestoreRepo.setLiveUser(any(), any(), any()))
+    when(() => firestoreRepo.setLiveUser(any(), any()))
         .thenReturn(null);
     when(() => firestoreRepo.unsetLiveUser()).thenReturn(null);
     when(() => firestoreRepo.setLiveUserActive()).thenReturn(null);
@@ -38,7 +38,7 @@ void main() {
     await pumpEventQueue();
 
     verifyInOrder([
-      () => firestoreRepo.setLiveUser(any(), any(), any()),
+      () => firestoreRepo.setLiveUser(any(), any()),
       () => firestoreRepo.unsetLiveUser(),
       () => firestoreRepo.setLiveUserActive(),
       () => firestoreRepo.unsetLiveUser(),

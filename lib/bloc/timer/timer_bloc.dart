@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 
 import 'package:deep_work/models/time.dart';
 import 'package:deep_work/models/timer_result.dart';
+import 'package:deep_work/models/live_users.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
 import 'package:equatable/equatable.dart';
 
@@ -70,8 +71,11 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       timerResult = TimerStats(targetTime: time);
       emit(TimerRunning(timerResult));
 
-      _firestoreRepo.setLiveUser(
-          timerResult, 53.280687520332016, 6.326202939104593);
+      final geohash = LiveUser.geohashForCoordinates(
+        lat: 53.280687520332016,
+        lng: 6.326202939104593,
+      );
+      _firestoreRepo.setLiveUser(timerResult, geohash);
 
       _startTimer();
     });

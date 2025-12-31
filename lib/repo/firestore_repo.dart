@@ -87,12 +87,12 @@ class FirestoreRepo {
 
   // Live user methods
   // set live user
-  void setLiveUser(TimerStats timerStats, double lat, double lng) {
+  void setLiveUser(TimerStats timerStats, String geohash) {
+    final sanitizedGeohash = geohash.trim().toLowerCase();
     LiveUser liveUser = LiveUser(
       uid: uid!,
       isActive: true,
-      lat: lat,
-      lng: lng,
+      geohash: sanitizedGeohash,
     );
     _firestore.collection('activeUsers').doc(uid).set(liveUser.toJson());
   }

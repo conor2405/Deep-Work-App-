@@ -35,7 +35,7 @@ void main() {
         liveUsersController.add(
           LiveUsers(
             users: [
-              LiveUser(uid: 'user-1', isActive: true, lat: 1, lng: 2),
+              LiveUser(uid: 'user-1', isActive: true, geohash: 'ezs4'),
             ],
           ),
         );

@@ -44,12 +44,13 @@ void main() {
     test('set/unset live user writes active payloads', () async {
       final stats = TimerStats(targetTime: TimeModel(600));
 
-      repo.setLiveUser(stats, 10, 20);
+      repo.setLiveUser(stats, 'ezs4');
       var doc =
           await firestore.collection('activeUsers').doc('user-1').get();
       expect(doc.data()?['isActive'], true);
-      expect(doc.data()?['lat'], 10);
-      expect(doc.data()?['lng'], 20);
+      expect(doc.data()?['geohash'], 'ezs4');
+      expect(doc.data()?.containsKey('lat'), isFalse);
+      expect(doc.data()?.containsKey('lng'), isFalse);
 
       repo.unsetLiveUser();
       doc = await firestore.collection('activeUsers').doc('user-1').get();
