@@ -6,6 +6,7 @@ TimerResult buildTimerResult({
   int timeRunSeconds = 600,
   int breakTimeSeconds = 0,
   bool completed = true,
+  int? focusRating,
 }) {
   return TimerResult(
     timeLeft: TimeModel(0),
@@ -21,5 +22,6 @@ TimerResult buildTimerResult({
     sessionEfficiency: timeRunSeconds == 0
         ? 0
         : timeRunSeconds / (timeRunSeconds + breakTimeSeconds),
+    focusRating: focusRating,
   );
 }

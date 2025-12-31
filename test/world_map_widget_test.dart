@@ -53,6 +53,12 @@ void main() {
     );
   });
 
+  test('wrapLongitude keeps values in range', () {
+    expect(wrapLongitude(45), 45);
+    expect(wrapLongitude(190), closeTo(-170, 0.0001));
+    expect(wrapLongitude(-190), closeTo(170, 0.0001));
+  });
+
   testWidgets('marker count matches live users', (tester) async {
     final liveUsersBloc = MockLiveUsersBloc();
     final users = LiveUsers(users: [

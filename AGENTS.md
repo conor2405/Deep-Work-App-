@@ -40,7 +40,7 @@
 - `sessions` collection
   - Fields: `uid`, `timeLeft`, `targetTime`, `completed`, `timeRun`, `breakTime`,
     `timeElapsed`, `startTime`, `timeFinished`, `breaks`, `breakEvents`,
-    `sessionEfficiency`, `notes`.
+    `sessionEfficiency`, `notes`, `focusRating`.
 - `activeUsers` collection
   - Fields: `uid`, `isActive`, `lat`, `lng`.
 - `timeGoals` collection

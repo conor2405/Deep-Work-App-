@@ -15,6 +15,7 @@ class TimerStats {
   String? uid;
   int timeRun = 0;
   List<String> notes = [];
+  int? focusRating;
 
   TimerStats({
     required this.targetTime,
@@ -69,6 +70,7 @@ class TimerStats {
           breakEvents.map((BreakPeriod breakEvent) => breakEvent.toJson()).toList(),
       'sessionEfficiency': sessionEfficiency,
       'notes': notes,
+      if (focusRating != null) 'focusRating': focusRating,
     };
   }
 
@@ -90,6 +92,9 @@ class TimerStats {
           .map((event) => BreakPeriod.fromJson(event as Map<String, dynamic>))
           .toList();
     }
+    if (json.containsKey('focusRating')) {
+      timerStats.focusRating = json['focusRating'] as int?;
+    }
     return timerStats;
   }
 }
@@ -108,6 +113,7 @@ class TimerResult {
   final int breaks;
   final double sessionEfficiency;
   List<String> notes = [];
+  final int? focusRating;
 
   TimerResult({
     required this.timeLeft,
@@ -122,6 +128,7 @@ class TimerResult {
     this.breaks = 0,
     required this.sessionEfficiency,
     this.notes = const [],
+    this.focusRating,
   });
 
   factory TimerResult.fromJson(Map<String, dynamic> json) {
@@ -141,6 +148,7 @@ class TimerResult {
         notes.add(note);
       });
     }
+    final int? focusRating = json['focusRating'] as int?;
     return TimerResult(
       timeLeft: TimeModel(json['timeLeft']),
       targetTime: TimeModel(json['targetTime']),
@@ -154,6 +162,7 @@ class TimerResult {
       breakEvents: breakEvents,
       sessionEfficiency: sessionEfficiency,
       notes: notes,
+      focusRating: focusRating,
     );
   }
 }

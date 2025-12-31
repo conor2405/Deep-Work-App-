@@ -80,7 +80,11 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       _stopTimer();
       _stopBreakTimer();
       timerResult.endBreak();
-      currentNote == '' ? null : timerResult.notes.add(currentNote);
+      final trimmedNote = currentNote.trim();
+      if (trimmedNote.isNotEmpty) {
+        timerResult.notes.add(trimmedNote);
+      }
+      currentNote = '';
       _firestoreRepo.unsetLiveUser();
       emit(TimerDone(timerResult));
     });
@@ -183,8 +187,23 @@ class TimerBloc extends Bloc<TimerEvent, TimerState> {
       currentNote = event.notes;
     });
 
+    on<TimerSetFocusRating>((event, emit) async {
+      final rating = event.rating;
+      if (rating == null) {
+        timerResult.focusRating = null;
+        return;
+      }
+      if (rating < 1 || rating > 5) {
+        return;
+      }
+      timerResult.focusRating = rating;
+    });
+
     on<TimerSubmitNotes>((event, emit) async {
-      timerResult.notes.add(currentNote);
+      final trimmedNote = currentNote.trim();
+      if (trimmedNote.isNotEmpty) {
+        timerResult.notes.add(trimmedNote);
+      }
       currentNote = '';
     });
   }

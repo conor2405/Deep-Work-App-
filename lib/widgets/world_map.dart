@@ -9,7 +9,11 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cache/flutter_map_cache.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/scheduler.dart';
 
+// TODO: the map falls off and re-renders when crossing the edge on the map
+// scrolling feature. the slow speed is also jumpy to the eye and not a smooth
+// transition
 class WorldMap extends StatefulWidget {
   final LiveUsersBloc? liveUsersBloc;
   final bool enableTiles;
@@ -25,12 +29,22 @@ Future<String> getPath() async {
   return cacheDirectory.path;
 }
 
-class _WorldMapState extends State<WorldMap> {
+class _WorldMapState extends State<WorldMap>
+    with SingleTickerProviderStateMixin {
   String? path;
+  late final MapController _mapController;
+  Ticker? _panTicker;
+  Duration _lastPanTick = Duration.zero;
+  bool _autoPanStarted = false;
+
+  static const LatLng _initialCenter = LatLng(27.000, 10.000);
+  static const double _initialZoom = 2.9;
+  static const double _autoPanDegreesPerSecond = 0.1;
 
   @override
   void initState() {
     super.initState();
+    _mapController = MapController();
     if (kIsWeb) {
       path = '';
       return;
@@ -43,6 +57,47 @@ class _WorldMapState extends State<WorldMap> {
         path = value;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _panTicker?.dispose();
+    super.dispose();
+  }
+
+  void _startAutoPan() {
+    _panTicker?.dispose();
+    _lastPanTick = Duration.zero;
+    _panTicker = createTicker((elapsed) {
+      if (!mounted) {
+        return;
+      }
+      if (_lastPanTick == Duration.zero) {
+        _lastPanTick = elapsed;
+        return;
+      }
+      final deltaSeconds = (elapsed - _lastPanTick).inMicroseconds /
+          Duration.microsecondsPerSecond;
+      _lastPanTick = elapsed;
+      final camera = _mapController.camera;
+      final nextLongitude = wrapLongitude(
+        camera.center.longitude + (_autoPanDegreesPerSecond * deltaSeconds),
+      );
+      _mapController.move(
+        LatLng(camera.center.latitude, nextLongitude),
+        camera.zoom,
+      );
+    })
+      ..start();
+  }
+
+  void _handleMapReady() {
+    if (_autoPanStarted) {
+      return;
+    }
+    _autoPanStarted = true;
+    // commenting out to disable map pan until issues fixed.
+    //_startAutoPan();
   }
 
   @override
@@ -82,63 +137,64 @@ class _WorldMapState extends State<WorldMap> {
             child: CircularProgressIndicator(),
           );
         } else if (state is LiveUsersLoaded) {
-            return Stack(children: [
-              Container(
-                  alignment: Alignment.center,
-                  child: FlutterMap(
-                    options: MapOptions(
-                        crs: const Epsg3857(),
-                        initialCenter: LatLng(27, 10),
-                        initialZoom: 2.9,
-                        interactionOptions:
-                            InteractionOptions(flags: InteractiveFlag.none),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.background),
-                    children: [
-                      if (widget.enableTiles)
-                        TileLayer(
-                          retinaMode: true,
-                          urlTemplate:
-                              'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
-                          userAgentPackageName: 'com.deep_work.app',
-                          tileProvider: useCache
-                              ? CachedTileProvider(
-                                  // maxStale keeps the tile cached for the given Duration and
-                                  // tries to revalidate the next time it gets requested
-                                  maxStale: const Duration(days: 1000),
-                                  store: HiveCacheStore(
-                                    path!,
-                                    hiveBoxName: 'HiveCacheStore',
-                                  ),
-                                )
-                              : null,
-                        ),
-                      MarkerLayer(markers: [
-                        Marker(
-                            point:
-                                LatLng(53.280687520332016, -6.326202939104593),
-                            child: Icon(Icons.circle,
-                                color: Colors.blue[50], size: 2)),
-                        ...getMarkers(state.liveUsers)
-                      ])
-                    ],
-                  )),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: SafeArea(
-                  minimum: const EdgeInsets.only(bottom: 22),
-                  child: _CommunityPulse(
-                    count: state.liveUsers.users.length,
-                  ),
+          return Stack(children: [
+            Container(
+                alignment: Alignment.center,
+                child: FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(
+                      crs: const Epsg3857(),
+                      initialCenter: _initialCenter,
+                      initialZoom: _initialZoom,
+                      interactionOptions:
+                          InteractionOptions(flags: InteractiveFlag.none),
+                      onMapReady: _handleMapReady,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.background),
+                  children: [
+                    if (widget.enableTiles)
+                      TileLayer(
+                        retinaMode: true,
+                        urlTemplate:
+                            'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+                        userAgentPackageName: 'com.deep_work.app',
+                        tileProvider: useCache
+                            ? CachedTileProvider(
+                                // maxStale keeps the tile cached for the given Duration and
+                                // tries to revalidate the next time it gets requested
+                                maxStale: const Duration(days: 1000),
+                                store: HiveCacheStore(
+                                  path!,
+                                  hiveBoxName: 'HiveCacheStore',
+                                ),
+                              )
+                            : null,
+                      ),
+                    MarkerLayer(markers: [
+                      Marker(
+                          point: LatLng(53.280687520332016, -6.326202939104593),
+                          child: Icon(Icons.circle,
+                              color: Colors.blue[50], size: 2)),
+                      ...getMarkers(state.liveUsers)
+                    ])
+                  ],
+                )),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SafeArea(
+                minimum: const EdgeInsets.only(bottom: 22),
+                child: _CommunityPulse(
+                  count: state.liveUsers.users.length,
                 ),
               ),
-            ]);
-          } else {
-            return Container(
-              alignment: Alignment.center,
-              child: Text('Error'),
-            );
-          }
+            ),
+          ]);
+        } else {
+          return Container(
+            alignment: Alignment.center,
+            child: Text('Error'),
+          );
+        }
       },
     );
   }
@@ -286,6 +342,18 @@ class _CommunityPulseState extends State<_CommunityPulse>
 @visibleForTesting
 bool shouldUseCachedTiles({required bool enableTiles, required bool isWeb}) {
   return enableTiles && !isWeb;
+}
+
+@visibleForTesting
+double wrapLongitude(double longitude) {
+  var wrapped = longitude;
+  while (wrapped < -180) {
+    wrapped += 360;
+  }
+  while (wrapped > 180) {
+    wrapped -= 360;
+  }
+  return wrapped;
 }
 
 List<Marker> getMarkers(LiveUsers liveUsers) {

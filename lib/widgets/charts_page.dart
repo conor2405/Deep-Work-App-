@@ -55,7 +55,7 @@ class _ChartsPageState extends State<ChartsPage> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
                   sliver: SliverToBoxAdapter(
                     child: SizedBox(
                       height: 300,
@@ -64,7 +64,7 @@ class _ChartsPageState extends State<ChartsPage> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
                   sliver: SliverToBoxAdapter(
                     child: Wrap(
                       alignment: WrapAlignment.spaceEvenly,
@@ -91,7 +91,7 @@ class _ChartsPageState extends State<ChartsPage> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                   sliver: SliverToBoxAdapter(child: WidgetForNotesList()),
                 ),
               ],

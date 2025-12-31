@@ -1,4 +1,3 @@
-import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/bloc/timer/timer_bloc.dart';
 import 'package:deep_work/models/time.dart';
 
@@ -15,6 +14,61 @@ class CentralTimer extends StatefulWidget {
 }
 
 class _CentralTimerState extends State<CentralTimer> {
+  static const Key _homeDateKey = Key('home-date');
+  static const Key _homeTimeKey = Key('home-time');
+
+  Widget _buildHomeDateTime(BuildContext context) {
+    final localizations = MaterialLocalizations.of(context);
+    final alwaysUse24Hour = MediaQuery.of(context).alwaysUse24HourFormat;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return StreamBuilder<DateTime>(
+      stream: Stream<DateTime>.periodic(
+        const Duration(seconds: 1),
+        (_) => DateTime.now(),
+      ),
+      builder: (context, snapshot) {
+        final now = snapshot.data ?? DateTime.now();
+        final dateText = localizations.formatMediumDate(now).toUpperCase();
+        final timeText = localizations.formatTimeOfDay(
+          TimeOfDay.fromDateTime(now),
+          alwaysUse24HourFormat: alwaysUse24Hour,
+        );
+        final dateStyle = Theme.of(context).textTheme.labelMedium?.copyWith(
+              fontSize: 13,
+              letterSpacing: 1.4,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onBackground.withOpacity(0.6),
+            );
+        final timeStyle = Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w200,
+              letterSpacing: 0.6,
+              color: colorScheme.onBackground.withOpacity(0.9),
+            );
+        final chromeColor = colorScheme.onBackground.withOpacity(0.08);
+        final surfaceColor = colorScheme.surface.withOpacity(0.12);
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            color: surfaceColor,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: chromeColor),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(dateText, key: _homeDateKey, style: dateStyle),
+              const SizedBox(height: 2),
+              Text(timeText, key: _homeTimeKey, style: timeStyle),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _showBreakDialog(BuildContext context) async {
     int selectedMinutes = 5;
     final int? breakMinutes = await showDialog<int>(
@@ -101,6 +155,8 @@ class _CentralTimerState extends State<CentralTimer> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              _buildHomeDateTime(context),
+              const SizedBox(height: 16),
               Stack(alignment: Alignment.center, children: [
                 ConstrainedBox(
                   constraints: BoxConstraints.tight(Size(500, 500)),
@@ -356,52 +412,6 @@ class _CentralTimerState extends State<CentralTimer> {
                           onPressed: () => _showBreakDialog(context),
                           label: Text('Take Break'),
                         ),
-                        (BlocProvider.of<SettingsBloc>(context).state
-                                    as SettingsInitial)
-                                .showNotes
-                            ? IconButton(
-                                icon: Icon(Icons.notes_rounded),
-                                onPressed: () {
-                                  BlocProvider.of<SettingsBloc>(context).add(
-                                    ToggleNotes(),
-                                  );
-                                })
-                            : Container(
-                                width: MediaQuery.of(context).size.width / 2.5,
-                                child: Stack(children: [
-                                  TextField(
-                                    keyboardType: TextInputType.multiline,
-                                    onChanged: (value) {
-                                      BlocProvider.of<TimerBloc>(context).add(
-                                        TimerSetNotes(value),
-                                      );
-                                    },
-                                    maxLines: null,
-                                    textAlign: TextAlign.center,
-                                    decoration: InputDecoration(
-                                      hintText:
-                                          '''Action may not always bring happiness,
-but there is no happiness without action.''',
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.topRight,
-                                    child: IconButton(
-                                      onPressed: () {
-                                        BlocProvider.of<SettingsBloc>(context)
-                                            .add(
-                                          ToggleNotes(),
-                                        );
-
-                                        BlocProvider.of<TimerBloc>(context).add(
-                                          TimerSubmitNotes(),
-                                        );
-                                      },
-                                      icon: Icon(Icons.close),
-                                    ),
-                                  )
-                                ]),
-                              ),
                       ],
                     ),
                   );

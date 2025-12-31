@@ -1,5 +1,4 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/bloc/timer/timer_bloc.dart';
 import 'package:deep_work/models/time.dart';
 import 'package:deep_work/models/timer_result.dart';
@@ -12,9 +11,6 @@ import 'package:mocktail/mocktail.dart';
 class MockTimerBloc extends MockBloc<TimerEvent, TimerState>
     implements TimerBloc {}
 
-class MockSettingsBloc extends MockBloc<SettingsEvent, SettingsState>
-    implements SettingsBloc {}
-
 void main() {
   setUpAll(() {
     registerFallbackValue(TimerStart());
@@ -25,9 +21,6 @@ void main() {
     registerFallbackValue(TimerEndBreak());
     registerFallbackValue(TimerBreakAddFive());
     registerFallbackValue(TimerBreakTakeFive());
-    registerFallbackValue(TimerSetNotes(''));
-    registerFallbackValue(TimerSubmitNotes());
-    registerFallbackValue(ToggleNotes());
   });
 
   setUp(() {
@@ -42,18 +35,13 @@ void main() {
 
   testWidgets('renders time from TimerBloc state', (tester) async {
     final timerBloc = MockTimerBloc();
-    final settingsBloc = MockSettingsBloc();
     when(() => timerBloc.state).thenReturn(TimerInitial(TimeModel(90 * 60)));
-    when(() => settingsBloc.state).thenReturn(SettingsInitial(showNotes: true));
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: MultiBlocProvider(
-            providers: [
-              BlocProvider<TimerBloc>.value(value: timerBloc),
-              BlocProvider<SettingsBloc>.value(value: settingsBloc),
-            ],
+          body: BlocProvider<TimerBloc>.value(
+            value: timerBloc,
             child: CentralTimer(),
           ),
         ),
@@ -63,23 +51,37 @@ void main() {
     expect(find.text('01:30:00'), findsOneWidget);
   });
 
-  testWidgets('dispatches timer events on button taps', (tester) async {
+  testWidgets('shows date and time before timer starts', (tester) async {
     final timerBloc = MockTimerBloc();
-    final settingsBloc = MockSettingsBloc();
-    final stats = TimerStats(targetTime: TimeModel(600));
-    stats.timeLeft = TimeModel(600);
-
-    when(() => timerBloc.state).thenReturn(TimerRunning(stats));
-    when(() => settingsBloc.state).thenReturn(SettingsInitial(showNotes: true));
+    when(() => timerBloc.state).thenReturn(TimerInitial(TimeModel(90 * 60)));
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: MultiBlocProvider(
-            providers: [
-              BlocProvider<TimerBloc>.value(value: timerBloc),
-              BlocProvider<SettingsBloc>.value(value: settingsBloc),
-            ],
+          body: BlocProvider<TimerBloc>.value(
+            value: timerBloc,
+            child: CentralTimer(),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byKey(const Key('home-date')), findsOneWidget);
+    expect(find.byKey(const Key('home-time')), findsOneWidget);
+  });
+
+  testWidgets('dispatches timer events on button taps', (tester) async {
+    final timerBloc = MockTimerBloc();
+    final stats = TimerStats(targetTime: TimeModel(600));
+    stats.timeLeft = TimeModel(600);
+
+    when(() => timerBloc.state).thenReturn(TimerRunning(stats));
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: BlocProvider<TimerBloc>.value(
+            value: timerBloc,
             child: CentralTimer(),
           ),
         ),
@@ -103,69 +105,19 @@ void main() {
     verify(() => timerBloc.add(any(that: isA<TimerStartBreak>()))).called(1);
   });
 
-  testWidgets('notes panel respects settings', (tester) async {
-    final timerBloc = MockTimerBloc();
-    final settingsBloc = MockSettingsBloc();
-    final stats = TimerStats(targetTime: TimeModel(600));
-    stats.timeLeft = TimeModel(600);
-
-    when(() => timerBloc.state).thenReturn(TimerRunning(stats));
-    when(() => settingsBloc.state).thenReturn(SettingsInitial(showNotes: true));
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: MultiBlocProvider(
-            providers: [
-              BlocProvider<TimerBloc>.value(value: timerBloc),
-              BlocProvider<SettingsBloc>.value(value: settingsBloc),
-            ],
-            child: CentralTimer(),
-          ),
-        ),
-      ),
-    );
-
-    expect(find.byIcon(Icons.notes_rounded), findsOneWidget);
-
-    when(() => settingsBloc.state).thenReturn(SettingsInitial(showNotes: false));
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: MultiBlocProvider(
-            providers: [
-              BlocProvider<TimerBloc>.value(value: timerBloc),
-              BlocProvider<SettingsBloc>.value(value: settingsBloc),
-            ],
-            child: CentralTimer(),
-          ),
-        ),
-      ),
-    );
-
-    expect(find.byType(TextField), findsOneWidget);
-    expect(find.byIcon(Icons.close), findsOneWidget);
-  });
-
   testWidgets('break controls dispatch events', (tester) async {
     final timerBloc = MockTimerBloc();
-    final settingsBloc = MockSettingsBloc();
     final stats = TimerStats(targetTime: TimeModel(600));
     stats.breakTargetTime = TimeModel(300);
     stats.breakTimeLeft = TimeModel(300);
 
     when(() => timerBloc.state).thenReturn(TimerBreakRunning(stats));
-    when(() => settingsBloc.state).thenReturn(SettingsInitial(showNotes: true));
 
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: MultiBlocProvider(
-            providers: [
-              BlocProvider<TimerBloc>.value(value: timerBloc),
-              BlocProvider<SettingsBloc>.value(value: settingsBloc),
-            ],
+          body: BlocProvider<TimerBloc>.value(
+            value: timerBloc,
             child: CentralTimer(),
           ),
         ),

@@ -56,6 +56,7 @@ void main() {
         ],
         'sessionEfficiency': 0.9,
         'notes': ['Focus', 'Break'],
+        'focusRating': 4,
       };
 
       final result = TimerResult.fromJson(json);
@@ -67,6 +68,7 @@ void main() {
       expect(result.breakTime, 120);
       expect(result.breaks, 1);
       expect(result.sessionEfficiency, 0.9);
+      expect(result.focusRating, 4);
     });
 
     test('defaults sessionEfficiency when missing', () {
@@ -90,6 +92,7 @@ void main() {
       expect(result.breakTime, 0);
       expect(result.breaks, 0);
       expect(result.breakEvents, isEmpty);
+      expect(result.focusRating, isNull);
     });
   });
 }

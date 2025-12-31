@@ -68,6 +68,12 @@ final class TimerSetNotes extends TimerEvent {
   TimerSetNotes(this.notes);
 }
 
+final class TimerSetFocusRating extends TimerEvent {
+  final int? rating;
+
+  TimerSetFocusRating(this.rating);
+}
+
 final class TimerSubmitNotes extends TimerEvent {
   TimerSubmitNotes();
 }
