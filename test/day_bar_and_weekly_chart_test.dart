@@ -28,7 +28,7 @@ LeaderboardLoaded buildLeaderboardLoaded() {
 }
 
 LeaderboardLoaded buildLeaderboardLoadedWithSessions(
-    {List<TimerResult> sessions = const []}) {
+    {List<TimerResult> sessions = const [], DateTime? selectedDate}) {
   final weekly = WeeklyScoreboard(
     monday: 0,
     tuesday: 0,
@@ -44,7 +44,7 @@ LeaderboardLoaded buildLeaderboardLoadedWithSessions(
   final goals = <Goal>[];
   final timeGoals = TimeGoalsAll();
   final dates = List.generate(7, (index) => DateTime(2024, 5, index + 1));
-  final selectedDate = DateTime(2024, 5, 1);
+  final selected = selectedDate ?? DateTime(2024, 5, 1);
 
   return LeaderboardLoaded(
     weekly,
@@ -55,7 +55,7 @@ LeaderboardLoaded buildLeaderboardLoadedWithSessions(
     goals,
     timeGoals,
     dates,
-    selectedDate,
+    selected,
     today,
     weekly,
     weekly,
@@ -194,5 +194,86 @@ void main() {
           (widget.decoration as BoxDecoration).color == Colors.blueGrey;
     });
     expect(breakSegmentFinder, findsWidgets);
+  });
+
+  testWidgets('DayBar renders milestone labels and current time indicator',
+      (tester) async {
+    final leaderboardBloc = MockLeaderboardBloc();
+    final settingsBloc = MockSettingsBloc();
+    final state = buildLeaderboardLoaded();
+
+    when(() => leaderboardBloc.state).thenReturn(state);
+    when(() => settingsBloc.isDarkMode).thenReturn(false);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider<LeaderboardBloc>.value(value: leaderboardBloc),
+            BlocProvider<SettingsBloc>.value(value: settingsBloc),
+          ],
+          child: DayBar(),
+        ),
+      ),
+    );
+
+    expect(find.text('Noon'), findsOneWidget);
+    expect(find.text('6a'), findsOneWidget);
+    expect(find.text('9a'), findsOneWidget);
+    expect(find.text('3p'), findsOneWidget);
+    expect(find.text('6p'), findsOneWidget);
+    expect(find.text('9p'), findsOneWidget);
+    expect(find.byKey(const Key('day_bar_now_indicator')), findsOneWidget);
+  });
+
+  testWidgets('DayBar shows current time indicator for today selection',
+      (tester) async {
+    final leaderboardBloc = MockLeaderboardBloc();
+    final settingsBloc = MockSettingsBloc();
+    final state =
+        buildLeaderboardLoadedWithSessions(selectedDate: DateTime.now());
+
+    when(() => leaderboardBloc.state).thenReturn(state);
+    when(() => settingsBloc.isDarkMode).thenReturn(false);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider<LeaderboardBloc>.value(value: leaderboardBloc),
+            BlocProvider<SettingsBloc>.value(value: settingsBloc),
+          ],
+          child: DayBar(changeableDate: true),
+        ),
+      ),
+    );
+
+    expect(find.byKey(const Key('day_bar_now_indicator')), findsOneWidget);
+  });
+
+  testWidgets('DayBar hides current time indicator for historical views',
+      (tester) async {
+    final leaderboardBloc = MockLeaderboardBloc();
+    final settingsBloc = MockSettingsBloc();
+    final state = buildLeaderboardLoadedWithSessions(
+      selectedDate: DateTime(2024, 5, 1),
+    );
+
+    when(() => leaderboardBloc.state).thenReturn(state);
+    when(() => settingsBloc.isDarkMode).thenReturn(false);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider<LeaderboardBloc>.value(value: leaderboardBloc),
+            BlocProvider<SettingsBloc>.value(value: settingsBloc),
+          ],
+          child: DayBar(changeableDate: true),
+        ),
+      ),
+    );
+
+    expect(find.byKey(const Key('day_bar_now_indicator')), findsNothing);
   });
 }
