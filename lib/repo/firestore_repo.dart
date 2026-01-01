@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:deep_work/models/feedback.dart';
 import 'package:deep_work/models/goal.dart';
 import 'package:deep_work/models/live_users.dart';
 import 'package:deep_work/models/timer_result.dart';
@@ -83,6 +84,17 @@ class FirestoreRepo {
         .collection('goals')
         .doc(goal.id.toString())
         .set(goal.toJson(), SetOptions(merge: true));
+  }
+
+  void postFeedback(FeedbackEntry feedback) {
+    feedback = FeedbackEntry(
+      uid: uid!,
+      message: feedback.message,
+      email: feedback.email,
+      createdAt: feedback.createdAt,
+    );
+
+    _firestore.collection('feedback').add(feedback.toJson());
   }
 
   // Live user methods

@@ -47,6 +47,8 @@
   - Fields: `uid`, `isActive`, `geohash` (4-char).
 - `timeGoals` collection
   - Document ID = `uid`; fields include `daily`, `weekly`, `monthly`, `yearly`.
+- `feedback` collection
+  - Fields: `uid`, `message`, `email` (optional), `createdAt`.
 - `goals` collection
   - Used for ToDo/goal tracking (currently partially implemented).
 

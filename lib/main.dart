@@ -11,6 +11,7 @@ import 'package:deep_work/reponsive_layout.dart';
 import 'package:deep_work/timer_done_page.dart';
 import 'package:deep_work/timer_page.dart';
 import 'package:deep_work/widgets/charts_page.dart';
+import 'package:deep_work/widgets/feedback_page.dart';
 import 'package:deep_work/widgets/profile.dart';
 import 'package:deep_work/widgets/settings_page.dart';
 import 'package:deep_work/widgets/timeGoalsPage.dart';
@@ -174,6 +175,7 @@ class MyApp extends StatelessWidget {
                     '/timeGoalsPageMonthly': (context) =>
                         TimeGoalsPage(goalType: 'monthly'),
                     '/worldMapPage': (context) => WorldMapPage(),
+                    '/feedback': (context) => const FeedbackPage(),
                   },
                   initialRoute: BlocProvider.of<AuthBloc>(context).state
                           is Authenticated // uncomment this line to enable sign in
