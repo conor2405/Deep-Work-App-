@@ -50,7 +50,21 @@ class FirebaseAuthRepo {
     }
   }
 
+  Future<User?> signInAnonymously() async {
+    try {
+      UserCredential userCredential =
+          await _firebaseAuth.signInAnonymously();
+      return userCredential.user;
+    } catch (e) {
+      // Handle anonymous sign in error
+      print('Anonymous sign in error: $e');
+      return null;
+    }
+  }
+
   User? get currentUser => _firebaseAuth.currentUser;
 
   bool get isSignedIn => _firebaseAuth.currentUser != null;
+
+  bool get isAnonymous => _firebaseAuth.currentUser?.isAnonymous ?? false;
 }

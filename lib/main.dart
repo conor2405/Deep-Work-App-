@@ -26,7 +26,6 @@ import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'utility/constants/firebase_options.dart';
 
-import 'package:firebase_ui_auth/firebase_ui_auth.dart' as ui;
 
 // firebase analytics
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -149,19 +148,6 @@ class MyApp extends StatelessWidget {
                     '/': (context) => ResponsiveLayout(
                         mobileLayout: MyHomePage(),
                         desktopLayout: MyHomePage()),
-                    '/sign-in': (context) {
-                      return ui.SignInScreen(
-                        providers: [ui.EmailAuthProvider()],
-                        actions: [
-                          ui.AuthStateChangeAction<ui.SignedIn>(
-                              (context, state) {
-                            BlocProvider.of<AuthBloc>(context)
-                                .add(AuthInit()); // reload the app
-                            Navigator.pushReplacementNamed(context, '/');
-                          }),
-                        ],
-                      );
-                    },
                     '/profile': (context) => ProfileWidget(),
                     '/charts': (context) => ChartsPage(),
                     '/settings': (context) => SettingsPage(),
@@ -175,10 +161,7 @@ class MyApp extends StatelessWidget {
                         TimeGoalsPage(goalType: 'monthly'),
                     '/worldMapPage': (context) => WorldMapPage(),
                   },
-                  initialRoute: BlocProvider.of<AuthBloc>(context).state
-                          is Authenticated // uncomment this line to enable sign in
-                      ? '/'
-                      : '/sign-in',
+                  initialRoute: '/',
                 );
               },
             );

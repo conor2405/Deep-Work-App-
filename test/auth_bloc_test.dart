@@ -64,10 +64,14 @@ void main() {
       build: () {
         when(() => authRepo.isSignedIn).thenReturn(false);
         when(() => authRepo.currentUser).thenReturn(null);
+        when(() => authRepo.signInAnonymously())
+            .thenAnswer((_) async => mockUser);
         return AuthBloc(authRepo);
       },
       act: (bloc) => authController.add(null),
-      expect: () => [isA<Unauthenticated>()],
+      expect: () => [
+        isA<Authenticated>().having((state) => state.user, 'user', mockUser),
+      ],
     );
   });
 }
