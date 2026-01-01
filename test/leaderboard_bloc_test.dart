@@ -14,6 +14,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 
 class MockFirestoreRepo extends Mock implements FirestoreRepo {
+  MockFirestoreRepo({required this.sessionDate});
+
+  final DateTime sessionDate;
+
   // this class should return a list of TimerResult objects when getSessions is called
   @override
   Future<List<TimerResult>> getSessions() async {
@@ -24,11 +28,8 @@ class MockFirestoreRepo extends Mock implements FirestoreRepo {
         timeLeft: TimeModel(0),
         timeRun: 90 * 60,
         timeElapsed: 90 * 60,
-        startTime: DateTime.now().subtract(Duration(
-            days:
-                8)), // picking a date that is this month but not this week most of the time
-        timeFinished:
-            DateTime.now().subtract(Duration(days: 7, hours: 22, minutes: 30)),
+        startTime: sessionDate,
+        timeFinished: sessionDate.add(const Duration(minutes: 90)),
         sessionEfficiency: 1,
       ),
     ];
@@ -40,16 +41,21 @@ class MockFirestoreRepo extends Mock implements FirestoreRepo {
   }
 }
 
+const referenceDate = DateTime(2024, 6, 15);
+final sessionDate = DateTime(2024, 6, 1, 9);
+
 void main() {
   group('LeaderboardBloc', () {
-    MockFirestoreRepo firestoreRepo = MockFirestoreRepo();
+    MockFirestoreRepo firestoreRepo =
+        MockFirestoreRepo(sessionDate: sessionDate);
     setUp(() {
-      firestoreRepo = MockFirestoreRepo();
-      TimerBloc timerBloc = TimerBloc(firestoreRepo);
+      firestoreRepo = MockFirestoreRepo(sessionDate: sessionDate);
     });
     blocTest('Emits [LeaderboardLoading] when built the loaded ',
         build: () => LeaderboardBloc(
-            firestoreRepo: firestoreRepo, timerBloc: TimerBloc(firestoreRepo)),
+            firestoreRepo: firestoreRepo,
+            timerBloc: TimerBloc(firestoreRepo),
+            referenceDate: referenceDate),
         act: (bloc) => bloc.add(LeaderboardInit()),
         //wait: const Duration(seconds: 4),
         expect: () => [isA<LeaderboardLoading>(), isA<LeaderboardLoaded>()]);
@@ -57,8 +63,9 @@ void main() {
 
   blocTest('emits correct weekly and monthly values',
       build: () => LeaderboardBloc(
-          firestoreRepo: MockFirestoreRepo(),
-          timerBloc: TimerBloc(MockFirestoreRepo())),
+          firestoreRepo: MockFirestoreRepo(sessionDate: sessionDate),
+          timerBloc: TimerBloc(MockFirestoreRepo(sessionDate: sessionDate)),
+          referenceDate: referenceDate),
       act: (bloc) {
         bloc.add(LeaderboardInit());
       },

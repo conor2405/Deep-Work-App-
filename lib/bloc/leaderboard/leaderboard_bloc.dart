@@ -22,6 +22,7 @@ part 'leaderboard_state.dart';
 /// appropriate data models.
 class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   FirestoreRepo firestoreRepo;
+  final DateTime referenceDate;
 
   // Stream listener to the state of the timer bloc
   late StreamSubscription<TimerState> _timerBlocSubscription;
@@ -44,12 +45,11 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
   late MonthlyScoreboard monthlySessions;
   bool _hasLoaded = false;
   // todays date at 00:00:00
-  DateTime today =
-      DateTime.now().copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+  late DateTime today;
   // the dates from mon - sun of the selected week
   List<DateTime> dates = [];
 
-  DateTime selectedDate = DateTime.now();
+  late DateTime selectedDate;
 
   // listens to the timer bloc in order to get selected time for red section of the day bar.
   void _listenToTimerBloc() {
@@ -77,8 +77,15 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
     });
   }
 
-  LeaderboardBloc({required this.firestoreRepo, required this.timerBloc})
-      : super(LeaderboardLoading()) {
+  LeaderboardBloc(
+      {required this.firestoreRepo,
+      required this.timerBloc,
+      DateTime? referenceDate})
+      : referenceDate = referenceDate ?? DateTime.now(),
+        super(LeaderboardLoading()) {
+    today = this.referenceDate
+        .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+    selectedDate = today;
     _listenToTimerBloc();
 
     on<LeaderboardInit>((event, emit) async {
@@ -92,13 +99,25 @@ class LeaderboardBloc extends Bloc<LeaderboardEvent, LeaderboardState> {
       sessions = await firestoreRepo.getSessions();
       timeGoals = await firestoreRepo.getTimeGoals();
 
-      weeklyScoreboard = WeeklyScoreboard.thisWeekFromTimerResult(sessions);
+      weeklyScoreboard = WeeklyScoreboard.thisWeekFromTimerResult(
+        sessions,
+        referenceDate: referenceDate,
+      );
 
-      monthlyScoreboard = MonthlyScoreboard.fromTimerResult(sessions);
+      monthlyScoreboard = MonthlyScoreboard.fromTimerResult(
+        sessions,
+        referenceDate: referenceDate,
+      );
 
-      todaysSessions = TodaysSessions.fromTimerResultToday(sessions);
+      todaysSessions = TodaysSessions.fromTimerResultToday(
+        sessions,
+        referenceDate: referenceDate,
+      );
 
-      LastWeekScoreboard = WeeklyScoreboard.lastWeekFromTimerResult(sessions);
+      LastWeekScoreboard = WeeklyScoreboard.lastWeekFromTimerResult(
+        sessions,
+        referenceDate: referenceDate,
+      );
 
       dates = datesForWeek(today);
 
