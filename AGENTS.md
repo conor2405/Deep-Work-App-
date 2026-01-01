@@ -119,9 +119,20 @@ Use the following commands when developing, testing, or fixing issues:
 Always verify that all tests are passing, that web builds successfully.
 use flutter run to run the app and get a screenshot of any UI changes. 
 
+Allow up to 5 minutes for flutter build & flutter run to execute, they can take time. 
+
+
+
 ```bash
 flutter pub get
 flutter analyze
 flutter test
 flutter build web
 flutter run
+```
+
+## Web preview + screenshot (Codex cloud)
+Codex may run the app using the web-server device, but screenshots must be taken by launching a headless browser against the served URL **after the server is ready**.
+
+you can use the --dart-define= argument do go to a specific route if the route is listed in the routes dict in `main.dart`
+
