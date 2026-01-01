@@ -12,8 +12,9 @@ class Sidebar extends StatelessWidget {
           ? Colors.grey.shade800
           : Colors.grey.shade200,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          SizedBox(height: 24),
           IconButton(
             icon: Icon(Icons.access_time_filled_rounded),
             onPressed: () => Navigator.pushNamed(context, '/'),
@@ -36,9 +37,11 @@ class Sidebar extends StatelessWidget {
           IconButton(
               icon: Icon(Icons.settings),
               onPressed: () => Navigator.pushNamed(context, '/settings')),
-          SizedBox(height: 35),
-
-          // Add more icons here if needed
+          Spacer(),
+          IconButton(
+              icon: Icon(Icons.feedback_outlined),
+              onPressed: () => Navigator.pushNamed(context, '/feedback')),
+          SizedBox(height: 24),
         ],
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:deep_work/models/time.dart';
 import 'package:deep_work/models/timer_result.dart';
+import 'package:deep_work/models/feedback.dart';
 import 'package:deep_work/repo/firebase_auth_repo.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -59,6 +60,29 @@ void main() {
       repo.setLiveUserActive();
       doc = await firestore.collection('activeUsers').doc('user-1').get();
       expect(doc.data()?['isActive'], true);
+    });
+
+    test('postFeedback stores message with uid', () async {
+      final entry = FeedbackEntry(
+        uid: 'ignored',
+        message: 'Keep the map glow subtle.',
+        email: 'feedback@example.com',
+        createdAt: DateTime(2024, 1, 1),
+      );
+
+      repo.postFeedback(entry);
+
+      final snapshot = await firestore.collection('feedback').get();
+      expect(snapshot.docs, hasLength(1));
+      expect(snapshot.docs.first.data()['uid'], 'user-1');
+      expect(
+        snapshot.docs.first.data()['message'],
+        'Keep the map glow subtle.',
+      );
+      expect(
+        snapshot.docs.first.data()['email'],
+        'feedback@example.com',
+      );
     });
   });
 }
