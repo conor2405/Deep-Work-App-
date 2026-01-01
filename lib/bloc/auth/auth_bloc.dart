@@ -1,4 +1,3 @@
-import 'package:bloc/bloc.dart';
 import 'package:deep_work/repo/firebase_auth_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
@@ -15,9 +14,12 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     });
 
     on<AuthInit>((event, emit) async {
-      firebaseAuthRepo.isSignedIn
-          ? emit(Authenticated(firebaseAuthRepo.currentUser))
-          : emit(Unauthenticated());
+      if (firebaseAuthRepo.isSignedIn) {
+        emit(Authenticated(firebaseAuthRepo.currentUser));
+        return;
+      }
+      final user = await firebaseAuthRepo.signInAnonymously();
+      user != null ? emit(Authenticated(user)) : emit(Unauthenticated());
     });
 
     on<AuthEvent>((event, emit) {
@@ -25,7 +27,8 @@ class AuthBloc extends HydratedBloc<AuthEvent, AuthState> {
     });
 
     on<SignedOut>((event, emit) async {
-      emit(Unauthenticated());
+      final user = await firebaseAuthRepo.signInAnonymously();
+      user != null ? emit(Authenticated(user)) : emit(Unauthenticated());
     });
   }
   @override
