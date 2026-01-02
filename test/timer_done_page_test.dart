@@ -127,6 +127,34 @@ void main() {
     expect(find.byType(TextField), findsNothing);
   });
 
+  testWidgets('shows session summary stats', (tester) async {
+    final timerBloc = MockTimerBloc();
+    final settingsBloc = MockSettingsBloc();
+    final leaderboardBloc = MockLeaderboardBloc();
+    final stats = TimerStats(targetTime: TimeModel(600))
+      ..timeRun = 1200
+      ..breakTime = 300;
+
+    when(() => timerBloc.state).thenReturn(TimerDone(stats));
+    when(() => settingsBloc.state).thenReturn(SettingsInitial(showNotes: false));
+    when(() => leaderboardBloc.state).thenReturn(LeaderboardLoading());
+
+    await tester.pumpWidget(buildSubject(
+      timerBloc: timerBloc,
+      settingsBloc: settingsBloc,
+      leaderboardBloc: leaderboardBloc,
+    ));
+
+    expect(find.text('Session timeline'), findsOneWidget);
+    expect(find.text('Focus time'), findsOneWidget);
+    expect(find.text('Break time'), findsOneWidget);
+    expect(find.text('Started at'), findsOneWidget);
+    final timelineSize = tester.getSize(
+      find.byKey(const ValueKey('sessionTimelineBar')),
+    );
+    expect(timelineSize.width, greaterThan(200));
+  });
+
   testWidgets('submits reflection before confirming', (tester) async {
     final timerBloc = MockTimerBloc();
     final settingsBloc = MockSettingsBloc();
