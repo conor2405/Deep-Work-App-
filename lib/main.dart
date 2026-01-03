@@ -5,6 +5,8 @@ import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:deep_work/bloc/settings/settings_bloc.dart';
 import 'package:deep_work/bloc/timer/timer_bloc.dart';
 import 'package:deep_work/homepage.dart';
+import 'package:deep_work/models/time.dart';
+import 'package:deep_work/models/timer_result.dart';
 import 'package:deep_work/repo/firebase_auth_repo.dart';
 import 'package:deep_work/repo/firestore_repo.dart';
 import 'package:deep_work/reponsive_layout.dart';
@@ -13,6 +15,7 @@ import 'package:deep_work/timer_page.dart';
 import 'package:deep_work/widgets/charts_page.dart';
 import 'package:deep_work/widgets/feedback_page.dart';
 import 'package:deep_work/widgets/profile.dart';
+import 'package:deep_work/widgets/session_detail_page.dart';
 import 'package:deep_work/widgets/settings_page.dart';
 import 'package:deep_work/widgets/timeGoalsPage.dart';
 import 'package:deep_work/widgets/world_map_page.dart';
@@ -162,6 +165,38 @@ class MyApp extends StatelessWidget {
                         TimeGoalsPage(goalType: 'monthly'),
                     '/worldMapPage': (context) => WorldMapPage(),
                     '/feedback': (context) => const FeedbackPage(),
+                    if (kDebugMode)
+                      '/debug/session-detail': (context) {
+                        final startTime = DateTime.now()
+                            .subtract(const Duration(minutes: 32));
+                        return SessionDetailPage(
+                          session: TimerResult(
+                            timeLeft: TimeModel.zero(),
+                            targetTime: TimeModel(1800),
+                            completed: true,
+                            timeRun: 1500,
+                            breakTime: 180,
+                            timeElapsed: 1680,
+                            startTime: startTime,
+                            timeFinished:
+                                startTime.add(const Duration(minutes: 28)),
+                            breakEvents: [
+                              BreakPeriod(
+                                startTime: startTime
+                                    .add(const Duration(minutes: 10)),
+                                endTime: startTime
+                                    .add(const Duration(minutes: 14)),
+                              ),
+                            ],
+                            sessionEfficiency: 0.9,
+                            notes: const [
+                              'Finished the project outline.',
+                              'Reviewed the milestone checklist.',
+                            ],
+                            focusRating: 4,
+                          ),
+                        );
+                      },
                   },
                   initialRoute: '/',
                 );

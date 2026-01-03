@@ -2,7 +2,8 @@ import 'package:deep_work/bloc/leaderboard/leaderboard_bloc.dart';
 import 'package:deep_work/widgets/day_bar.dart';
 import 'package:deep_work/widgets/day_selector.dart';
 import 'package:deep_work/widgets/graphic_weekly_chart.dart';
-import 'package:deep_work/widgets/notes_list.dart';
+import 'package:deep_work/widgets/session_detail_page.dart';
+import 'package:deep_work/widgets/session_summary_card.dart';
 import 'package:deep_work/widgets/sidebar.dart';
 import 'package:deep_work/widgets/timegoals.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,7 @@ class _ChartsPageState extends State<ChartsPage> {
                 ),
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                  sliver: SliverToBoxAdapter(child: WidgetForNotesList()),
+                  sliver: SliverToBoxAdapter(child: _SessionSummaryList()),
                 ),
               ],
             );
@@ -110,6 +111,56 @@ class _ChartsPageState extends State<ChartsPage> {
           },
         ),
       ),
+    );
+  }
+}
+
+class _SessionSummaryList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LeaderboardBloc, LeaderboardState>(
+      builder: (context, state) {
+        if (state is! LeaderboardLoaded) {
+          return const SizedBox.shrink();
+        }
+
+        final sessions = state.dailySessions.sessions;
+        if (sessions.isEmpty) {
+          return Text(
+            'No sessions for this day yet.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w300,
+                ),
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Session summaries',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            for (final session in sessions) ...[
+              SessionSummaryCard.fromTimerResult(
+                timeResult: session,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => SessionDetailPage(session: session),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+          ],
+        );
+      },
     );
   }
 }
